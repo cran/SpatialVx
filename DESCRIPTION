@@ -1,0 +1,18 @@
+Package: SpatialVx
+Version: 0.1-0
+Date: 2011-12-09
+Title: Spatial Forecast Verification
+Author: Eric Gilleland <EricG@ucar.edu>
+Maintainer: Eric Gilleland <EricG@ucar.edu>
+Depends: R (>= 2.10.0), fields
+Suggests: maps
+Description: Functions to perform most of the spatial forecast verification
+	methods carried out in the Spatial Forecast Verification Inter-Comparison
+	Project (ICP), and a few others.  This first version only has the neighborhood
+	methods, but the next version will have many more.
+License: GPL (>= 2)
+URL: http://www.ral.ucar.edu/projects/icp
+BugReports: http://www.ral.ucar.edu/projects/icp/SpatialVx
+Packaged: 2011-11-18 15:03:35 UTC; ericg
+Repository: CRAN
+Date/Publication: 2011-11-19 06:46:25
