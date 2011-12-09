@@ -45,8 +45,10 @@ locmeasures2d <- function( object, which.stats=c("baddeley", "hausdorff", "ph", 
    for( threshold in 1:q) {
 	Ix <- solutionset(x.id>=thresholds[threshold,2])
 	Iy <- solutionset(y.id>=thresholds[threshold,1])
-	if( "baddeley" %in% which.stats) for( p in 1:np)
-			out$baddeley[p, threshold] <- deltametric(Iy,Ix,p=object$p[p], c=object$bdconst, ...)
+	if( "baddeley" %in% which.stats) for( p in 1:np) { 
+			tmpDelta <- try(deltametric(Iy,Ix,p=object$p[p], c=object$bdconst, ...))
+			if(class(tmpDelta) != "try-error") out$baddeley[p, threshold] <- tmpDelta
+			} # end of for 'p' loop.
 	if( "hausdorff" %in% which.stats) out$hausdorff[threshold] <- deltametric(Iy,Ix,p=Inf,c=Inf, ...)
 	if( "ph" %in% which.stats) for( k in 1:nk) out$ph[k,threshold] <- locperf(X=Ix, Y=Iy, which.stats="ph", k=object$k[k],
 												distfun=distfun, distfun.params)$ph

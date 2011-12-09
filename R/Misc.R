@@ -23,3 +23,19 @@ GeoBoxPlot <- function(x, areas, ...) {
    out <- bxp(out, ...)
    invisible( out)
 }
+
+KernelGradFUN <- function(x,ktype="LoG", nx=10, ny=12, sigma=1) return(kernel2dsmooth(x,kernel.type=ktype, nx=nx, ny=ny, sigma=sigma))
+
+S1 <- function(X,Y,gradFUN="KernelGradFUN", ...) {
+   Xgrad <- do.call(gradFUN, c(list(X),list(...)))
+   Ygrad <- do.call(gradFUN, c(list(Y),list(...)))
+   denom <- sum(colSums(pmax(abs(Xgrad),abs(Ygrad),na.rm=TRUE),na.rm=TRUE),na.rm=TRUE)
+   numer <- sum(colSums(abs(Ygrad - Xgrad),na.rm=TRUE),na.rm=TRUE)
+   return(100*numer/denom)
+}
+
+ACC <- function(X,Y,Xclim=NULL,Yclim=NULL) {
+   if(!is.null(Xclim)) X <- X - Xclim
+   if(!is.null(Yclim)) Y <- Y - Yclim
+   return(cor(c(X),c(Y)))
+}
