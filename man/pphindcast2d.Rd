@@ -53,7 +53,7 @@ Eric Gilleland
 \section{Warning }{The value Pthresh is optimized under the assumption that larger values of which.score are better.} 
 
 \seealso{
-\code{\link{hoods2d}}, \code{\link{kernel2d}}, \code{\link{vxstats}}, \code{\link{hoods2dPlot}}, \code{\link{optim}}
+\code{\link{hoods2d}}, \code{\link{kernel2dsmooth}}, \code{\link{vxstats}}, \code{\link{hoods2dPlot}}, \code{\link{optim}}
 }
 \examples{
 x <- y <- matrix( 0, 50, 50)

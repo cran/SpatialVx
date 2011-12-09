@@ -14,7 +14,7 @@ fuzzyjoint2dfun(sPy, sPx, subset = NULL)
 MinCvg2dfun(sIy, sIx, subset = NULL)
 multicon2dfun(sIy, Ix, subset = NULL)
 pragmatic2dfun(sPy, Ix, mIx = NULL, subset = NULL)
-upscale2dfun(sYy, sYx, threshold = NULL, subset = NULL)
+upscale2dfun(sYy, sYx, threshold = NULL, which.stats = c("rmse", "bias", "ts", "ets"), subset = NULL)
 }
 \arguments{
   \item{sPy}{n X m matrix giving a smoothed binary forecast field.}
@@ -26,6 +26,7 @@ upscale2dfun(sYy, sYx, threshold = NULL, subset = NULL)
   \item{sYy}{n X m matrix giving a smoothed forecast field.}
   \item{sYx}{n X m matrix giving a smoothed observed field.}
   \item{threshold}{(optional) numeric vector of length 2 giving the threshold over which to calculate the verification statistics: bias, ts and ets.  If NULL, only the rmse will be calculated.}
+  \item{which.stats}{character vector naming which statistic(s) should be caluclated for \code{upscale2dfun}.}
   \item{subset}{(optional) numeric indicating over which points the summary scores should be calculated.  If NULL, all of the points are used.}
   \item{verbose}{logical, should progress information be printed to the screen?}
 }
@@ -55,13 +56,13 @@ Gilleland, E., D.A. Ahijevych, B.G. Brown and E.E. Ebert, 2010: Verifying Foreca
 
 Roberts, N. M. and H. W. Lean, 2008: Scale-selective verification of rainfall accumulations from high-resolution forecasts of convective events.  \emph{Mon. Wea. Rev.}, \bold{136}, 78--97. DOI: 10.1175/2007MWR2123.1.}
 \author{Eric Gilleland}
-\seealso{\code{\link{hoods2d}},\code{\link{kernel2d}},\code{\link{vxstats}}}
+\seealso{\code{\link{hoods2d}},\code{\link{kernel2dsmooth}},\code{\link{vxstats}}}
 \examples{
 x <- y <- matrix( 0, 100, 100)
 x[ sample(1:100, 10), sample(1:100, 10)] <- 1
 y[ sample(1:100, 20), sample(1:100, 20)] <- 1
-Px <- kernel2d( x, 9, xdim=c(100, 100))
-Py <- kernel2d( y, 9, xdim=c(100, 100))
+Px <- kernel2dsmooth( x, kernel.type="boxcar", n=9, xdim=c(100, 100))
+Py <- kernel2dsmooth( y, kernel.type="boxcar", n=9, xdim=c(100, 100))
 par( mfrow=c(2,2))
 image( x, col=c("grey", "darkblue"), main="Simulated Observed Events")
 image( y, col=c("grey", "darkblue"), main="Simulated Forecast Events")
@@ -75,16 +76,16 @@ data(pert000)
 fbin <- obin <- matrix(0, 601, 501)
 fbin[ pert004 >= 12] <- 1
 obin[ pert000 >= 12] <- 1
-Pf <- kernel2d( fbin, 33, xdim=c(601, 501))
-Po <- kernel2d( obin, 33, xdim=c(601, 501))
+Pf <- kernel2dsmooth( fbin, kernel.type="boxcar", n=33, xdim=c(601, 501))
+Po <- kernel2dsmooth( obin, kernel.type="boxcar", n=33, xdim=c(601, 501))
 fss2dfun(Pf, Po)
 fuzzyjoint2dfun(Pf, Po)
 Pe <- 1/(33^2) # At least one event in the neighborhood.
 MinCvg2dfun(Pf >= Pe, Po >= Pe)
 multicon2dfun(Pf >= Pe, obin)
 pragmatic2dfun(Pf, obin, mIx=mean( obin, na.rm=TRUE))
-Sf <- kernel2d( pert004, 33, xdim=c(601, 501))
-So <- kernel2d( pert000, 33, xdim=c(601, 501))
+Sf <- kernel2dsmooth( pert004, kernel.type="boxcar", n=33, xdim=c(601, 501))
+So <- kernel2dsmooth( pert000, kernel.type="boxcar", n=33, xdim=c(601, 501))
 upscale2dfun( Sf, So, threshold=12)
 }
 }

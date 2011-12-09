@@ -37,7 +37,7 @@ The possible statistics that can be computed, as determined by 'which.stats' are
 
 "f" false alarm rate (aka probability of false detection) is given by (false alarms)/(correct rejections + false alarms).
 
-"hk" Hansen-Kuipers Score is given by the difference between the hit rate ("pod") and the false alarm rate ("f").
+"hk" Hanssen-Kuipers Score is given by the difference between the hit rate ("pod") and the false alarm rate ("f").
 
  "mse" mean square error (not a contingency table statistic, but can be used with binary fields).  This is the only statistic that can be calculated here that does not require binary fields for 'Fcst' and 'Obs'.
 }

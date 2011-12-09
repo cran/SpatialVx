@@ -8,7 +8,7 @@ Calculate various neighborhood verification statistics for a gridded verificatio
 Calculates most of the various neighborhood verification statistics for a gridded verification set as reviewed in Ebert (2008).
 }
 \usage{
-hoods2d(obj, which.methods = c("upscaling", "mincvr", "multi.event", "fuzzy", "joint", "fss", "pragmatic"), verbose = FALSE)
+hoods2d(obj, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "fss", "pragmatic"), verbose = FALSE)
 \method{plot}{hoods2d}(x, ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -28,7 +28,6 @@ If zero-padding is undesirable, then two options are available:  1. Give a subse
 To simplify the notation for the descriptions of the specific methods employed here, the notation of Ebert (2008) is adopted.  That is, if a method uses neighborhood smoothed observations (NO), then the neighborhood smoothed observed field is denoted <X>s, and the associated binary field, by <Ix>s.  Otherwise, if the observation field is not smoothed (denoted by SO in Ebert, 2008), then simply X or Ix are used.  Similarly, for the forecast field, <Y>s or <Iy>s are used for neighborhood smoothed forecast fields (NF).  If it is the binary fields that are smoothed (e.g., the original fields are thresholded before smoothing), then the resulting fields are denoted <Px>s and <Py>s, resp.  Below, NO-NF indicates that a neighborhood smoothed observed field (<Yx>s, <Ix>s, or <Px>s) is compared with a neighborhood smoothed forecast field, and SO-NF indicates that the observed field is not smoothed.
 
 Options for 'which.methods' include:
-"upscaling": (NO-NF) the rmse is calculated between <X>s and <Y>s, and indicator fields <Ix>s and <Iy>s are created using the thresholds supplied by the argument 'obj' applied to <X>s and <Y>s.  Bias, threat score (ts) and equitable threat score (ets, which is also known as Gilbert Skill Score, GSS) are calculated on <Ix>s and <Iy>s (cf. Zepeda-Arce et al., 2000; Yates et al., 2006).
 
 "mincvr": (NO-NF) The minimum coverage method compares <Ix>s and <Iy>s by thresholding the neighborhood smoothed fields <Px>s and <Py>s (i.e., smoothed versions of Ix and Iy) to obtain <Ix>s and <Iy>s.  Indicator fields <Ix>s and <Iy>s are created by thresholding <Px>s and <Py>s by frequency threshold \code{Pe} given by the \code{obj} argument.  Scores calculated between <Ix>s and <Iy>s include: probability of detecting an event (pod, also known as the hit rate), false alarm ratio (far) and ets (cf. Ebert, 2008, 2009).
 
@@ -45,7 +44,6 @@ Options for 'which.methods' include:
 }
 \value{
  A list object of class "hoods2d" with components determined by the \code{which.methods} argument.  Each component is itself a list object containing relevant components to the given method.  For example, hit rate is abbreviated pod here, and if this is an output for a method, then there will be a component named pod (all lower case).  The Gilbert Skill Score is abbreviated 'ets' (equitable threat score; again all lower case here).  The list components will be some or all of the following.
-    \item{upscaling }{list with components: rmse, bias, ts and ets}
     \item{mincvr }{list with components: pod, far and ets}
     \item{multi.event }{list with components: pod, f and hk}
     \item{fuzzy}{list with components: pod, far and ets}
@@ -79,7 +77,7 @@ Eric Gilleland
 }
 \note{Thresholded fields are taken to be >= the threshold.}
 
-\seealso{\code{\link{fft}}, \code{\link{kernel2d}}, \code{\link{plot.hoods2d}}, \code{\link{vxstats}} }
+\seealso{\code{\link{fft}}, \code{\link{kernel2dsmooth}}, \code{\link{plot.hoods2d}}, \code{\link{vxstats}} }
 
 \examples{
 x <- y <- matrix( 0, 50, 50)
@@ -88,9 +86,9 @@ y[ sample(1:50,20), sample(1:50,20)] <- rexp( 400)
 hold <- hoods2dPrep("y", "x", thresholds=c(0.1, 0.5), levels=c(1, 3, 20))
 look <- hoods2d( hold, which.methods=c("multi.event", "fss"))
 look
-\dontrun{plot( look)}
-
 \dontrun{
+plot(look)
+
 data(geom001)
 data(geom000)
 data(ICPg240Locs)
