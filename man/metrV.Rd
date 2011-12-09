@@ -10,7 +10,7 @@ Binary Location Metric Proposed in Zhu et al. (2011)
 Calculate the metric metrV proposed in Zhu et al (2011), which is a linear combination
 of the square root of the sum of squared error between two binary fields, and the
 mean error distance (Peli and Malah, 1982); or the difference in mean error distances
-between two forecast fields and the verificaiton field, if the comparison is performed
+between two forecast fields and the verification field, if the comparison is performed
 between two forecast models against the same verification field.
 }
 \usage{
@@ -62,7 +62,7 @@ Note that if there are no events in both fields, then by definition, the term di
 
 If comparing between the verification field and one forecast model, then the distDV term simplifies to just distob(I.V,I.M1).
 
-One final note is that Eq (6) that defines \code{distOV} in Zhu et al. (2011) is correct (or rather, what is used in the paper).  It is not, as is stated below Eq (6) in Zhu et al. (2011) the root *mean* square error, but rather the root square error.  This is function computes Eq (6) as written.
+One final note is that Eq (6) that defines \code{distOV} in Zhu et al. (2011) is correct (or rather, what is used in the paper).  It is not, as is stated below Eq (6) in Zhu et al. (2011) the root *mean* square error, but rather the root square error.  This function computes Eq (6) as written.
 }
 \value{
 list object of class \dQuote{metrV} with components:

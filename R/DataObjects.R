@@ -500,9 +500,9 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
     invisible()
 } # end of 'plot.SpatialVx' function.
 
-datagrabber <- function(x, ...) {
-    UseMethod("datagrabber", x)
-} # end of 'datagrabber' function.
+# datagrabber <- function(x, ...) {
+#     UseMethod("datagrabber", x)
+# } # end of 'datagrabber' function.
 
 datagrabber.SpatialVx <- function(x, ..., time.point=1, model=1) {
 

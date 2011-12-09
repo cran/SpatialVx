@@ -37,7 +37,7 @@ disjointer(x, method = "C")
 }
 \arguments{
   \item{object}{
-\code{convthresh}: list object of class \dQuote{SpatialVx}.
+\code{convthresh}, \code{threshfac} and \code{threshsizer}: list object of class \dQuote{SpatialVx}.
 
 \code{summary}: an object of class \dQuote{features} (e.g., as returned by \code{convthresh} or \code{threshfac}).
 }

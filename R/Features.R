@@ -531,6 +531,8 @@ threshfac <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL
     out <- list()
     attributes(out) <- a
 
+    out$X <- X
+    out$Xhat <- Y
     out$X.feats <- X.feats
     out$Y.feats <- Y.feats
     out$X.labeled <- Xlab
@@ -542,12 +544,17 @@ threshfac <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL
     attr(out, "model") <- model
 
     if(length(a$data.name) == a$nforecast + 2) {
+
         dn <- a$data.name[-(1:2)]
         vxname <- a$data.name[1:2]
+
     } else {
+
         dn <- a$data.name[-1]
         vxname <- a$data.name[1]
+
     }
+
     if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
     else model.num <- model
 
@@ -558,13 +565,12 @@ threshfac <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL
 
 } # end of 'threshfac' function.
 
-saller <- function(x, d=NULL, time.point=1, model=1, distfun = "rdist", ...) {
+saller <- function(x, d=NULL, distfun = "rdist", ...) {
 
     out <- list()
     a <- attributes(x)
     if(!is.null(a$names)) a$names <- NULL
     attributes(out) <- a
-    xdim <- a$xdim 
 
     tmp <- x
 
@@ -576,15 +582,11 @@ saller <- function(x, d=NULL, time.point=1, model=1, distfun = "rdist", ...) {
     binY <- im(tmp$Y.labeled)
     binY <- solutionset(binY > 0)
 
-    ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(tmp, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(tmp, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(tmp, model=model)
-    else dat <- datagrabber(tmp)
+    # The verification set (images).
+    X <- tmp$X
+    Y <- tmp$Xhat
 
-    X <- dat$X
-    Y <- dat$Xhat
-    ## End: Get the data sets
+    xdim <- dim(X)
 
     # Amplitude
     DomRmod <- mean(Y,na.rm=TRUE)
@@ -593,7 +595,7 @@ saller <- function(x, d=NULL, time.point=1, model=1, distfun = "rdist", ...) {
     out$A <- A
 
     # Location
-    if(is.null(d)) d <- max(a$xdim, na.rm=TRUE)
+    if(is.null(d)) d <- max(xdim, na.rm=TRUE)
     num <- centdist(binY,binX, distfun = distfun, loc = a$loc, ...)
     L1 <- num/d
     intRamt <- function(id,x) return(sum(x[id$m],na.rm=TRUE))
@@ -606,6 +608,8 @@ saller <- function(x, d=NULL, time.point=1, model=1, distfun = "rdist", ...) {
     rmod <- sum( RnMod*xRmodN, na.rm=TRUE)/RmodSum
     robs <- sum( RnObs*xRobsN, na.rm=TRUE)/RobsSum
     L2 <- 2*abs(rmod - robs)/d
+    out$L1 <- L1
+    out$L2 <- L2
     out$L <- L1 + L2
 
     # Structure
@@ -617,21 +621,6 @@ saller <- function(x, d=NULL, time.point=1, model=1, distfun = "rdist", ...) {
     Vmod <- sum(RnMod*VmodN, na.rm=TRUE)/RmodSum
     Vobs <- sum(RnObs*VobsN, na.rm=TRUE)/RobsSum
     out$S <- 2*(Vmod - Vobs)/(Vmod + Vobs)
-
-    attr(out, "time.point") <- time.point
-    attr(out, "model") <- model
-
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[1:2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
- 
-    attr(out, "data.name") <- c(vxname, dn[model.num])
 
     class(out) <- "saller"
     return(out)
@@ -1238,22 +1227,26 @@ FeatureProps <- function(x, Im = NULL, which.props = c("centroid", "area", "axis
 
     if(is.element("centroid", which.props)) {
 
-	if(is.null(loc)) {
+        if(is.null(loc)) {
 
-	    xd <- dim(x$m)
-	    loc <- cbind(rep(1:xd[1], xd[2]), rep(1:xd[2], each = xd[1]))
+            xd <- dim(x$m)
+            loc <- cbind(rep(1:xd[1], xd[2]), rep(1:xd[2], each = xd[1]))
 
- 	}
+        }
 
-	xcen <- mean(loc[c(x$m), 1], na.rm = TRUE)
-	ycen <- mean(loc[c(x$m), 2], na.rm = TRUE)
-	out$centroid <- list(x = xcen, y = ycen)
-	# out$centroid <- centroid.owin(x)
+        xcen <- mean(loc[c(x$m), 1], na.rm = TRUE)
+        ycen <- mean(loc[c(x$m), 2], na.rm = TRUE)
+        centroid <- list(x = xcen, y = ycen)
+        # out$centroid <- centroid.owin(x)
 
-    }
+        out$centroid <- centroid
+
+    } # end of if find centroid stmt.
 
     if(is.element("area", which.props)) out$area <- sum(colSums(x$m, na.rm=TRUE), na.rm=TRUE)*areafac
+
     if(is.element("axis", which.props)) out$axis <- FeatureAxis(x=x,fac=areafac, ...)
+
     if(is.element("intensity", which.props)) {
 
 	ivec <- matrix(NA, ncol=length(q), nrow=1)
@@ -1344,6 +1337,7 @@ FeatureComps <- function(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ra
    if(is.element("bdelta", which.comps)) out$bdelta <- deltametric(X,Y, p=p, c=c)
    if(is.element("haus", which.comps)) out$haus <- deltametric(X,Y,p=Inf,c=Inf)
 
+   class(out) <- "FeatureComps"
    return(out)
 
 } # end of 'FeatureComps' function.
@@ -1401,7 +1395,6 @@ FeatureAxis <- function(x, fac=1, flipit=FALSE, twixt=FALSE) {
 
 plot.FeatureAxis <- function(x, ...) {
    args <- list(...)
-   par(bg="beige")
    plot( x$z, col="darkblue", main="", ...)
    plot( x$chull, add=TRUE)
    plot( x$MajorAxis, add=TRUE, col="yellow", lwd=1.5)

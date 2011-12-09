@@ -9,7 +9,7 @@ Feature-based Analysis of a Field (Image)
 Feature-based analysis of a field (image) 
 }
 \usage{
-saller(x, d = NULL, time.point = 1, model = 1, distfun = "rdist", ...)
+saller(x, d = NULL, distfun = "rdist", ...)
 
 \method{print}{saller}(x, ...)
 
@@ -28,8 +28,6 @@ saller(x, d = NULL, time.point = 1, model = 1, distfun = "rdist", ...)
   \item{d}{
 (optional) the SAL (\code{saller}) method requires division by the longest distance between two border points.  If NULL, this is taken to be simply the length of the longest side.
 }
-    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-  \item{model}{numeric indicating which forecast model to select for the analysis.}
   \item{distfun}{Function with which to calculate centroid distances.  Default uses straight Euclidean.  To do great-circle distance, use \code{rdist.earth} and be sure that \code{object} has a loc attribute with lon/lat coordinates.}
 \item{\dots}{Optional arguments to \code{distfun}.  Not used by \code{print} or \code{summary}.}
 }
@@ -41,6 +39,7 @@ saller returns a list with components:
   \item{A }{numeric giving the amplitude component.}
   \item{L }{numeric giving the lcoation component.}
   \item{S}{numeric giving the structure component.}
+  \item{L1,L2}{numeric giving the values that sum together to give L.}
 
 print invisibly returns a named vector with S, A and L.
 

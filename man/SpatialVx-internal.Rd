@@ -26,6 +26,7 @@
 \alias{grads1}
 \alias{grads2}
 \alias{plot.saller}
+\alias{print.summary.interester}
 \title{
 Internal functions for the SpatialVx package
 }
