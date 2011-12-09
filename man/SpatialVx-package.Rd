@@ -13,13 +13,15 @@ Spatial Forecast Verification
 
 Primary functions include:
 
+0. \code{make.SpatialVx}: An object that contains the verification sets and pertinent information.
+
 1. Filter Methods:
 
-1a. Neighbordoohd Methods:
+1a. Neighborhood Methods:
 
 Neighborhood methods generally apply a convolution kernel smoother to one or both of the fields in the verificaiton set, and then apply the traditional scores.  Most of the methods reviewed in Ebert (2008, 2009) are included in this package.  The main functions are:
 
-\code{hoods2dPrep}, \code{hoods2d}, \code{pphindcast2d}, \code{kernel2dsmooth}, and \code{plot.hoods2d}.
+\code{hoods2d}, \code{pphindcast2d}, \code{kernel2dsmooth}, and \code{plot.hoods2d}.
 
 1b. Scale Separation Methods:
 
@@ -59,7 +61,7 @@ In Gilleland et al (2009), this category was broken into two main types as field
 
 Included here are the well-known Hausdorff metric, the partial-Hausdorff measure, FQI (Venugopal et al., 2005), Baddeley's delta metric (Baddeley, 1992; Gilleland, 2011; Schwedler et al., 2011), metrV (Zhu et al., 2011), as well as the localization performance measures described in Baddeley, 1992: mean error distance, mean square error distance, and Pratt's Figure of Merit (FOM).
 
-\code{locmeasures2dPrep}, \code{locmeasures2d}, \code{metrV}, \code{distob}, \code{locperf}
+\code{locmeasures2d}, \code{metrV}, \code{distob}, \code{locperf}
 
 2b. Field deformation:
 
@@ -73,14 +75,14 @@ A separate image warping pacakge is in the works, and functionality will be incl
 
 Currently, there is some functionality for performing the analyses introduced in Davis et al. (2006,2009), including the merge/match algorithm of Gilleland et al (2008), as well as the SAL technique of Wernli et al (2008, 2009).  In particular, see:
 
-\code{FeatureSuitePrep}, \code{FeatureFunPrep}, \code{FeatureSuite}, \code{FeatureMatchAnalyzer},
+\code{FeatureFunPrep}, \code{FeatureSuite}, \code{FeatureMatchAnalyzer},
 \code{saller}, \code{deltamm}, \code{convthresh}
 
 The cluster analysis methods of Marzban and Sandgathe (2006; 2008) have been added.  The former method was written from scratch by Eric Gilleland 
 
 \code{clusterer}
 
-and the latter variation was modified from code originally written by Hillary Lyons 
+and the latter variation was modified from code originally written by Hilary Lyons 
 
 \code{CSIsamples}.
 
@@ -96,7 +98,7 @@ In addition to the methods categorized in Gilleland et al. (2009), there are als
 
 \code{spatbiasFS}, \code{LocSig}, \code{MCdof}
 
-In addition, the mean loss differential approach of Hering and Genton (2011) is included via the function, \code{spatMLD}, including the loss functions: absolute error (\code{abserrloss}), square error (\code{sqerrloss}) and correlation skill (\code{corrskill}), as well as the distance map loss function (\code{distmaploss}) introduced in Gilleland (2012).
+In addition, the mean loss differential approach of Hering and Genton (2011) is included via the function, \code{spatMLD}, including the loss functions: absolute error (\code{abserrloss}), square error (\code{sqerrloss}) and correlation skill (\code{corrskill}), as well as the distance map loss function (\code{distmaploss}) introduced in Gilleland (2013).
 
 4. Other:
 
@@ -167,7 +169,7 @@ Ebert, E. E. (2009) Neighborhood verification: A strategy for rewarding close fo
 
 Elmore, K. L., Baldwin, M. E. and Schultz, D. M. (2006) Field significance revisited: Spatial bias errors in forecasts as applied to the Eta model.  \emph{Mon. Wea. Rev.}, \bold{134}, 519--531.
 
-Gilleland, E. (2012) Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  \emph{Mon. Wea. Rev.}, \bold{141}, (1), 340--355.
+Gilleland, E. (2013) Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  \emph{Mon. Wea. Rev.}, \bold{141}, (1), 340--355.
 
 Gilleland, E. (2011)  Spatial forecast verification: Baddeley's delta metric applied to the ICP test cases.  \emph{Wea. Forecasting}, \bold{26}, 409--415, doi:10.1175/WAF-D-10-05061.1.
 

@@ -1,6 +1,5 @@
 \name{FeatureAxis}
 \alias{FeatureAxis}
-\alias{FeatureProps}
 \alias{plot.FeatureAxis}
 \alias{summary.FeatureAxis}
 \title{
@@ -16,26 +15,22 @@ FeatureAxis(x, fac = 1, flipit = FALSE, twixt = FALSE)
 
 \method{summary}{FeatureAxis}(object, ...)
 
-FeatureProps(x, Im = NULL, which.props=c("centroid", "area", "axis", "intensity"),
-            areafac=1, q = c(0.25, 0.9), ...)
 }
 \arguments{
   \item{x}{
 For \code{FeatureAxis} this is an object of class \dQuote{owin} containing a binary image matrix defining the feature.  In the case of \code{plot.FeatureAxis}, this is the value returned from \code{FeatureAxis}.
 }
+
   \item{object}{list object of class \dQuote{FeatureAxis} as returned by \code{FeatureAxis}.}
-   \item{Im}{Matrix giving the original values of the field from which the feature was extracted.  Only needed if the feature intensity is desired.}
-  \item{fac,areafac}{
+  \item{fac}{
 numeric, in determining the lengths of the axes, they are multiplied by a factor of \code{fac} (e.g., if the grid points are k by k km each, then one could set this to k so that the resulting lengths are in terms of km rather than grid points.
 }
-   \item{q}{numeric vector of values between 0 and 1 inclusive giving the quantiles for determining the intensity of the feature.}
   \item{flipit}{logical, should the objects be flipped over x and y?  The disjointer function results in images that are flipped, this would flip them back.
 }
   \item{twixt}{
 logical, should the major axis angle be forced to be between +/- 90 degrees?
 }
-   \item{which.props}{character vector giving one or more of \dQuote{centroid}, \dQuote{area}, \dQuote{axis} and \dQuote{intensity}.  If \dQuote{axis} is given, then a call to \code{FeatureAxis} is made.}
-   \item{\dots}{For \code{plot.FeatureAxis} these are additional arguments to the \code{plot} function.  Not used by \code{summary.FeatureAxis}.  For \code{FeatureProps}, these are additional arguments to \code{FeatureAxis}.}
+   \item{\dots}{For \code{plot.FeatureAxis} these are additional arguments to the \code{plot} function.  Not used by \code{summary.FeatureAxis}.}
 }
 \details{
 This function attempts to identify the major and minor axes for a pre-defined feature (sometimes referred to as an object).  This function relies heavily on the \pkg{spatstat} and \pkg{smatr} packages.  First, the convex hull of the feature is determined using the \code{convexhull} function from the \pkg{spatstat} package.  The major axis is then found using the \code{sma} funciton from package \pkg{smatr}, which is then converted into a \code{psp} object (see \code{as.psp} from \pkg{spatstat}) from which the axis angle and length are found (using \code{angles.psp} and \code{lengths.psp}, resp., from \pkg{spatstat}).
@@ -56,17 +51,13 @@ FeatureAxis: A list object of class \dQuote{FeatureAxis} is returned with compon
 
 No value is returned from the \code{plot} or \code{summary} method functions.
 
-For FeatureProps, a list object with components depending on the which.props argument.  One or more of:
-   \item{centroid}{list with components x and y giving the centroid of the object.}
-   \item{area}{numeric giving the area of the feature.}
-   \item{axis}{list object of class FeatureAxis as returned by the same-named function.}
 }
 \author{
 Eric Gilleland
 }
 
 \seealso{
-\code{\link{owin}}, \code{\link{convexhull}}, \code{\link{sma}}, \code{\link{as.psp}}, \code{\link{angles.psp}}, \code{\link{rotate.owin}}, \code{\link{rotate.psp}}, \code{\link{bounding.box}}, \code{\link{midpoints.psp}}, \code{\link{lengths.psp}}, \code{\link{infline}}, \code{\link{clip.infline}}, \code{\link{deltamm}}, \code{\link{FeatureSuite}}, \code{\link{FeatureSuitePrep}}, \code{\link{convthresh}}, \code{\link{disjointer}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{solutionset}}
+\code{\link{owin}}, \code{\link{convexhull}}, \code{\link{sma}}, \code{\link{as.psp}}, \code{\link{angles.psp}}, \code{\link{rotate.owin}}, \code{\link{rotate.psp}}, \code{\link{bounding.box}}, \code{\link{midpoints.psp}}, \code{\link{lengths.psp}}, \code{\link{infline}}, \code{\link{clip.infline}}, \code{\link{deltamm}}, \code{\link{FeatureSuite}}, \code{\link{convthresh}}, \code{\link{disjointer}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{solutionset}}
 }
 \examples{
 data(ExampleSpatialVxSet)
@@ -86,13 +77,23 @@ summary(tmp)
 \dontrun{
 data(pert000)
 data(pert004)
-hold <- FeatureSuitePrep("pert004", "pert000")
-look <- convthresh( hold, smoothpar=10.5)
-par( mfrow=c(2,2))
+data(ICPg240Locs)
+
+hold <- make.SpatialVx(pert000, pert004,
+    loc=ICPg240Locs, projection=TRUE, map=TRUE,
+    field.type="Precipitation", units="mm/h",
+    data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
+
+look <- convthresh(hold, smoothpar=10.5)
+par(mfrow=c(1,2))
+plot(look)
+
+par(mfrow=c(2,2))
 image.plot(look$X.labeled)
 image.plot(look$Y.labeled)
 
-look2 <- deltamm( look, verbose=TRUE)
+# The next line will likely be very slow.
+look2 <- deltamm(x=look, verbose=TRUE)
 image.plot(look2$X.labeled)
 image.plot(look2$Y.labeled)
 

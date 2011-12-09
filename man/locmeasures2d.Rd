@@ -1,6 +1,9 @@
 \name{locmeasures2d}
 \alias{locmeasures2d}
+\alias{locmeasures2d.default}
+\alias{locmeasures2d.SpatialVx}
 \alias{summary.locmeasures2d}
+\alias{print.locmeasures2d}
 \title{
 Binary Image Measures
 }
@@ -8,27 +11,52 @@ Binary Image Measures
 Calculate some binary image measures between two fields.
 }
 \usage{
-locmeasures2d(object,
-    which.stats = c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom"),
-    distfun = "distmapfun", distfun.params = NULL, ...)
+locmeasures2d(object, which.stats = c("baddeley", "hausdorff", "ph", 
+    "mhd", "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
+    k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ...)
+
+\method{locmeasures2d}{default}(object, which.stats = c("baddeley", "hausdorff", "ph", 
+    "mhd", "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
+    k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ..., Y, thresholds=NULL)
+
+\method{locmeasures2d}{SpatialVx}(object, which.stats = c("baddeley", "hausdorff", "ph", 
+    "mhd", "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
+    k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ..., time.point = 1, 
+    model = 1)
+
+\method{print}{locmeasures2d}(x, ...)
 
 \method{summary}{locmeasures2d}(object, ...)
 }
 \arguments{
   \item{object}{
-list object returned from \code{locmeasures2dPrep} for \code{locmeasures2d} function, and a list object output from \code{locmeasures2d} for the summary method.
+For \code{locmeasures2d}, an object of class \dQuote{SpatialVx} or a valid matrix in which case \code{Y} must be explicitly provided.  For \code{summary} method function, a list object output from \code{locmeasures2d}.
 }
+    \item{x}{returned object from \code{locmeasures2d}.}
   \item{which.stats}{
 character vector telling which measures should be calculated.
 }
   \item{distfun}{character naming a function to calculate the shortest distances between each point x in the grid and the set of events.  Default is the Euclidean distance metric. Must take \code{x} as an argument, which is the event field for which the distances are to be calculated.  Must return a matrix of the same dimension as x.}
    \item{distfun.params}{list with named components giving any additional arguments to the \code{distfun} function.}
-  \item{\dots}{
-optional arguments to \code{deltametric} and \code{distmap} from package spatstat.  Not used by the summary method here.
+    \item{k}{
+numeric vector for use with the partial Hausdorff distance.  For k that are whole numerics or integers >= 1, then the k-th highest value is returned by \code{locmeasures2d}.  If 0 <= k < 1, then the corresponding quantile is returned.
 }
+  \item{alpha}{numeric giving the alpha parameter for Pratt's Figure of Merit (FOM).  See the help file for \code{locperf} for more details.}
+  \item{bdconst}{
+numeric giving the cut-off value for Baddeley's delta metric.
+}
+  \item{p}{
+numeric vector giving one or more values for the parameter p in Baddeley's delta metric.  Usually this is just 2.
+}
+    \item{Y}{m X n matrix giving the forecast field.}
+    \item{thresholds}{numeric or two-column matrix giving the threshold to be applied to the verification (column one) and forecast (column two) fields.  If a vector, same thresholds are applied to both fields.}
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+  \item{model}{numeric indicating which forecast model to select for the analysis.}
+  \item{\dots}{
+optional arguments to \code{deltametric} and \code{distmap} from package spatstat.  Not used by the \code{summary} or \code{print} methods here.  }
 }
 \details{
-It is useful to introduce some notation.  Let d(x,A) be the shortest distance from a point x, from the entire grid, to a set A contained in the grid.  Here, Euclidean distance is used for d(x,A), but note that some papers (e.g., Venugopal et al., 2005) use other distances, such as the taxi-cab distance.
+It is useful to introduce some notation.  Let d(x,A) be the shortest distance from a point x, anywhere in the grid, to a set A contained in the grid.  Here, Euclidean distance is used (default) for d(x,A), but note that some papers (e.g., Venugopal et al., 2005) use other distances, such as the taxi-cab distance (use \code{distfun} argument to change the distance method).
 
 The Hausdorff distance between two sets A and B contained in the finite grid is given by max( max( d(x,A), x in B), max( d(x,B), x in A)), and can be re-written as H(A,B) = max( abs( d(x,A) - d(x,B))), where x is taken over all points in the grid.  Several of the distances here are modifications of the Hausdorff distance.  The Baddeley metric, for example, is the Lp norm of abs( w(d(x,A)) - w(d(x,B))), where again x is taken from over the entire grid, and w is any concave continuous function that is strictly increasing at zero.  Here, w(t) = min( t, c), where c is some constant given by the \code{bdconst} argument.
 
@@ -82,22 +110,29 @@ Binary fields are determined by having values >= the thresholds.
 
 
 \seealso{
-\code{\link{deltametric}}, \code{\link{distmap}}, \code{\link{locmeasures2dPrep}}
+\code{\link{deltametric}}, \code{\link{distmap}}, \code{\link{make.SpatialVx}}
 }
 \examples{
 x <- y <- matrix(0, 10, 12)
 x[2,3] <- 1
 y[4,7] <- 1
-hold <- locmeasures2dPrep("x", "y", thresholds=0.1, k=1, units="grid squares")
-locmeasures2d( hold)
+hold <- make.SpatialVx(x, y, thresholds=0.1,
+    field.type="random", units="grid squares")
+locmeasures2d(hold, k=1)
+
+# Alternatively ...
+locmeasures2d(x, thresholds=0.1, k=1, Y=y)
 
 \dontrun{
-data( geom000)
+data(geom000)
 data(geom001)
-hold <- locmeasures2dPrep("geom000", "geom001", thresholds=c(0.1,50.1), k=c(4,0.975),
-	alpha=c(0.1,0.9), units="in/100")
-hold2 <- locmeasures2d( hold)
-summary( hold2)
+data(ICPg240Locs)
+hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.1,50.1), 
+            projection=TRUE, map=TRUE, loc=ICPg240Locs,
+	    field.type="Precipitation", units="in/100",
+            data.name=c("ICP Geometric Cases", "geom000", "geom001"))
+hold2 <- locmeasures2d(hold, k=c(4, 0.975), alpha=c(0.1,0.9))
+summary(hold2)
 }
 }
 

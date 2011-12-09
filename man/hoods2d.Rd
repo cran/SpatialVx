@@ -1,6 +1,7 @@
 \name{hoods2d}
 \alias{hoods2d}
 \alias{plot.hoods2d}
+\alias{print.hoods2d}
 \title{
 Neighborhood Verification Statistics for a Gridded Verification Set.
 }
@@ -8,25 +9,35 @@ Neighborhood Verification Statistics for a Gridded Verification Set.
 Calculates most of the various neighborhood verification statistics for a gridded verification set as reviewed in Ebert (2008).
 }
 \usage{
-hoods2d(obj, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "fss", "pragmatic"),
-         verbose = FALSE)
+hoods2d(object, which.methods = c("mincvr", "multi.event", 
+    "fuzzy", "joint", "fss", "pragmatic"), time.point = 1, model = 1, 
+    Pe = NULL, levels = NULL, max.n = NULL, smooth.fun = "hoods2dsmooth", 
+    smooth.params = NULL, verbose = FALSE)
 
-\method{plot}{hoods2d}(x, ...)
+\method{plot}{hoods2d}(x, ..., set.pw=FALSE)
+
+\method{print}{hoods2d}(x, ...)
 }
 \arguments{
-  \item{obj}{list object of class \dQuote{hoods2dPrep} as returned by the \code{hoods2dPrep} function.}
+  \item{object}{list object of class \dQuote{SpatialVx}.}
   \item{which.methods}{character vector giving the names of the methods.  Default is for the entire list to be executed.  See Details section for specific option information.}
+  \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+  \item{model}{numeric indicating which forecast model to select for the analysis.}
+  \item{Pe}{(optional) numeric vector of length q >= 1 to be applied to the fields sPy and possibly sPx (see details section).  If NULL, then it is taken to be the most relaxed requirement (i.e., that an event occurs at least once in a neighborhood) of Pe=1/(nlen^2), where nlen is the length of the neighborhood.}
+   \item{levels}{numeric vector giving the successive values of the smoothing parameter.  For example, for the default method, these are the neighborhood lengths over which the levels^2 nearest neighbors are averaged for each point.  Values should make sense for the specific smoothing function.  For example, for the default method, these should be odd integers.}
+    \item{max.n}{(optional) single numeric giving the maximum neighborhood length to use.  Only used if levels are NULL.}
+    \item{smooth.fun}{character giving the name of a smoothing function to be applied.  Default is an average over the n^2 nearest neighbors, where n is taken to be each value of the \code{levels} argument.}
+    \item{smooth.params}{list object containing any optional arguments to \code{smooth.fun}.  Use NULL if none.}
   \item{verbose}{logical, should progress information be printed to the screen?  Will also give the amount of time (in hours, minutes, or seconds) that the function took to run.}
-  \item{x}{ list object output from \code{hoods2d}.}
+  \item{x}{list object output from \code{hoods2d}.}
+  \item{set.pw}{logical or length 2 vector, should the function try to set plot window panels within a device?  Generally, it is better to do this yourself, or use this function in conjunction with something like \code{pdf} to allow each plot to print to a separate page.  If \code{set.pw} is a length 2 vector, then this is the vector that is used in the call to \code{mfrow}.  Note that if \code{mfcol} is desired instead (or some other plot layout), then \code{set.pw} should be set to FALSE (default).}
   \item{\dots}{not used.}
 }
 \details{
-\code{hoods2d} uses an object from the function \code{hoods2dPrep} that includes most of the options utilized by this function, including the thresholds and neighborhood lengths (levels) to be used.  The neighborhood methods (cf. Ebert 2008, 2009; Gilleland et al., 2009, 2010) apply a (kernel) smoothing filter (cf. Hastie and Tibshirani, 1990) to either the raw forecast (and possibly also the observed) field(s) or to the binary counterpart(s) determined by thresholding.
+\code{hoods2d} uses an object of class \dQuote{SpatialVx} that includes some information utilized by this function, including the thresholds to be used.  The neighborhood methods (cf. Ebert 2008, 2009; Gilleland et al., 2009, 2010) apply a (kernel) smoothing filter (cf. Hastie and Tibshirani, 1990) to either the raw forecast (and possibly also the observed) field(s) or to the binary counterpart(s) determined by thresholding.
 
 The specific smoothing filter applied for these methods could be of any type, but those described in Ebert (2008) are generally taken to be \dQuote{neighborhood} filters.  In some circles, this is referred to as a convolution filter with a boxcar kernel.  Because the smoothing filter can be represented this way, it is possible to use the convolution theorem with the Fast Fourier Transform (FFT) to perform the neighborhood smoothing operation very quickly. The particular approach used here \dQuote{zero pads} the field, and replaces all missing values with zero as well, which is also the approach proposed in Roberts and Lean (2008).  If any missing values are introduced after the convolution, they are removed.
 
-If zero-padding is undesirable, then two options are available:  1. Give a subset to the \code{hoods2dPrep} function (e.g., some tile within the domain) so that the final statistics are calculated only on this subset, or  2. Extrapolate the fields before applying this function (and \code{hoods2dPrep}).  In the case of 2, you might want to also give it the subset (e.g., to give it only the original un-extrapolated fields).
-  
 To simplify the notation for the descriptions of the specific methods employed here, the notation of Ebert (2008) is adopted.  That is, if a method uses neighborhood smoothed observations (NO), then the neighborhood smoothed observed field is denoted <X>s, and the associated binary field, by <Ix>s.  Otherwise, if the observation field is not smoothed (denoted by SO in Ebert, 2008), then simply X or Ix are used.  Similarly, for the forecast field, <Y>s or <Iy>s are used for neighborhood smoothed forecast fields (NF).  If it is the binary fields that are smoothed (e.g., the original fields are thresholded before smoothing), then the resulting fields are denoted <Px>s and <Py>s, resp.  Below, NO-NF indicates that a neighborhood smoothed observed field (<Yx>s, <Ix>s, or <Px>s) is compared with a neighborhood smoothed forecast field, and SO-NF indicates that the observed field is not smoothed.
 
 Options for which.methods include:
@@ -52,6 +63,8 @@ Options for which.methods include:
     \item{joint }{list with components: pod, far and ets}
     \item{fss}{list with components: fss, fss.uniform, fss.random}
     \item{pragmatic}{list with components: bs and bss}
+
+New attributes are added giving the values for some of the optional arguments: levels, max.n, smooth.fun, smooth.params and Pe.
 }
 \references{
 Atger, F. (2001) Verification of intense precipitation forecasts from single models and ensemble prediction systems.  \emph{Nonlin. Proc. Geophys.}, \bold{8}, 401--417.
@@ -85,29 +98,51 @@ Eric Gilleland
 x <- y <- matrix( 0, 50, 50)
 x[ sample(1:50,10), sample(1:50,10)] <- rexp( 100, 0.25)
 y[ sample(1:50,20), sample(1:50,20)] <- rexp( 400)
-hold <- hoods2dPrep("y", "x", thresholds=c(0.1, 0.5), levels=c(1, 3, 20))
-look <- hoods2d( hold, which.methods=c("multi.event", "fss"))
+hold <- make.SpatialVx(x, y, thresholds=c(0.1, 0.5), field.type="Random Exp. Var.")
+look <- hoods2d( hold, which.methods=c("multi.event", "fss"), levels=c(1, 3, 19))
 look
+plot(look)
+
 \dontrun{
+data(UKobs6)
+data(UKfcst6)
+data(UKloc)
+
+hold <- make.SpatialVx(UKobs6, UKfcst6, thresholds=c(0.01, 20.01),
+    projection=TRUE, map=TRUE, loc=UKloc, field.type="Precipitation",
+    units="mm/h", data.name=c("Nimrod", "Observations 6", "Forecast 6"))
+hold
+plot(hold)
+hist(hold, col="darkblue")
+
+look <- hoods2d(hold, which.methods=c("multi.event", "fss"), 
+    levels=c(1, 3, 5, 9, 17), verbose=TRUE)
 plot(look)
 
 data(geom001)
 data(geom000)
 data(ICPg240Locs)
 
-hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01),
-    levels=c(1, 3, 9, 17, 33, 65, 129, 257),
-    loc=ICPg240Locs, units="in/100")
+hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
+    projection=TRUE, map=TRUE, loc=ICPg240Locs,
+    field.type="Geometric Objects Pretending to be Precipitation",
+    units="mm/h", data.name=c("ICP Geometric Cases", "geom000", "geom001"))
 
-look <- hoods2d(hold, verbose=TRUE)
-plot( look) # Might want to use 'pdf' to print these out so that all of them can be observed.
+look <- hoods2d(hold, levels=c(1, 3, 9, 17, 33, 65, 129, 257), verbose=TRUE)
+
+plot( look) # Might want to use 'pdf' first.
+
 data(pert004)
 data(pert000)
-hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,10,50),
-    levels=c(1, 3, 17, 33, 65, 129, 257),
-    loc=ICPg240Locs, units="mm/h")
+hold <- make.SpatialVx(pert000, pert004, thresholds=c(1,10,50),
+    projection=TRUE, map=TRUE, loc=ICPg240Locs,
+    field.type="Precipitation", units="mm/h",
+    data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
 
-look <- hoods2d( hold, verbose=TRUE)
-plot( look)}
+plot(hold)
+
+look <- hoods2d(hold, levels=c(1, 3, 17, 33, 65, 129, 257), verbose=TRUE)
+plot(look)
+    }
 }
 \keyword{ math }

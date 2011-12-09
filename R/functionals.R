@@ -1,28 +1,28 @@
-ampstats <- function(Vx, Fcst, only.nonzero=FALSE) {
+ampstats <- function(X, Xhat, only.nonzero=FALSE) {
    if( only.nonzero) {
-	idy <- Fcst != 0
-	idx <- Vx != 0
+	idy <- Xhat != 0
+	idx <- X != 0
    } else {
-	xdim <- dim( Fcst)
+	xdim <- dim(Xhat)
 	idy <- idx <- matrix( TRUE, xdim[1], xdim[2])
    }
-   m1 <- mean( Fcst[idy], na.rm=TRUE)
-   v1 <- var( c(Fcst[idy]), na.rm=TRUE)
-   m2 <- mean( Vx[idx], na.rm=TRUE) 
-   v2 <- var( c(Vx[idx]), na.rm=TRUE)
+   m1 <- mean( Xhat[idy], na.rm=TRUE)
+   v1 <- var( c(Xhat[idy]), na.rm=TRUE)
+   m2 <- mean( X[idx], na.rm=TRUE) 
+   v2 <- var( c(X[idx]), na.rm=TRUE)
    if( !only.nonzero) {
-	id <- !is.na( c( Fcst)) & !is.na( c(Vx))
-	v12 <- cov( c(Fcst)[id], c(Vx)[id])
+	id <- !is.na( c(Xhat)) & !is.na( c(X))
+	v12 <- cov( c(Xhat)[id], c(X)[id])
    } else v12 <- NA
    return( list( mean.fcst=m1, mean.vx=m2, var.fcst=v1, var.vx=v2, cov=v12))
 } # end of 'ampstats' function.
 
-UIQI <- function(Vx, Fcst, ...) {
+UIQI <- function(X, Xhat, ...) {
    out <- list()
-   data.name <- c(as.character( substitute( Vx)), as.character( substitute( Fcst)))
+   data.name <- c(as.character(substitute(X)), as.character(substitute(Xhat)))
    names(data.name) <- c("verification","forecast")
    out$data.name <- data.name
-   tmp <- ampstats( Fcst=Fcst, Vx=Vx, ...)
+   tmp <- ampstats( X=X, Xhat=Xhat, ...)
    sig12 <- sqrt( tmp$var.fcst*tmp$var.vx)
    if( !is.na( tmp$cov)) rho <- tmp$cov/sig12
    else rho <- NA
@@ -61,7 +61,7 @@ fft2d <- function(x, bigdim=NULL, ...) {
       out$fft <- hold
       out$bigdim <- bigdim
    } else out <- hold
-   return( out)
+   return(out)
 } # end of 'fft2d' function.
 
 surrogater2d <- function(Im, frac=0.95, n=10, lossfun="mae", maxiter=100, zero.down=TRUE, verbose=FALSE, ...) {
@@ -170,54 +170,84 @@ aaft2d <- function(Im, bigdim=NULL) {
         return( out)
    } # end of 'aaft2d' function.
 
-FQI <- function( object, surr=NULL, ...) {
-   out <- list()
-   out$prep.object <- as.character( substitute( object))
-   X <- get( object$data.name[1])
-   Y <- get( object$data.name[2])
-   if( is.null( surr)) surr <- surrogater2d( Im=X, ...)
-   xdim <- dim( X)
-   Yim <- im( Y)
-   Xim <- im( X)
-   thresholds <- object$thresholds
-   q <- dim( thresholds)[1]
-   ks <- object$k
-   nk <- length( ks)
-   phd.norm <- fqi <- matrix( NA, nrow=nk, ncol=q)
-   uiqi.norm <- numeric( q)+NA
-   locperfer <- function(x1, x2, thresh, ...) {
-	x1 <- im( x1)
-	Ix1 <- solutionset( x1 >= thresh)
-	return( locperf( X=x2, Y=Ix1, which.stats="ph", ...)$ph)
-   } # end of 'locperfer' internal function.
-   for( threshold in 1:q) {
-	Ix <- solutionset( Xim >= thresholds[ threshold,2])
-	Iy <- solutionset( Yim >= thresholds[ threshold,1])
-	idx <- X >= thresholds[ threshold,2]
-	idy <- Y >= thresholds[ threshold,1]
+FQI <- function(object, surr=NULL, k=4, time.point=1, model=1, ...) {
+
+    object <- locmeasures2dPrep(object=object, k=k)
+
+    a <- attributes(object)
+    out <- list()
+    attributes(out) <- a
+
+    ## Begin: Get the data sets
+    if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
+    else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
+    else if(!missing(model)) dat <- datagrabber(object, model=model)
+    else dat <- datagrabber(object)
+
+    X <- dat$X
+    Y <- dat$Xhat
+
+    dn <- a$data.name
+    if(length(dn) == a$nforecast + 2) {
+        mainname <- dn[1]
+        dn <- dn[-1]
+    } else mainname <- NULL
+
+    vxname <- dn[1]
+    dn <- dn[-1]
+
+    if(!is.numeric(model)) {
+        model.num <- (1:a$nforecast)[model == dn]
+    } else model.num <- model
+    attr(out, "data.name") <- c(mainname, vxname, dn[model.num])
+    thresholds <- a$thresholds
+    thresholds <- cbind(thresholds[,1], thresholds[,model.num + 1])
+    colnames(thresholds) <- c(vxname, dn[model.num])
+    attr(out, "thresholds") <- thresholds
+    ## End: Get the data sets
+
+    if( is.null( surr)) surr <- surrogater2d( Im=X, ...)
+    xdim <- dim( X)
+    Yim <- im( Y)
+    Xim <- im( X)
+    q <- dim( thresholds)[1]
+    ks <- a$k
+    nk <- length( ks)
+    phd.norm <- fqi <- matrix( NA, nrow=nk, ncol=q)
+    uiqi.norm <- numeric( q)+NA
+    locperfer <- function(x1, x2, thresh, k, ...) {
+ 	x1 <- im( x1)
+ 	Ix1 <- solutionset( x1 >= thresh)
+	return( locperf( X=x2, Y=Ix1, which.stats="ph", k=k, ...)$ph)
+    } # end of 'locperfer' internal function.
+    for( threshold in 1:q) {
+	Ix <- solutionset( Xim >= thresholds[ threshold,1])
+	Iy <- solutionset( Yim >= thresholds[ threshold,2])
+	idx <- X >= thresholds[ threshold,1]
+	idy <- Y >= thresholds[ threshold,2]
 	X2 <- X
 	X2[!idx] <- 0
 	Y2 <- Y
 	Y2[!idy] <- 0
-	denom <- UIQI( Vx=X2, Fcst=Y2, only.nonzero=TRUE)$UIQI
+	denom <- UIQI( X=X2, Xhat=Y2, only.nonzero=TRUE)$UIQI
 	uiqi.norm[threshold] <- denom
 	for( k in 1:nk) {
 	   num1 <- locperf( X=Ix, Y=Iy, which.stats="ph", k=ks[k])$ph
-	   num2 <- mean( apply( surr, 3, locperfer, x2=Ix, thresh=thresholds[threshold], k=ks[k]), na.rm=TRUE)
+	   num2 <- mean( apply(surr, 3, locperfer, x2=Ix, thresh=thresholds[threshold,1], k=ks[k]), na.rm=TRUE)
 	   num.tmp <- num1/num2
 	   phd.norm[k,threshold] <- num.tmp
 	   fqi[k,threshold] <- num.tmp/denom
 	} # end of for 'k' loop.
-   } # end of for 'threshold' loop.
-   out$phd.norm <- phd.norm
-   out$uiqi.norm <- uiqi.norm
-   out$fqi <- fqi
-   class( out) <- "fqi"
-   return( out)
+    } # end of for 'threshold' loop.
+    out$phd.norm <- phd.norm
+    out$uiqi.norm <- uiqi.norm
+    out$fqi <- fqi
+    class(out) <- "fqi"
+    return(out)
 } # end of 'FQI' function.
 
 summary.fqi <- function(object, ...) {
-   x <- get( object$prep.object)
+   x <- attributes(object)
    if( !is.null( x$qs)) lu <- x$qs
    else {
 	u <- x$thresholds
@@ -225,7 +255,7 @@ summary.fqi <- function(object, ...) {
 	if( all( u[,1] == u[,2])) lu <- as.character(u[,1])
 	else lu <- paste(1:q, ": (", u[,1], ", ", u[,2], "); ", sep="")
    }
-   cat("Comparison between model ", x$data.name[2], " and verification field ", x$data.name[1], ":\n")
+   cat("Comparison for:\n ", x$data.name, "\n")
    cat("\n", "Thresholds are: ", lu, "\n")
    k <- paste("k = ", as.character( x$k), "; ", sep="")
 
@@ -248,3 +278,9 @@ summary.fqi <- function(object, ...) {
 
    invisible()
 } # end of 'summary.fqi' function.
+
+print.fqi <- function(x, ...) {
+
+    print(summary(x))
+    invisible()
+} # end of 'print.fqi' function.

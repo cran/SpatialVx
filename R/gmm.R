@@ -14,12 +14,53 @@ initGMM <- function(x) {
    return(data.frame(ind=o, area=a, Xcen=cent[,1], Ycen=cent[,2], sX=s[,1], sY=s[,2]))
 } # end of 'initGMM function.
 
-gmm2d <- function(X,Y, K=3, gamma=1, threshold=NULL, initFUN="initGMM", verbose=FALSE, ...) {
+gmm2d <- function(x, ...) {
+    UseMethod("gmm2d", x)
+} # end of 'gmm2d' function.
+
+gmm2d.SpatialVx <- function(x, ..., time.point=1, model=1, K=3, gamma=1, threshold=NULL, initFUN="initGMM",
+    verbose=FALSE) {
+
+    a <- attributes(x)
+
+    ## Begin: Get the data sets
+    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model)
+    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
+    else if(!missing(model)) dat <- datagrabber(x, model=model)
+    else dat <- datagrabber(x)
+   
+    X <- dat$X
+    Xhat <- dat$Xhat
+    ## End: Get the data sets
+
+    out <- gmm2d.default(x=X, xhat=Xhat, K=K, gamma=gamma, threshold=threshold, initFUN=initFUN, verbose=verbose)
+
+    if(length(a$data.name) == a$nforecast + 2) {
+        dn <- a$data.name[-(1:2)]
+        vxname <- a$data.name[1:2]
+    } else {
+        dn <- a$data.name[-1]
+        vxname <- a$data.name[1]
+    }
+    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
+    else model.num <- model
+
+    attr(out, "data.name") <- c(vxname, dn[model.num])
+    attr(out, "projection") <- a$projection
+    attr(out, "map") <- a$map
+    attr(out, "loc") <- a$loc
+    attr(out, "msg") <- a$msg
+
+    return(out)
+} # end of 'gmm2d.SpatialVx' function.
+
+gmm2d.default <- function(x, ..., xhat, K=3, gamma=1, threshold=NULL, initFUN="initGMM", verbose=FALSE) {
+    X <- x
    xdim <- dim(X)
    tmpX <- X
    if(!is.null(threshold)) tmpX[X<threshold] <- 0
-   tmpY <- Y
-   if(!is.null(threshold)) tmpY[Y<threshold] <- 0
+   tmpY <- xhat
+   if(!is.null(threshold)) tmpY[xhat<threshold] <- 0
    xdim <- dim(X)
    Ax <- sum(colSums(tmpX,na.rm=TRUE),na.rm=TRUE)
    Ay <- sum(colSums(tmpY,na.rm=TRUE),na.rm=TRUE)
@@ -93,7 +134,7 @@ gmm2d <- function(X,Y, K=3, gamma=1, threshold=NULL, initFUN="initGMM", verbose=
    out <- list(fitX=fitX, fitY=fitY, initX=c(meanX,sdX,rep(1/K,K)), initY=c(meanY,sdY,rep(1/K,K)), sX=sX, sY=sY, k=K, Ax=Ax, Ay=Ay, xdim=xdim)
    class(out) <- "gmm2d"
    return(out)
-} # end of 'gmm2d' function.
+} # end of 'gmm2d.default' function.
 
 gmmEMstep <- function(p,xy,k) {
    np <- length(p)
@@ -167,42 +208,130 @@ gmmNegLogLik <- function(p,xy,k) {
    return(-sum(log(Pxy)))
 } # end of internal 'gmmNegLogLik' function.  
 
-plot.gmm2d <- function(x, ...) {
-   pX <- x$fitX$pars
-   pY <- x$fitY$pars
-   k  <- x$k
-   xdim <- x$xdim
-   loc <- cbind(rep(1:xdim[1],xdim[2]), rep(1:xdim[2],each=xdim[1]))
-   tmp <- predict(object=x, x=loc)
-   predX <- x$Ax*tmp$predX
-   predY <- x$Ay*tmp$predY
-   zl <- range(c(c(predX),c(predY)),finite=TRUE)
-   par(mfrow=c(1,2))
-   image(as.image(c(predX), x=loc, nrow=xdim[1], ncol=xdim[2], na.rm=TRUE), col=tim.colors(64), zlim=zl, axes=FALSE, main="Verification Field")
-   image(as.image(c(predY), x=loc, nrow=xdim[1], ncol=xdim[2], na.rm=TRUE), col=tim.colors(64), zlim=zl, axes=FALSE, main="Model Field")
-   image.plot(matrix(predX, xdim[1], xdim[2]), legend.only=TRUE, horizontal=TRUE, col=tim.colors(64), zlim=c(0,1))
-   invisible()
+plot.gmm2d <- function(x, ..., col=c("gray", tim.colors(64)), zlim=c(0,1), horizontal=TRUE, loc.byrow=TRUE) {
+
+    a <- attributes(x)
+
+    if(is.null(a$projection)) proj <- FALSE
+    else proj <- a$projection
+
+    if(is.null(a$map)) domap <- FALSE
+    else domap <- a$map
+
+    xd <- x$xdim
+
+    if(proj) {
+	loc <- list(x=matrix(a$loc[,1], xd[1], xd[2], byrow=loc.byrow),
+		    y=matrix(a$loc[,2], xd[1], xd[2], byrow=loc.byrow))
+    }
+
+    if(domap) {
+	locr <- apply(a$loc, 2, range, finite=TRUE)
+	ax <- list(x=pretty(round(a$loc[,1], digits=2)), y=pretty(round(a$loc[,2], digits=2)))
+    }
+
+    pX <- x$fitX$pars
+    pY <- x$fitY$pars
+    k  <- x$k
+
+    if(!is.null(a$loc)) xloc <- a$loc
+    else xloc <- cbind(rep(1:xd[1],xd[2]), rep(1:xd[2],each=xd[1]))
+
+    tmp <- predict(object=x, x=xloc)
+    predX <- matrix(x$Ax*tmp$predX, xd[1], xd[2])
+    predY <- matrix(x$Ay*tmp$predY, xd[1], xd[2])
+    # zl <- range(c(c(predX),c(predY)),finite=TRUE)
+
+    if(is.null(a$msg)) par(mfrow=c(1,2))
+    else par(mfrow=c(1,2), oma=c(0,0,2,0))
+
+    if(is.null(a$data.name)) ptitle <- c("Verification", "Forecast")
+    else {
+	if(length(a$data.name) == 3) ptitle <- a$data.name[-1]
+	else ptitle <- a$data.name
+    }
+     if(domap) {
+ 	if(proj) {
+ 	    map(xlim=locr[,1], ylim=locr[,2], type="n")
+	    axis(1, at=ax$x, labels=ax$x)
+	    axis(2, at=ax$y, labels=ax$y)
+ 	    poly.image(loc$x, loc$y, predX, col=col, zlim=zlim, main=ptitle[1], add=TRUE)
+ 	    map(add=TRUE, lwd=1.5)
+ 	    map(add=TRUE, database="state")
+ 
+ 	    map(xlim=locr[,1], ylim=locr[,2], type="n")
+	    axis(1, at=ax$x, labels=ax$x)
+	    axis(2, at=ax$y, labels=ax$y)
+             poly.image(loc$x, loc$y, predY, col=col, zlim=zlim, main=ptitle[2], add=TRUE)
+             map(add=TRUE, lwd=1.5)
+             map(add=TRUE, database="state")
+ 	} else {
+ 	    map(xlim=locr[,1], ylim=locr[,2], type="n")
+	    axis(1, at=ax$x, labels=ax$x)
+	    axis(2, at=ax$y, labels=ax$y)
+ 	    image(as.image(c(predX), x=a$loc, nrow=xd[1], ncol=xd[2], na.rm=TRUE), col=col, zlim=zlim, main=ptitle[1],
+ 		add=TRUE)
+ 	    map(add=TRUE, lwd=1.5)
+             map(add=TRUE, database="state")
+ 
+ 	    map(xlim=locr[,1], ylim=locr[,2], type="n")
+	    axis(1, at=ax$x, labels=ax$x)
+	    axis(2, at=ax$y, labels=ax$y)
+ 	    image(as.image(c(predY), x=a$loc, nrow=xd[1], ncol=xd[2], na.rm=TRUE), col=col, zlim=zlim, main=ptitle[2],
+ 		add=TRUE)
+ 	    map(add=TRUE, lwd=1.5)
+             map(add=TRUE, database="state")
+ 	}
+     } else {
+	if(proj) {
+    poly.image(loc$x, loc$y, predX, col=col, zlim=zlim, main=ptitle[1])
+	    poly.image(loc$x, loc$y, predY, col=col, zlim=zlim, main=ptitle[2])
+	} else {
+           image(predX, col=col, zlim=zlim, main=ptitle[1])
+           image(predY, col=col, zlim=zlim, main=ptitle[2])
+	}
+    }
+    # image(as.image(c(predX), x=xloc, nx=x$xdim[1], ny=x$xdim[2], na.rm=TRUE), col=col, zlim=zlim, main=ptitle[1])
+    # image(as.image(c(predY), x=xloc, nx=x$xdim[1], ny=x$xdim[2], na.rm=TRUE), col=col, zlim=zlim, main=ptitle[2])
+    # image.plot(predX, legend.only=TRUE, horizontal=horizontal, col=col, zlim=zlim)
+
+    if(!is.null(a$msg)) {
+	title("")
+	mtext(a$msg, line=0.05, outer=TRUE)
+    }
+    invisible()
 } # end of 'plot.gmm2d' function.
 
-predict.gmm2d <- function(object, ...) {
+predict.gmm2d <- function(object, ..., x) {
+
    pX <- object$fitX$pars
    pY <- object$fitY$pars
+
    np <- length(pX)
    k <- object$k
-   args <- list(...)
-   if(is.element("x",names(args))) x <- y <- args$x
+
+   # args <- list(...)
+
+   # if(is.element("x",names(args))) x <- y <- args$x
+   if(!missing(x)) y <- x
    else {
+
 	x <- object$sX
 	y <- object$sY
+
    }
+
    muXx <- pX[1:k]
    muXy <- pX[(k+1):(2*k)]
    muYx <- pY[1:k]
    muYy <- pY[(k+1):(2*k)]
+
    sigX <- matrix(pX[(2*k+1):(6*k)], 4, k)
    sigY <- matrix(pY[(2*k+1):(6*k)], 4, k)
+
    lambdasX <- pX[(6*k+1):np]
    lambdasY <- pY[(6*k+1):np]
+
    ifun <- function(x, mx, my, S, lam, k) {
 	out <- numeric(k)+NA
 	for(i in 1:k) {
@@ -214,8 +343,10 @@ predict.gmm2d <- function(object, ...) {
 	} # end of for 'i' loop.
 	return(sum(out,na.rm=TRUE))
    } # end of internal 'ifun' function.
+
    predX <- apply(x, 1, ifun, mx=muXx, my=muXy, S=sigX, lam=lambdasX, k=k)
    predY <- apply(y, 1, ifun, mx=muYx, my=muYy, S=sigY, lam=lambdasY, k=k)
+
    return(list(predX=predX, predY=predY))
 } # end of 'predict.gmm2d' function.
 
@@ -303,4 +434,30 @@ summary.gmm2d <- function(object, ...) {
 	print(e.overall)
    }
    invisible(out)
-}
+} # end of 'summary.gmm2d' function.
+
+print.gmm2d <- function(x, ...) {
+
+    a <- attributes(x)
+
+    cat("\n", "Gaussian Mixture Model Fits with ", x$k, " Models.\n")
+
+    if(!is.null(a$data.name)) {
+
+	print(a$data.name)
+	dn <- a$data.name
+	if(length(dn) == 3) dn <- dn[-1]
+    } else dn <- c("verification", "forecast")
+
+    if(!is.null(a$msg)) cat("\n", a$msg, "\n")
+
+    y <- summary(x, silent=TRUE)
+
+    cat(dn[1], " Means:\n") 
+    print(y$meanX)
+
+    cat("\n\n", dn[2], " Means:\n")
+    print(y$meanY)
+
+    invisible()
+} # end of 'print.gmm2d' function.

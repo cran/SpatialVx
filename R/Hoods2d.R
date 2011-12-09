@@ -1,26 +1,45 @@
 hoods2d <-
-function( obj, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "fss", "pragmatic"), verbose = FALSE) {
+function( object, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "fss", "pragmatic"),
+    time.point=1, model=1, Pe=NULL, levels=NULL, max.n=NULL, smooth.fun="hoods2dsmooth", smooth.params=NULL,
+    verbose = FALSE) {
+
+    object <- hoods2dPrep(object=object, Pe=Pe, levels=levels, max.n=max.n,
+			smooth.fun=smooth.fun, smooth.params=smooth.params)
+
    if( verbose) begin.time <- Sys.time() 
-   thresholds <- obj$thresholds
+   object.attr <- attributes(object)
+   thresholds <- object.attr$thresholds
    q <- dim( thresholds)[1]
-   levels <- obj$levels
+   levels <- object.attr$levels
    l <- length( levels)
-   X  <- get( obj$data.name[1])
-   Y <- get( obj$data.name[2])
-   xdim <- obj$xdim
+
+   ## Begin: Get the data sets
+   if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
+   else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
+   else if(!missing(model)) dat <- datagrabber(object, model=model)
+   else dat <- datagrabber(object)
+
+   X <- dat$X
+   Y <- dat$Xhat
+   ## End: Get the data sets
+
+   xdim <- object.attr$xdim
+
    binmat <- matrix(0, xdim[1], xdim[2])
    outmat <- matrix( NA, l, q)
-   out <- hoods2dSetUpLists( which.methods=which.methods, mat=outmat)
-   out$prep.object <- as.character( substitute( obj))
-   bigN <- obj$Nxy
-   sub <- obj$subset
+   colnames(outmat) <- object.attr$qs
+   rownames(outmat) <- levels
+   out <- hoods2dSetUpLists(object=object, which.methods=which.methods, mat=outmat)
+   
+   bigN <- prod(xdim[1:2])
+   sub <- object.attr$subset
    if( verbose) cat("Looping through thresholds.\n")
    for( threshold in 1:q) {
       	if( any( c("mincvr", "mincvr", "multi.event", "fuzzy", "joint", "fss", "pragmatic") %in% which.methods)) {
 	   if( verbose) cat("\n", "Setting up binary objects for thresholds = ", thresholds[ threshold,], "\n")
 	   Ix <- Iy <- binmat
-	   Ix[ X >= thresholds[threshold,2]] <- 1
-	   Iy[ Y >= thresholds[threshold,1]] <- 1
+	   Ix[ X >= thresholds[threshold,"X"]] <- 1
+	   Iy[ Y >= thresholds[threshold,"Xhat"]] <- 1
         } # end of if find 'Ix' and 'Iy' stmt.
 	if( "fss" %in% which.methods) {
 	   if( is.null( sub)) f0 <- mean( Ix, na.rm=TRUE)
@@ -37,18 +56,18 @@ function( obj, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "fss
         for( level in 1:l) {
 	   if( verbose) cat("Neighborhood length = ", levels[ level], "\n")
 	   # levelW <- kernel2dsmooth( X, kernel.type="boxcar", n=levels[level], xdim=xdim, setup=TRUE)
-	   levelW <- do.call( obj$smooth.fun, c(list( x=X, lambda=levels[level], W=NULL, setup=TRUE), obj$smooth.params))
+	   levelW <- do.call( object.attr$smooth.fun, c(list( x=X, lambda=levels[level], W=NULL, setup=TRUE), object.attr$smooth.params))
 	   if( any( c( "mincvr", "multi.event", "fuzzy", "joint", "pragmatic", "fss") %in% which.methods)) {
 		if( any( c( "mincvr", "multi.event", "fuzzy", "joint", "fss") %in% which.methods)) 
-			sPx <- do.call( obj$smooth.fun, c(list( x=Ix, lambda=levels[level], W=levelW), obj$smooth.params))
+			sPx <- do.call( object.attr$smooth.fun, c(list( x=Ix, lambda=levels[level], W=levelW), object.attr$smooth.params))
 			# sPx <- kernel2dsmooth( Ix, kernel.type="boxcar", n=levels[level], W=levelW, xdim=xdim)
-		sPy <- do.call( obj$smooth.fun, c(list(x=Iy, lambda=levels[level], W=levelW), obj$smooth.params))
+		sPy <- do.call( object.attr$smooth.fun, c(list(x=Iy, lambda=levels[level], W=levelW), object.attr$smooth.params))
 		# sPy <- kernel2dsmooth( Iy, kernel.type="boxcar", n=levels[level], W=levelW, xdim=xdim)
 	   } # end of if any 'mincvr', 'multi', 'fuzzy', 'joint' or 'pragmatic' stmts.
 	   if( any( c( "mincvr", "multi.event") %in% which.methods)) {
                 sIx <- sIy <- binmat
-                sIx[ sPx >= obj$Pe[level]] <- 1
-		sIy[ sPy >= obj$Pe[level]] <- 1
+                sIx[ sPx >= object.attr$Pe[level]] <- 1
+		sIy[ sPy >= object.attr$Pe[level]] <- 1
 		if( "mincvr" %in% which.methods) {
 		   tmp <- MinCvg2dfun( sIy=sIy, sIx=sIx, subset=sub)
 		   out$mincvr$pod[level,threshold] <- tmp$pod
@@ -84,168 +103,154 @@ function( obj, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "fss
 	} # end of for 'level' loop.
    } # end of for 'threshold' loop.
    if( verbose) print( Sys.time() - begin.time)
-   class( out) <- "hoods2d"
+   attr(out, "time.point") <- time.point
+   attr(out, "model.num") <- model
+   class(out) <- "hoods2d"
    return( out)
 } # end of 'hoods2d' function.
 
-hoods2dPrep <-
-function( Vx.name, Fcst.name, thresholds=NULL, Pe=NULL, levels=NULL, max.n=NULL, subset=NULL,
-                                loc=NULL, qs=NULL, field.type="", units=NULL, smooth.fun="hoods2dsmooth", smooth.params=NULL, mapit=FALSE) {
-   out <- list()
-   data.name <- c(Vx.name, Fcst.name)
-   names(data.name) <- c("verification","forecast")
-   out$data.name <- data.name
-   Fcst <- get( Fcst.name)
-   Obs <- get( Vx.name)
-   dimF <- dim( Fcst)
-   out$xdim <- dimF
-   out$map <- mapit
-   if( any(dimF != dim( Obs))) stop("fss2d: dim of Obs must be the same as dim of Fcst.")
-   Nxy <- prod( dimF)
-   out$Nxy <- Nxy
-   if( is.null( levels)) {
-        if( is.null( max.n)) max.n <- 2*max(dimF)-1
+hoods2dPrep <- function( object, Pe=NULL, levels=NULL, max.n=NULL,
+                        smooth.fun="hoods2dsmooth", smooth.params=NULL) {
+    out <- object
+    a <- attributes(object)
+
+    if( is.null( levels)) {
+        if( is.null( max.n)) max.n <- 2*max(a$xdim)-1
         else {
-           if( max.n %%2 == 0) max.n <- max.n-1
-           if( max.n > 2*max( dimF)-1) stop(paste("fss2d: max.n must be less than 2N-1, where N is ", max(dimF), sep=""))
+            if(max.n %%2 == 0) max.n <- max.n-1
+            if(max.n > 2*max( a$xdim)-1) stop(paste("fss2d: max.n must be less than 2N-1, where N is ", max(a$xdim), sep=""))
         } # end of if else 'max.n' stmts.
         if( max.n < 1) stop("fss2d: max.n must be a positive integer.")
         levels <- seq(1,max.n,2)
-   } # end of if no 'levels' given.
-   out$levels <- levels
-   out$max.n <- max.n
-   if( is.null( thresholds)) {
-	thresholds <- cbind( quantile( c(Fcst), probs=c(0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.90, 0.95)),
-                                quantile(c(Obs), probs=c(0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.90, 0.95)))
-	qs <- as.character( c(0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.90, 0.95))
-   } else if( !is.matrix( thresholds)) thresholds <- cbind( thresholds, thresholds)
-   out$thresholds <- thresholds
-   out$smooth.fun <- smooth.fun
-   out$smooth.params <- smooth.params
-   if( is.null( Pe)) out$Pe <- 1/(levels^2)
-   if( length( Pe) == 1) out$Pe <- rep( Pe, length( levels))
-   else  out$Pe <- Pe
-   out$subset <- subset
-   out$loc <- loc
-   out$qs <- qs
-   out$units <- units
-   class( out) <- "hoods2dPrep"
-   return( out)
+    } # end of if no 'levels' given.
+    attr(out, "levels") <- levels
+    attr(out, "max.n") <- max.n
+    attr(out, "smooth.fun") <- smooth.fun
+    attr(out, "smooth.params") <- smooth.params
+    if( is.null( Pe)) Pe <- 1/(levels^2)
+    if( length( Pe) == 1) Pe <- rep( Pe, length( levels))
+    attr(out, "Pe") <- Pe
+    return(out)
 } # end of 'hoods2dPrep' function.
 
-plot.hoods2dPrep <- function(x, ...) {
-   X <- get(x$data.name[1])
-   Y <- get(x$data.name[2])
-   zl <- range(c(c(X),c(Y)),finite=TRUE)
-   par(mfrow=c(1,2),mar=c(4.1,2.1,4.1,2.1))
-   image(X, col=c("gray", tim.colors(64)), axes=FALSE, zlim=zl, main=paste(x$data.name[1], "\n", x$field.type, " (", x$units, ")", sep=""))
-   if(!is.null(x$thresholds)) contour(X, levels=x$thresholds[,2], add=TRUE, lwd=0.5, lty=2, col="gray")
-   if(x$map) {
-	par(usr=c(range(x$loc[,1],finite=TRUE),range(x$loc[,2], finite=TRUE)))
-	map(add=TRUE)
-	map(add=TRUE,database="state",lty=2)
-   }
-   image(Y, col=c("gray", tim.colors(64)), axes=FALSE, zlim=zl, main=paste(x$data.name[2], "\n", x$field.type, " (", x$units, ")", sep=""))
-   if(!is.null(x$thresholds)) contour(Y, levels=x$thresholds[,1], add=TRUE, lwd=0.5, lty=2, col="gray")
-   if(x$map) {
-        par(usr=c(range(x$loc[,1],finite=TRUE),range(x$loc[,2], finite=TRUE)))
-        map(add=TRUE)
-	map(add=TRUE,database="state",lty=2)
-   }
-   image.plot(Y, col=c("gray", tim.colors(64)), zlim=zl, legend.only=TRUE, legend.mar=2.1, horizontal=TRUE)
-   # X <- as.im(X)
-   # hist(X, col="darkblue", main="", probability=TRUE, ylim=c(0,1), xlab="Grid value")
-   # Y <- as.im(Y)
-   # hist(Y, col="darkblue", main="", probability=TRUE, ylim=c(0,1), xlab="Grid value")
-   invisible()
-} # end of 'plot.hoods2dPrep' function.
+print.hoods2d <- function(x, ...) {
+    a <- attributes(x)
+    print(a$data.name)
+    if(a$field.type != "" && a$units != "") print(paste(a$field.type, " (", a$units, ")", sep=""))
+    else if(a$field.type != "") print(a$field.type)
+    else if(a$units != "") print(a$units)
 
-hist.hoods2dPrep <- function(x, ...) {
-   X <- get(x$data.name[1])
-   Y <- get(x$data.name[2])
-   u <- x$thresholds
-   udim <- dim(u)
-   udim[1] <- udim[1]+1
-   par(mfrow=udim)
-   for(i in 1:udim[1]) {
-	if(i==1) {
-	   m1 <- paste(x$data.name[1], "\n", "All ", x$field.type, " values", sep="")
-	   m2 <- paste(x$data.name[2], "\n", "All ", x$field.type, " values", sep="")
-	   tmpX <- c(X)
-	   tmpY <- c(Y)
-	} else {
-	   m1 <- paste("Only values >= ", u[i-1,2], " ", x$units, sep="")
-	   m2 <- paste("Only values >= ", u[i-1,1], " ", x$units, sep="")
-	   tmpX <- c(X[X>=u[i-1,2]])
-	   tmpY <- c(Y[Y>=u[i-1,1]])
-	}
-	if(i==udim[1]) x1 <- paste(x$field.type, " (", x$units, ")", sep="")
-	else x1 <- ""
-	hist(tmpX, main=m1, xlab=x1, ...)
-	hist(tmpY, main=m2, xlab=x1, ...)
-   } # end of for 'i' loop.
-   invisible()
-} # end of 'hist.hoods2dPrep' function.
+    cat("\n", "Neighborhood Levels:\n")
+    print(a$levels)
+
+    cat("\n", "Smoothing Function: ")
+    print(a$smooth.fun)
+
+    if(!is.null(a$smooth.params)) {
+	cat("\n", "Smoothing Parameters:\n")
+	print(a$smooth.params)
+    }
+
+    cat("\n", "Time point: ", a$time.point, "\n")
+    cat("\n", "Model: ", a$model.num, "\n")
+
+    namen <- a$names
+    n <- length(namen)
+    cat("\n")
+    for(i in 1:n) {
+	cat(namen[i], ":\n")
+	print(x[[i]])
+	cat("\n\n")
+    } # end of for 'i' loop.
+
+    invisible()
+} # end of 'print.hoods2d' function.
 
 plot.hoods2d <-
-function(x, ...) {
-   a <- get( x$prep.object)
-   mets <- names( x)
+function(x, ..., set.pw=FALSE) {
+   a <- attributes(x)
+   mets <- names(x)
+
+   nf <- a$nforecast
+
+   do.mtext <- FALSE
+   if(!is.logical(set.pw) && is.vector(set.pw) && length(set.pw) == 2) {
+	par(mfrow=set.pw, oma=c(0,0,2,0))
+	set.pw <- FALSE
+	do.mtext <- TRUE
+   } else if(is.logical(set.pw) && length(set.pw) == 1) do.mtext <- set.pw
+   else {
+	warning("plot.hoods2d: invalid set.pw argument.  Setting to FALSE.")
+	set.pw <- FALSE
+   }
+
+   msg <- a$msg
+
+   if(set.pw && length(mets) > 1) {
+	Nm <- length(mets)
+	if(is.element("joint",mets)) Nm.max <- 8
+	else if(any(is.element(c("mincvr","multi.event","fuzzy"),mets))) Nm.max <- 6
+	else if(is.element("pragmatic",mets)) Nm.max <- 4
+	else Nm.max <- 2
+	par(mfrow=c(Nm, Nm.max), oma=c(0,0,2,0))
+   } else if(set.pw) par(oma=c(0,0,2,0))
+
    if( "mincvr" %in% mets) {
-	par( mfrow=c(3,2), bg="beige")
+	if(set.pw && length(mets) == 1) par( mfrow=c(3,2), oma=c(0,0,2,0))
 	a$ylab <- "Gilbert Skill Score"
-        try( hoods2dPlot( x$mincvr$ets, args=a, main=paste("Min. Coverage: Gilbert Skill Score (GSS)", sep="")))
+        try(hoods2dPlot( x$mincvr$ets, args=a, main=paste("Min. Coverage: Gilbert Skill Score (GSS)", sep="")))
 	a$ylab <- "False Alarm Ratio"
-        try( hoods2dPlot( x$mincvr$far, args=a, main="Min. Coverage: False Alarm Ratio"))
+        try(hoods2dPlot( x$mincvr$far, args=a, main="Min. Coverage: False Alarm Ratio"))
 	a$ylab <- "Hit Rate"
-        try( hoods2dPlot( x$mincvr$pod, args=a, main="Min. Coverage: Hit Rate"))
+        try(hoods2dPlot( x$mincvr$pod, args=a, main="Min. Coverage: Hit Rate"))
    } # end of if 'mincvr' stmts.
    if( "multi.event" %in% mets) {
-	par( mfrow=c(3,2), bg="beige")
+	if(set.pw && length(mets) == 1) par( mfrow=c(3,2), oma=c(0,0,2,0))
 	a$ylab <- "Hit Rate"
-        try( hoods2dPlot( x$multi.event$pod, args=a, main=paste("Multi-Event Contingency Table: Hit Rate", sep="")))
+        try(hoods2dPlot( x$multi.event$pod, args=a, main=paste("Multi-Event Contingency Table: Hit Rate", sep="")))
 	a$ylab <- "False Alarm Rate"
-        try( hoods2dPlot( x$multi.event$f, args=a, main="Multi-Event Contingency Table: False Alarm Rate"))
+        try(hoods2dPlot( x$multi.event$f, args=a, main="Multi-Event Contingency Table: False Alarm Rate"))
 	a$ylab <- "Hanssen-Kuipers Score"
 	try(hoods2dPlot( x$multi.event$hk, args=a, main="Multi-Event Contingency Table: HK"))
    } # end of if 'multi.event' stmts.
    if( "fuzzy" %in% mets) {
-	par( mfrow=c(3,2), bg="beige")
+	if(set.pw && length(mets) == 1) par( mfrow=c(3,2), oma=c(0,0,2,0))
 	a$ylab <- "Gilbert Skill Score"
-        try( hoods2dPlot( x$fuzzy$ets, args=a, main="Fuzzy Logic: Gilbert Skill Score (GSS)"))
+        try(hoods2dPlot( x$fuzzy$ets, args=a, main="Fuzzy Logic: Gilbert Skill Score (GSS)"))
 	a$ylab <- "False Alarm Ratio"
-        try( hoods2dPlot( x$fuzzy$far, args=a, main="Fuzzy Logic: False Alarm Ratio (FAR)"))
+        try(hoods2dPlot( x$fuzzy$far, args=a, main="Fuzzy Logic: False Alarm Ratio (FAR)"))
 	a$ylab <- "Hit Rate"
-        try( hoods2dPlot( x$fuzzy$pod, args=a, main="Fuzzy Logic: Hit Rate"))
+        try(hoods2dPlot( x$fuzzy$pod, args=a, main="Fuzzy Logic: Hit Rate"))
    } # end of if 'fuzzy' stmts.
    if( "joint" %in% mets) {
-	par( mfrow=c(4,2), bg="beige")
+	if(set.pw && length(mets) == 1) par( mfrow=c(4,2), oma=c(0,0,2,0))
 	a$ylab <- "Gilbert Skill Score"
-        try( hoods2dPlot( x$joint$ets, args=a, main="Joint Probability: Gilbert Skill Score (GSS)"))
+        try(hoods2dPlot( x$joint$ets, args=a, main="Joint Probability: Gilbert Skill Score (GSS)"))
 	a$ylab <- "False Alarm Ratio"
-        try( hoods2dPlot( x$joint$far, args=a, main="Joint Probability: False Alarm Ratio (FAR)"))
+        try(hoods2dPlot( x$joint$far, args=a, main="Joint Probability: False Alarm Ratio (FAR)"))
 	a$ylab <- "Hit Rate"
-        try( hoods2dPlot( x$joint$pod, args=a, main="Joint Probability: Hit Rate"))
+        try(hoods2dPlot( x$joint$pod, args=a, main="Joint Probability: Hit Rate"))
    } # end of if 'joint' stmts.
    if( "fss" %in% mets) {
 	look <- a
 	look$values <- x$fss$values
 	look$fss.random <- x$fss$fss.random
 	look$fss.uniform <- x$fss$fss.uniform
-	try( fss2dPlot( look, main="Fractions Skill Score (FSS)"))
+	try(fss2dPlot( look, main="Fractions Skill Score (FSS)"))
    } # end of if 'fss' stmts.
    if( "pragmatic" %in% mets) {
-	par( mfrow=c(2,2), bg="beige")
+	if(set.pw && length(mets) == 1) par( mfrow=c(2,2), oma=c(0,0,2,0))
 	a$ylab <- "Brier Score"
-	try( hoods2dPlot( x$pragmatic$bs, args=a, main="Pragmatic: Brier Score (BS)"))
+	try(hoods2dPlot( x$pragmatic$bs, args=a, main="Pragmatic: Brier Score (BS)"))
 	a$ylab <- "Brier Skill Score"
-	try( hoods2dPlot( x$pragmatic$bss, args=a, main="Pragmatic: Brier Skill Score (BSS)"))
+	try(hoods2dPlot( x$pragmatic$bss, args=a, main="Pragmatic: Brier Skill Score (BSS)"))
    } # end of if 'pragmatic' stmts.
+   if(do.mtext) mtext(msg, line=0.05, outer=TRUE)
    invisible()
 } # end of 'plot.hoods2d' function.
 
 fss2dPlot <-
-function(x, ...) {
+function(x, ..., set.pw=FALSE) {
    ##
    ## Function to make useful plots for the output from 'fss2d'.
    ##
@@ -264,14 +269,14 @@ function(x, ...) {
    l <- odim[1]
    if( is.null( odim)) stop("fss2d: values must be a matrix.")
    if( q == 1 & l == 1) stop("fss2d: values must be a matrix with at least one dimension > 1.")
-   par( mfrow=c(1,2), mar=c(5.1, 4.1, 3.1, 4.1), bg="beige")
+   if(set.pw) par( mfrow=c(1,2), mar=c(5.1, 4.1, 3.1, 4.1))
    # image plot
    if( is.null( x$qs) & all( x$thresholds[,1] == x$thresholds[,2])) {
         a1.labels <- as.character( x$thresholds[,1])
         xlb <- paste("Threshold (", x$units, ")", sep="")
-   } else if( !is.null( x$qs)) {
+   } else if( !is.null(x$qs)) {
         a1.labels <- x$qs
-        xlb <- "Threshold (quantile)"
+        xlb <- "Threshold"
    } else {
         a1.labels <- as.character( 1:dim( x$thresholds)[1])
         xlb <- "Threshold index number"
@@ -298,51 +303,15 @@ function(x, ...) {
    invisible()
 } # end of 'fss2dPlot' function.
 
-Fourier2d <-
-function(x, bigdim=NULL, kdim=NULL) {
-   ##
-   ## Function to compute the Fast Fourier Transform (FFT) of a field 'x'.
-   ##
-   ## Arguments:
-   ##
-   ## 'x' 'n X m' numeric matrix.
-   ## 'bigdim' numeric vector of length 2 giving the optimized dimension for the FFT.  If NULL, then 'kdim' must be supplied,
-   ##	and it will be determined.
-   ## 'kdim' dimension of the kernel matrix before expansion.  Only used if 'bigdim' is not supplied.
-   ##
-   ## Details: This function creates a matrix of zeros with twice the dimension of the input field, 'x'.
-   ##	'x' is then put in the upper left corner of the matrix of zeros, missing values are set to zero,
-   ##	and the FFT is calculated for the large matrix.  This is what is returned.  The output can then be
-   ##	used by the 'kernel2dsmooth' function in order to possibly save an FFT in computing time at some point.
-   ##
-   ## See also: 'fft', 'kernel2dsmooth', 'hoods2d'
-   ##
-   ## Value: '2n X 2m' numeric matrix giving the Fourier transformed field.
-   ##
-   xdim <- dim( x)
-   if( is.null( bigdim)) {
-	if(is.null(kdim)) stop("Fourier2d: one of bigdim or kdim must be supplied.")
-	bigdim <- xdim + kdim -1
-	if( bigdim[1] <= 1024) bigdim[1] <- 2^ceiling(log2(bigdim[1]))
-        else bigdim[1] <- ceiling( bigdim[1]/512)*512
-        if( bigdim[2] <= 1024) bigdim[2] <- 2^ceiling(log2(bigdim[2]))
-        else bigdim[2] <- ceiling( bigdim[2]/512)*512
-   }
-   out <- matrix( 0, bigdim[1], bigdim[2])
-   out[1:xdim[1],1:xdim[2]] <- x
-   out[ is.na( out)] <- 0
-   return( fft( out))
-} # end of 'Fourier2d' function.
-
 vxstats <-
-function(Fcst, Obs, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", "bcts", "bcets", "mse"), subset=NULL) {
+function(X, Xhat, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", "bcts", "bcets", "mse"), subset=NULL) {
    ##
    ## Function to calculate various traditional verification statistics for a gridded
    ## verification set.
    ##
    ## Arguments:
    ##
-   ## 'Fcst', 'Obs' 'k X m' logical or numeric matrices of forecast and observed values, resp.
+   ## 'X', 'Xhat' 'k X m' logical or numeric matrices of forecast and observed values, resp.
    ## 'which.stats' character vector telling which verification statistics should be computed.
    ## 'subset' numeric vector indicating a subset of points over which to calculate the statistics.  If NULL, then the entire
    ##	fields are used.
@@ -361,7 +330,7 @@ function(Fcst, Obs, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", 
    ##	"f" false alarm rate (aka probability of false detection) is given by (false alarms)/(correct rejections + false alarms).
    ##	"hk" Hansen-Kuipers Score is given by the difference between the hit rate ("pod") and the false alarm rate ("f").
    ##	"mse" mean square error (not a contingency table statistic, but can be used with binary fields).  This is the only
-   ##		statistic that can be calculated here that does not require binary fields for 'Fcst' and 'Obs'.
+   ##		statistic that can be calculated here that does not require binary fields for 'X' and 'Xhat'.
    ##
    ## Warnings: It is up to the user to provide the appropriate type of fields for the given statistics
    ##	to be computed.  For example, they must be binary for all types of 'which.stats' except "mse".
@@ -370,28 +339,28 @@ function(Fcst, Obs, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", 
    ##	value of each statistic for the two fields.
    ##
    out <- list()
-   xdim <- dim( Fcst)
+   xdim <- dim( Xhat)
    if( "mse" %in% which.stats) {
         if( is.null( subset)) {
-         Nxy <- sum( colSums( !is.na( Fcst) & !is.na( Obs), na.rm=TRUE), na.rm=TRUE)
-         out$mse <- sum( colSums( (Fcst - Obs)^2, na.rm=TRUE), na.rm=TRUE)/Nxy
+         Nxy <- sum( colSums( !is.na( Xhat) & !is.na( X), na.rm=TRUE), na.rm=TRUE)
+         out$mse <- sum( colSums( (Xhat - X)^2, na.rm=TRUE), na.rm=TRUE)/Nxy
         } else {
-           out$mse <- mean( (c(Fcst)[ subset] - c(Obs)[subset])^2, na.rm=TRUE)
+           out$mse <- mean( (c(Xhat)[ subset] - c(X)[subset])^2, na.rm=TRUE)
         }
    } # end of if do MSE.
    if( any( is.element(c("bias", "ts", "ets", "pod", "far", "f", "hk", "bcts", "bcets"), which.stats))) {
-	if( !is.logical( Fcst)) Fcst <- as.logical( Fcst)
-	if( !is.logical( Obs)) Obs <- as.logical( Obs)
+	if( !is.logical( Xhat)) Xhat <- as.logical( Xhat)
+	if( !is.logical( X)) X <- as.logical( X)
 	if( is.null( subset)) {
-	   hits <- sum( colSums( matrix( Fcst & Obs, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
-	   miss <- sum( colSums( matrix( !Fcst & Obs, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
-	   fa   <- sum( colSums( matrix( Fcst & !Obs, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
-	   if( any( c("ets", "f", "hk") %in% which.stats)) cn <- sum( colSums( matrix( !Fcst & !Obs, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
+	   hits <- sum( colSums( matrix( Xhat & X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
+	   miss <- sum( colSums( matrix( !Xhat & X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
+	   fa   <- sum( colSums( matrix( Xhat & !X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
+	   if( any( c("ets", "f", "hk") %in% which.stats)) cn <- sum( colSums( matrix( !Xhat & !X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
 	} else {
-	   hits <- sum( c(Fcst)[subset] & c(Obs)[subset], na.rm=TRUE)
-           miss <- sum( !c(Fcst)[subset] & c(Obs)[subset], na.rm=TRUE)
-           fa   <- sum( c(Fcst)[subset] & !c(Obs)[subset], na.rm=TRUE)
-           if( any( c("ets", "f", "hk") %in% which.stats)) cn <- sum( !c(Fcst)[subset] & !c(Obs)[subset], na.rm=TRUE)
+	   hits <- sum( c(Xhat)[subset] & c(X)[subset], na.rm=TRUE)
+           miss <- sum( !c(Xhat)[subset] & c(X)[subset], na.rm=TRUE)
+           fa   <- sum( c(Xhat)[subset] & !c(X)[subset], na.rm=TRUE)
+           if( any( c("ets", "f", "hk") %in% which.stats)) cn <- sum( !c(Xhat)[subset] & !c(X)[subset], na.rm=TRUE)
 	}
 	if( "bias" %in% which.stats) {
 	   if( (hits + fa == 0) & (hits + miss == 0)) out$bias <- 1
@@ -427,7 +396,7 @@ function(Fcst, Obs, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", 
 	   nF <- hits + fa
 	   nO <- hits + miss
 	   lf <- log(nO/miss)
-	   Ha <- nO - (fa/lf)*W((nO/fa)*lf)
+	   Ha <- nO - (fa/lf)*LambertW((nO/fa)*lf)
 	   if(is.element("bcts",which.stats)) out$bcts <- Ha/(2*nO-hits)
 	   if(is.element("bcets",which.stats)) out$bcets <- (Ha - (nO^2)/(hits+miss+fa+cn))/(2*nO-Ha-(nO^2)/(hits+miss+fa+cn))
 	}
@@ -437,8 +406,9 @@ function(Fcst, Obs, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", 
 } # end of 'vxstats' function.
 
 hoods2dSetUpLists <-
-function( which.methods, mat) {
+function(object, which.methods, mat) {
    out <- list()
+   attributes(out) <- attributes(object)
    if( "mincvr" %in% which.methods) {
       out$mincvr <- list()
       out$mincvr$pod <- out$mincvr$far <- out$mincvr$ets <- mat
@@ -550,7 +520,7 @@ function( sPy, sPx, subset=NULL) {
 } # end of 'fuzzyjoint2dfun' function.
 
 pragmatic2dfun <-
-function( sPy, Ix, mIx=NULL, subset=NULL) {
+function(sPy, Ix, mIx=NULL, subset=NULL) {
    ##
    ## Function to calculate the pragmatic neighborhood statistics.
    ##
@@ -576,27 +546,87 @@ function( sPy, Ix, mIx=NULL, subset=NULL) {
    return( list( bs=bs, bss=bss))
 } # end of 'pragmatic2dfun' function.
 
-upscale2d <- function(object, thresholds=NULL, verbose=FALSE) {
+upscale2d <- function(object, thresholds=NULL, quantiles=NULL, q.gt.zero=FALSE, time.point=1, model=1,
+                levels = NULL, max.n = NULL, smooth.fun = "hoods2dsmooth", smooth.params = NULL,
+                verbose=FALSE) {
+
    out <- list()
-   if( is.null( thresholds)) thresholds <- object$thresholds
-   if( !is.matrix( thresholds)) thresholds <- cbind( thresholds, thresholds)
+
+   object <- hoods2dPrep(object, levels=levels, max.n=max.n,
+                    smooth.fun=smooth.fun, smooth.params=smooth.params)
+
+   object.attr <- attributes(object)
+   attributes(out) <- object.attr
+
+   if(is.null(thresholds) && is.null(quantiles)) {
+	thresholds <- object.attr$thresholds
+	qs <- object.attr$qs
+   } else if(is.null(thresholds) && !is.null(quantiles)) {
+	thresholds <- thmat <- matrix(NA, length(quantiles), 2)
+	qs <- as.character(quantiles)
+   } else {
+	if(is.null(dim(thresholds))) qs <- as.character(thresholds)
+	else if(all(thresholds[,1] == thresholds[,2])) qs <- as.character(thresholds[,1])
+	else qs <- paste("Threshold ", 1:dim(thresholds)[1], sep="")
+   } 
+
+   attr(out, "qs") <- qs
+
+   if(!is.matrix(thresholds)) thresholds <- cbind( thresholds, thresholds)
+
+   if(is.null(colnames(thresholds))) {
+	dname <- object.attr$data.name
+	nf <- object.attr$nforecast
+	if(length(dname) == nf + 2) dname <- dname[-1]
+	if(dim(thresholds)[2] == length(dname)) colnames(thresholds) <- dname
+ 	else colnames(thresholds) <- c("X", "Xhat")
+   }
+
+    if(!is.null(quantiles)) {
+        u <- list()
+        colnames(thmat) <- colnames(thresholds)
+    }
+
    q <- dim( thresholds)[1]
-   levels <- object$levels
-   l <- length( levels)
-   out$l <- l
-   out$q <- q
-   out$thresholds <- thresholds
-   out$levels <- levels
+
+   levels <- object.attr$levels
+   l <- length(levels)
+
+   # out$l <- l
+   # out$q <- q
+   # out$thresholds <- thresholds
+   # out$levels <- levels
    out$rmse <- numeric(l)+NA
-   out$bias <- out$ts <- out$ets <- matrix( NA, l, q)
-   X <- get( object$data.name[1])
-   Y <- get( object$data.name[2])
-   xdim <- dim( X)
-   sub <- object$subset
-   for( level in 1:l) {
+   outmat <- matrix(NA, l, q)
+   rownames(outmat) <- levels
+   colnames(outmat) <- qs
+   out$bias <- out$ts <- out$ets <- outmat
+
+   if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.pont=time.point, model=model)
+   else if(!missing(time.point)) dat <- datagrabber(object, time.pont=time.point)
+   else if(!missing(model)) dat <- datagrabber(object, model=model)
+   else dat <- datagrabber(object)
+
+   X <- dat$X
+   Y <- dat$Xhat
+
+   xdim <- object.attr$xdim 
+   sub <- object.attr$subset
+
+   for(level in 1:l) {
       levelW <- kernel2dsmooth( Y, kernel.type="boxcar", n=levels[level], setup=TRUE)
       sYy <- kernel2dsmooth( Y, W=levelW, xdim=xdim)
       sYx <- kernel2dsmooth( X, W=levelW, xdim=xdim)
+      if(!is.null(quantiles)) {
+	thresholds <- thmat
+	if(!q.gt.zero) {
+	    thresholds[,1] <- quantile(c(sYx), probs=quantiles)
+	    thresholds[,2] <- quantile(c(sYy), probs=quantiles)
+	} else {
+	    thresholds[,1] <- quantile(c(sYx[sYx>0]), probs=quantiles)
+            thresholds[,2] <- quantile(c(sYy[sYy>0]), probs=quantiles)
+	}
+      }
       out$rmse[level] <- upscale2dfun(sYy=sYy, sYx=sYx, which.stats="rmse", subset=sub)$rmse
       if( verbose) cat("\n", "RMSE for neighborhood length = ", levels[level], " is ", out$rmse[level], "\n")
       for( threshold in 1:q) {
@@ -610,13 +640,16 @@ upscale2d <- function(object, thresholds=NULL, verbose=FALSE) {
 	   cat("GSS is ", tmp$ets, "\n")
 	 }
        } # end of for 'threshold' loop.
+        if(!is.null(quantiles)) u[[level]] <- thmat
    } # end of for 'level' loop.
+   if(is.null(quantiles)) attr(out, "thresholds") <- thresholds
+   else attr(out, "thresholds") <- u
    class( out) <- "upscale2d"
    return( out)
 } # end of 'upscale2d' function.
 
 upscale2dfun <-
-function( sYy, sYx, threshold=NULL, which.stats=c("rmse", "bias", "ts", "ets"), subset=NULL) {
+function(sYy, sYx, threshold=NULL, which.stats=c("rmse", "bias", "ts", "ets"), subset=NULL) {
    ##
    ## Function to calculate the upscaling neighborhood statistics.
    ##
@@ -637,8 +670,8 @@ function( sYy, sYx, threshold=NULL, which.stats=c("rmse", "bias", "ts", "ets"), 
 	xdim <- dim( sYy)
 	binmat <- matrix(0, xdim[1], xdim[2]) 
 	sIx <- sIy <- binmat
-	sIx[ sYx >= threshold[ 2]] <- 1
-	sIy[ sIy >= threshold[ 1]] <- 1
+	sIx[ sYx >= threshold[ 1]] <- 1
+	sIy[ sIy >= threshold[ 2]] <- 1
 	tmp <- vxstats( sIy, sIx, which.stats=c("bias", "ts", "ets")[ c("bias", "ts", "ets") %in% which.stats], subset=subset)
 	if( "bias" %in% which.stats) out$bias <- tmp$bias
 	if( "ts" %in% which.stats) out$ts <- tmp$ts
@@ -649,27 +682,36 @@ function( sYy, sYx, threshold=NULL, which.stats=c("rmse", "bias", "ts", "ets"), 
 
 hoods2dPlot <-
 function(x, args, ...) {
-   require( fields)
-   odim <- dim( x)
+
+   odim <- dim(x)
+
+    atmp <- attributes(args)
+
+    if(is.null(args$thresholds) && !is.null(atmp$thresholds)) args$thresholds <- atmp$thresholds
+
+   if(is.list(args$thresholds)) args$thresholds <- args$thresholds[[1]]
    q <- odim[2]
    l <- odim[1]
    if( is.null( odim)) stop("hoods2dPlot: values must be a matrix.")
    if( q == 1 & l == 1) stop("hoods2dPlot: values must be a matrix with at least one dimension > 1.")
-   if( is.null( args$qs) & all( args$thresholds[,1] == args$thresholds[,2])) {
-        a1.labels <- as.character( args$thresholds[,1])
+
+    if(is.null(args$qs) && !is.null(atmp$qs)) args$qs <- atmp$qs
+    a1.labels <- args$qs
+
+    if(is.null(args$units) && !is.null(atmp$units)) args$units <- atmp$units
+
+   if(is.null(args$qs) && all(args$thresholds[,1] == args$thresholds[,2])) {
+        if(is.null(a1.labels)) a1.labels <- as.character(args$thresholds[,1])
         xlb <- paste("Threshold (", args$units, ")", sep="")
-   } else if( !is.null( args$qs)) {
-        a1.labels <- args$qs
-        xlb <- "Threshold (quantile)"
-   } else {
-        a1.labels <- as.character( 1:dim( args$thresholds)[1])
+   } else if(!is.null(args$qs)) xlb <- "Threshold"
+   else {
+        if(is.null(a1.labels) && length(a1.labels) == 0) a1.labels <- as.character(1:dim(args$thresholds)[1])
         xlb <- "Threshold index number"
    }
 
    image( t( x), xaxt="n", yaxt="n", xlab=xlb, ylab="Neighborhood size (grid squares)", col=c("grey", heat.colors(12)), ...)
-   text( x=seq(0,1,,q)[ rep(1:q,l)], y=seq(0,1,,l)[ rep(1:l,each=q)], labels=round( t( x), digits=2))
-   axis( 1, at=seq(0,1,,q), labels=a1.labels)
-   if( any( args$thresholds[,1] != args$thresholds[,2])) warning("hoods2dPlot: thresholds differ for the two fields, labels only for the first")
+   text(x=seq(0,1,,q)[ rep(1:q,l)], y=seq(0,1,,l)[ rep(1:l,each=q)], labels=round( t( x), digits=2))
+   if(!is.null(a1.labels)) axis(1, at=seq(0,1,,q), labels=a1.labels)
    axis( 2, at=seq(0,1,,length(args$levels)), labels=args$levels)
    image.plot( t( x), legend.only=TRUE, col=c("grey", heat.colors(12)), ...)
 
@@ -683,18 +725,64 @@ function(x, args, ...) {
 } # end of 'hoods2dPlot' function.
 
 upscale2dPlot <-
-function(object, args, ...) {
-   par( mfrow=c(4,2), bg="beige")
-   try( hoods2dPlot( object$ets, args=args, main="Upscaling: Gilbert Skill Score (GSS)", ...))
-   try( hoods2dPlot( object$ts, args=args, main="Upscaling: Threat Score (TS)", ...))
-   try( hoods2dPlot( object$bias, args=args, main="Upscaling: Bias", ...))
-   try( plot( args$levels, object$rmse, type="b", xlab="Neighborhood Length (grid squares)", ylab="RMSE", main="Upscaling: RMSE", col="darkblue"))
+function(object, args, ..., set.pw=FALSE, type=c("all", "gss", "ts", "bias", "rmse")) {
+   type <- tolower(type)
+   type <- match.arg(type)
+   if(set.pw && type=="all") par(mfrow=c(4,2))
+   else if(set.pw) {
+	if(length(type) == 1) {
+	   if(is.element("rmse", type)) par(mfrow=c(1,1))
+	   else par(mfrow=c(1,2))
+	} else par(mfrow=c(length(type), 2)) 
+   }
+
+   if(any(is.element(c("all","gss"), type))) hoods2dPlot(object$ets, args=args, main="Upscaling: Gilbert Skill Score (GSS)", ...)
+   if(any(is.element(c("all","ts"), type))) hoods2dPlot( object$ts, args=args, main="Upscaling: Threat Score (TS)", ...)
+   if(any(is.element(c("all","bias"), type))) hoods2dPlot( object$bias, args=args, main="Upscaling: Bias", ...)
+   if(any(is.element(c("all","rmse"), type))) {
+        plot(args$levels, object$rmse, type="b", xlab="Neighborhood Length (grid squares)", ylab="RMSE",
+	    main="Upscaling: RMSE", col="darkblue")
+   }
 } # end of 'upscale2dPlot' function.
 
-plot.upscale2d <- function(x, ...) {
-   upscale2dPlot( object=x, args=list( levels=x$levels, thresholds=x$thresholds, units=x$units, qs=x$qs), ...)
+plot.upscale2d <- function(x, ..., set.pw=FALSE) {
+   # if(missing(set.pw)) set.pw <- TRUE
+   upscale2dPlot( object=x, args=attributes(x), set.pw=set.pw, ...)
    invisible()
 } # end of 'plot.upscale2d' function.
+
+print.upscale2d <- function(x, ...) {
+    a <- attributes(x)
+    print(a$data.name)
+    if(a$field.type != "" && a$units != "") print(paste(a$field.type, " (", a$units, ")", sep=""))
+    else if(a$field.type != "") print(a$field.type)
+    else if(a$units != "") print(a$units)
+
+    cat("\n", "Thresholds:\n")
+    print(a$qs)
+
+    cat("\n", "Neighborhood Levels:\n")
+    print(a$levels)
+
+    cat("\n", "Smoothing Function: ")
+    print(a$smooth.fun)
+
+    if(!is.null(a$smooth.params)) {
+        cat("\n", "Smoothing Parameters:\n")
+        print(a$smooth.params)
+    }
+
+    cat("\n", "RMSE:\n")
+    print(x$rmse)
+    cat("\n", "Bias:\n")
+    print(x$bias)
+    cat("\n", "Threat Score:\n")
+    print(x$ts)
+    cat("\n", "Gilbert Skill Score:\n")
+    print(x$ets)
+    
+    invisible()
+} # end of 'print.upscale2d' function.
 
 fss2dfun <- function(sPy, sPx, subset=NULL, verbose=FALSE) {
    ## 
@@ -729,29 +817,48 @@ fss2dfun <- function(sPy, sPx, subset=NULL, verbose=FALSE) {
    return(1-num/denom)
 } # end of 'fss2dfun' function.
 
-pphindcast2d <- function(obj, which.score="ets", verbose=FALSE, ...) {
-   Obs <- get( obj$data.name[1])
-   Fcst <- get( obj$data.name[2])
-   xdim <- obj$xdim
-   Nxy <- obj$Nxy
-   subset <- obj$subset
-   thresholds <- obj$thresholds
-   levels <- obj$levels
+pphindcast2d <- function(object, which.score="ets", time.point=1, model=1, levels = NULL, max.n = NULL,
+    smooth.fun = "hoods2dsmooth", smooth.params = NULL, verbose=FALSE, ...) {
+
+    object <- hoods2dPrep(object, levels=levels, max.n=max.n,
+                    smooth.fun=smooth.fun, smooth.params=smooth.params)
+
+   object.attr <- attributes(object)
+  
+   if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
+   else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
+   else if(!missing(model)) dat <- datagrabber(object, model=model)
+   else dat <- datagrabber(object)
+
+   X <- dat$X
+   Xhat <- dat$Xhat
+ 
+   xdim <- object.attr$xdim
+   Nxy <- prod(xdim[1:2])
+   subset <- object.attr$subset
+   thresholds <- object.attr$thresholds
+   levels <- object.attr$levels
+
    q <- dim( thresholds)[1]
    l <- length( levels)
+
    outmat <- Pthresh <- matrix( NA, l, q)
    out <- list()
+   attributes(out) <- object.attr
    out$which.score <- which.score
+
    findthresh <- function( p, Ix, sPx, binmat, which.score, subset=NULL) {
 	sIx <- binmat
 	sIx[ sPx >= p] <- 1
 	return( -vxstats( sIx, Ix, which.stats=which.score, subset=subset)[[which.score]])
    } # end of 'findthresh' internal function.
+
    binmat <- matrix(0, xdim[1], xdim[2])
+
    for( threshold in 1:q) {
 	Ix <- Iy <- binmat
-	Ix[ Obs >= thresholds[threshold,2]] <- 1
-	Iy[ Fcst >= thresholds[threshold,1]] <- 1
+	Ix[ X >= thresholds[threshold,"X"]] <- 1
+	Iy[ Xhat >= thresholds[threshold,"Xhat"]] <- 1
 	for( level in 1:l) {
 	   Wlvl <- kernel2dsmooth( Ix, kernel.type="boxcar", n=levels[ level], setup=TRUE)
 	   sPy <- kernel2dsmooth( Iy, kernel.type="boxcar", n=levels[level], W=Wlvl, xdim=xdim, Nxy=Nxy)
@@ -766,5 +873,89 @@ pphindcast2d <- function(obj, which.score="ets", verbose=FALSE, ...) {
    } # end of for 'threshold' loop.
    out$values <- outmat
    out$Pthresh <- Pthresh
-   return( out)
+   attr(out, "time.point") <- time.point
+   attr(out, "model.num") <- model
+   class(out) <- "pphindcast"
+   return(out)
 } # end of 'pphindcast' function.
+
+print.pphindcast2d <- function(x, ...) {
+    a <- attributes(x)
+    print(a$data.name)
+    if(!is.null(a$xdim)) print(paste(a$xdim[1], " X ", a$xdim[2], sep=""))
+    if(a$field.type != "" && a$units != "") print(paste(a$field.type, "(", a$units, ")", sep=""))
+    else if(a$field.type != "") print(a$field.type)
+    else if(a$units != "") print(a$units)
+    cat("\n", "Smoothing function:\n")
+    print(a$smooth.fun)
+    if(!is.null(a$smooth.params)) {
+	cat("\n", "Smoothing function parameters:\n")
+	print(a$smooth.params)
+    }
+
+    cat("\n", "Time point: ", a$time.point, "\n")
+    cat("Model: ", a$model.num, "\n")
+
+    cat("\n", "Pthresh:\n")
+    print(x$Pthresh)
+    cat("\n\n")
+    print(x$which.score)
+    print(x$values)
+    
+    invisible()
+} # end of 'print.pphindcast2d' function.
+
+plot.pphindcast2d <- function(x, ..., set.pw=FALSE, type=c("quilt", "line"), col=heat.colors(12), horizontal=FALSE) {
+
+    type <- tolower(type)
+    type <- match.arg(type)
+
+    a <- attributes(x)
+    if(is.null(dim(x$values)) && length(x$values) == 1) stop("plot.pphindcast: invalid values dimension.")
+
+    if(set.pw) {
+	if(type=="quilt") par(mfrow=c(1,2), oma=c(0,0,2,0))
+	else par(mfrow=c(1,1), oma=c(0,0,2,0))
+    } else par(oma=c(0,0,2,0))
+
+    Pthresh <- x$Pthresh
+    val <- x$values
+
+    levels <- a$levels
+    l <- length(levels)
+
+    u <- a$thresholds
+    q <- length(a$qs)
+
+    msg <- a$msg
+
+    if(type=="quilt") {
+
+	image(t(val), xlab="Threshold", ylab="Neighborhood size (grid squares)", axes=FALSE, main=x$which.score, col=col, ...)
+	axis(1, at=seq(0,1,,q), labels=a$qs)
+        axis(2, at=seq(0,1,,l), labels=levels)
+	image.plot(t(val), legend.only=TRUE, col=col, horizontal=horizontal)
+
+	if(!set.pw) image(t(Pthresh), xlab="Threshold", ylab="Neighborhood size (grid squares)", axes=FALSE, main="Pthresh", col=col, ...)
+	else image(t(Pthresh), xlab="Threshold", ylab="", axes=FALSE, main="Pthresh", col=col, ...)
+        axis(1, at=seq(0,1,,q), labels=a$qs)
+        axis(2, at=seq(0,1,,l), labels=levels)
+        image.plot(t(Pthresh), legend.only=TRUE, col=col, horizontal=horizontal)
+
+    } else if(type=="line") {
+
+	yl <- range(c(val), finite=TRUE)
+	# yl2 <- range(c(Pthresh), finite=TRUE)
+	plot(1:l, type="n", ylim=yl, ylab=x$which.score, xlab="Neighborhood sizes (grid squares)", ...)
+	mtext("Pthresh", side=4)
+	for(i in 1:q) lines(1:l, val[,i], col=i+1, lty=1, lwd=1.5)
+	par(usr=c(1,l,c(0,1)))
+	for(i in 1:q) lines(1:l, Pthresh[,i], col=i+1, lty=2, lwd=1.5)
+	axis(4, at=pretty(seq(0,1,,100)), labels=pretty(seq(0,1,,100)))
+	legend("topright", legend=c(x$which.score, "Pthresh"), lty=1:2, lwd=1.5, bty="n")
+	legend("topleft", legend=a$qs, col=1+(1:q), lty=1, lwd=1.5, title="Threshold")
+    } else stop("plot.pphindcast: invalid type argument.")
+
+    mtext(msg, line=0.05, outer=TRUE)
+    invisible()
+} # end of 'plot.pphindcast2d' function.

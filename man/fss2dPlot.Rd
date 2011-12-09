@@ -8,13 +8,17 @@ Create Several Graphics for List Objects Returned from hoods2d
 Creates several graphics for list objects returned from hoods2d.  Mostly quilt and matrix plots for displaying results of smoothing fields over different neighborhood lengths and thresholds.
 }
 \usage{
-fss2dPlot(x, ...)
-upscale2dPlot(object, args, ...)
+fss2dPlot(x, ..., set.pw = FALSE)
+
+upscale2dPlot(object, args, ..., set.pw = FALSE, type = c("all",
+                 "gss", "ts", "bias", "rmse"))
 }
 \arguments{
   \item{x}{list object with components fss, fss.random and fss.uniform.  Effectively, it does the same thing as \code{hoods2dPlot}, but adds the fss.random and fss.uniform horizontal lines to the matrix plot.}
   \item{object}{list object with named components: rmse (numeric vector), ets, ts and bias all matrices whose rows represent neighborhood lengths, and whose columns represent thresholds.}
   \item{args}{list object passed to \code{hoods2dPlot}, see its help file for more details.}
+  \item{set.pw}{logical, should the plot window panels be set by the function?}
+    \item{type}{character string stating which plots to make (default is \dQuote{all}).}
   \item{\dots}{Optional arguments to \code{image} and \code{image.plot} for \code{fss2dPlot}, and optional arguments to \code{hoods2dPlot} for \code{upscale2dPlot}}
 }
 \details{makes quilt and matrix plots for output from \code{hoods2d}.}
@@ -32,13 +36,17 @@ No value is returned.  A series of plots are created.  It may be useful to use t
 ## This is effectively an internal function, so the example is commented out
 ## in order for R's check to run faster.
 ##
-\dontrun{data(geom001)
+\dontrun{
+data(geom001)
 data(geom000)
 data(ICPg240Locs)
-hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01),
-    levels=c(1, 3, 5, 33, 65),
-    loc=ICPg240Locs, units="in/100")
-look <- hoods2d(hold, verbose=TRUE)
-plot( look)}
+hold <- make.SpatialVx( geom000, geom001,
+    thresholds=c(0.01,50.01),
+    loc=ICPg240Locs, units="mm/h")
+
+look <- hoods2d(hold, levels=c(1, 3, 5, 33, 65),
+    verbose=TRUE)
+plot( look)
+}
 }
 \keyword{ hplot }

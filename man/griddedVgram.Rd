@@ -8,16 +8,20 @@ Variograms for a Gridded Verification Set
 Find (and plot) variograms for each field in a gridded verification set.
 }
 \usage{
-griddedVgram(object, zero.in = TRUE, zero.out = TRUE, ...)
+griddedVgram(object, zero.in = TRUE, zero.out = TRUE, time.point = 1, 
+    model = 1, ...)
 
-\method{plot}{griddedVgram}(x, ...)
+\method{plot}{griddedVgram}(x, ..., set.pw = FALSE)
 }
 \arguments{
   \item{object}{
-any list object from any \code{SpatialVx} object class containing information on the verification set (e.g., from \code{FeatureSuitePrep}, \code{hoods2dPrep}, etc.).
+list object of class \dQuote{SpatialVx} containing information on the verification set.
 }
    \item{zero.in,zero.out}{logical, should the variogram be calculated over the entire field (zero.in), and/or over only the non-zero values (zero.out)?}
    \item{x}{list object as returned by \code{griddedVgram}.}
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+  \item{model}{numeric indicating which forecast model to select for the analysis.}
+    \item{set.pw}{logical, should a panel of plots be determined and set by the function.}
   \item{\dots}{
 In the case of \code{griddedVgram}, these are optional arguments to the \code{vgram.matrix} function from package \code{fields}.  In the case of \code{plot.griddedVgram}, these are optional arguments to \code{plot.vgram.matrix}, which in turn are optional arguments to \code{image.plot}.
 }
@@ -42,24 +46,32 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{vgram.matrix}}, \code{\link{FeatureSuitePrep}}, \code{\link{hoods2dPrep}}, \code{\link{locmeasures2dPrep}}
-}
+\code{\link{vgram.matrix}}, \code{\link{make.SpatialVx}}}
+
 \examples{
 data(ExampleSpatialVxSet)
 
 x <- ExampleSpatialVxSet$vx
 xhat <- ExampleSpatialVxSet$fcst
 
-hold <- FeatureSuitePrep("xhat", "x")
+hold <- make.SpatialVx(x, xhat, field.type="contrived",
+    units="none", data.name=c("Example", "x", "xhat"))
+
 res <- griddedVgram(hold,R=8)
-plot(res)
+plot(res, set.pw=TRUE)
 
 \dontrun{
 data(pert004)
 data(pert000)
-hold <- FeatureSuitePrep("pert004","pert000")
+data(ICPg240Locs)
+
+hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
+    projection=TRUE, map=TRUE,
+    field.type="Precipitation", units="mm/h",
+    data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
+
 res <- griddedVgram(hold, R=8)
-plot(res)
+plot(res, set.pw=TRUE)
 }
 }
 \keyword{ math }

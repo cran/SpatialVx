@@ -9,11 +9,13 @@ Apply Traditional Forecast Verification After Wavelet Denoising
 Apply traditional forecast verification after wavelet denoising ala Briggs and Levine (1997).
 }
 \usage{
-wavePurifyVx(x, y, object = NULL, climate=NULL, which.stats = c("bias", "ts", "ets", "pod",
-    "far", "f", "hk", "mse"), thresholds = NULL, return.fields = FALSE,
-    verbose = FALSE, ...)
+wavePurifyVx(x, y, object = NULL, climate = NULL, which.stats =
+                 c("bias", "ts", "ets", "pod", "far", "f", "hk",
+                 "mse"), thresholds = NULL, return.fields = FALSE,
+                 time.point = 1, model = 1, verbose = FALSE, ...)
 
-\method{plot}{wavePurifyVx}(x, ...)
+\method{plot}{wavePurifyVx}(x, ..., set.pw = FALSE, col, zlim, horizontal = TRUE, 
+    loc.byrow = TRUE, type = c("stats", "fields"))
 
 \method{summary}{wavePurifyVx}(object, ...)
 }
@@ -22,7 +24,7 @@ wavePurifyVx(x, y, object = NULL, climate=NULL, which.stats = c("bias", "ts", "e
 For \code{wavePurifyVx}, m by n matrices giving the verification and forecast fields, resp.  If either is not supplied, then \code{object} must be supplied, and the fields given by \code{object} are used instead (even if one of \code{x} or \code{y} are supplied.  If one of these is missing, and \code{object} not supplied, the function will error out.  For \code{plot.wavePurifyVx}, list object as output from \code{wavePurifyVx}.
 }
   \item{object}{
-For \code{wavePurifyVx}, a list object as returned by \code{hoods2dPrep}.  Not used if both \code{x} and \code{y} are given.  For \code{summary.wavePurifyVx}, list object as returned by \code{wavePurifyVx}.
+For \code{wavePurifyVx}, a list object of class \dQuote{SpatialVx}.  Not used if both \code{x} and \code{y} are given.  For \code{summary.wavePurifyVx}, list object as returned by \code{wavePurifyVx}.
 }
   \item{climate}{m by n matrix defining a climatology field.  If not NULL, then the anamoly correlation coefficient will be applied to the wavelet denoised fields.}
   \item{which.stats}{
@@ -32,7 +34,13 @@ character describing which traditional verification statistics to calculate on t
 If \code{object} is used, then this argument is ignored.  Otherwise, it is used to define events for all of the verification statistics except MSE.  However, if supplied or other statistics are to be computed, then MSE will be calculated for the fields at values >= \code{thresholds}.  If only MSE is to be computed, and \code{thresholds} is NULL, then no thresholding is applied.  If NULL, and any of the statistics besides MSE are to be calculated, then default values of the 0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.9 and 0.95 quantiles (for each field, so that the thresholds may differ between fields) are used.  The same holds for anamoly correlation coefficient.
 }
   \item{return.fields}{logical, should the denoised fields be returned (e.g., for subsequent plotting)?}
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+  \item{model}{numeric indicating which forecast model to select for the analysis.}
   \item{verbose}{logical, should progress information (including total run time) be printed to the screen?}
+  \item{set.pw}{logical, should a panel of plots be determined and set by the function (generally ill advised).}
+   \item{col, zlim, horizontal}{optional arguments to \code{image}, and/or \pkg{fields} functions \code{poly.image} and \code{image.plot}}
+   \item{loc.byrow}{logical, only used if field is a projection, this determines how the locations should be put into matrices.}
+   \item{type}{character string stating whether to plot the resulting statistics or the original fields along with their de-noised counter parts.}
   \item{\dots}{
 For \code{wavePurifyVx}, optional additional arguments to \code{denoise.dwt.2d} (or \code{denoise.modwt.2d}) from package \pkg{waveslim}.  Note that if the argument \code{J} is not passed, then it will be determined as J=log2(min(m,n)).  If the fields are dyadic, then the usual DWT is used, otherwise the maximal overlap DWT is used instead.  For the plot and summary method functions, these are not used.
 }
@@ -59,10 +67,9 @@ Percival, D. B. and Guttorp, P. (1994)  Long-memory processes, the Allan varianc
 Eric Gilleland
 }
 \seealso{
-\code{\link{denoise.dwt.2d}}, \code{\link{denoise.modwt.2d}}, \code{\link{waverify2d}}, \code{\link{mowaverify2d}}, \code{\link{waveIS}}, \code{\link{hoods2dPrep}}, \code{\link{vxstats}}
+\code{\link{denoise.dwt.2d}}, \code{\link{denoise.modwt.2d}}, \code{\link{waverify2d}}, \code{\link{mowaverify2d}}, \code{\link{waveIS}}, \code{\link{vxstats}}
 }
 \examples{
-\dontrun{
 grid<- list( x= seq( 0,5,,100), y= seq(0,5,,100))
 obj<-Exp.image.cov( grid=grid, theta=.5, setup=TRUE)
 look<- sim.rf( obj)
@@ -77,26 +84,43 @@ look3 <- sim.rf( obj)
 look3[ look3 < 0] <- 0 
 look3 <- zapsmall( look3)
 
-hold <- hoods2dPrep("look2", "look", thresholds=c(0.1,1), units="z")
+hold <- make.SpatialVx(look2, look2, thresholds=c(0.1,1),
+            field.type="random", units="units")
+plot(hold, set.pw=TRUE)
 res <- wavePurifyVx(object=hold, climate=look3, return.fields=TRUE)
-plot(res)
+plot(res, type="fields")
+plot(res, type="stats")
 summary(res)
 
+\dontrun{
 data(UKobs6)
 data(UKfcst6)
 data(UKloc)
+
 hold <- surrogater2d(UKobs6, n=1, maxiter=50, verbose=TRUE)
 hold <- matrix(hold, 256, 256)
-UKobj <- hoods2dPrep("UKfcst6", "UKobs6", thresholds=c(0.1,2,5,10), loc=UKloc, units="mm/h")
+
+UKobj <- make.SpatialVx(UKobs6, UKfcst6, thresholds=c(0.1,2,5,10), loc=UKloc,
+    map=TRUE, field.type="Rainfall", units="mm/h",
+    data.name=c("Nimrod", "obs 6", "fcst 6"))
+
+plot(UKobj, set.pw=TRUE) 
+
 look <- wavePurifyVx(object=UKobj, climate=hold, return.fields=TRUE, verbose=TRUE)
-plot(look)
+plot(look, type="fields", set.pw=TRUE)
+plot(look, type="stats", set.pw=TRUE)
 summary(look)
 
 data(pert004)
 data(pert000)
-hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,10,50), loc=ICPg240Locs, units="mm/h")
+hold <- make.SpatialVx( pert000, pert004, thresholds=c(1,10,50), loc=ICPg240Locs,
+    projection=TRUE, map=TRUE, field.type="Precipitation", units="mm/h",
+    data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
+plot(hold, set.pw=TRUE)
 look <- wavePurifyVx(object=hold, return.fields=TRUE, verbose=TRUE)
-summary( look)
+plot(look, type="fields", set.pw=TRUE)
+plot(look, type="stats", set.pw=TRUE)
+summary(look)
 }
 
 }

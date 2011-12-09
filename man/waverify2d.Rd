@@ -1,7 +1,12 @@
 \name{waverify2d}
 \alias{waverify2d}
+\alias{waverify2d.default}
+\alias{waverify2d.SpatialVx}
 \alias{mowaverify2d}
+\alias{mowaverify2d.default}
+\alias{mowaverify2d.SpatialVx}
 \alias{plot.waverify2d}
+\alias{print.waverify2d}
 \title{
 High-Resolution Gridded Forecast Verification Using Discrete Wavelet Decomposition
 }
@@ -9,19 +14,35 @@ High-Resolution Gridded Forecast Verification Using Discrete Wavelet Decompositi
 High-resolution gridded forecast verification using discrete wavelet decomposition.
 }
 \usage{
-waverify2d(X, Y, Clim = NULL, wavelet.type = "haar", J = NULL, useLL = FALSE,
-    compute.shannon = FALSE, which.space = "field", verbose = FALSE)
+waverify2d(X, ..., Clim = NULL, wavelet.type = "haar", J = NULL)
 
-mowaverify2d(X, Y, Clim = NULL, wavelet.type = "haar", J = 4, useLL = FALSE,
-    compute.shannon = FALSE, which.space = "field", verbose = FALSE)
+\method{waverify2d}{default}(X, ..., Y, Clim = NULL, wavelet.type = "haar", J =
+                 NULL, useLL = FALSE, compute.shannon = FALSE,
+                 which.space = "field", verbose = FALSE)
 
-\method{plot}{waverify2d}(x, main1 = "X", main2 = "Y", main3 = "Climate",
-    which.plots = c("all", "dwt2d", "details", "energy", "mse", "rmse", "acc"),
-    separate = FALSE, ...)
+\method{waverify2d}{SpatialVx}(X, ..., Clim = NULL, wavelet.type = "haar", J = NULL, 
+    useLL = FALSE, compute.shannon = FALSE, which.space = "field", 
+    time.point = 1, model = 1, verbose = FALSE)
+
+mowaverify2d(X, ..., Clim = NULL, wavelet.type = "haar", J = 4)
+
+\method{mowaverify2d}{default}(X, ..., Clim = NULL, Y, wavelet.type = "haar", J = 4,
+    useLL = FALSE, compute.shannon = FALSE, which.space = "field", verbose = FALSE)
+
+\method{mowaverify2d}{SpatialVx}(X, ..., Clim = NULL, wavelet.type = "haar", J = 4, 
+    useLL = FALSE, compute.shannon = FALSE, which.space = "field", 
+    time.point = 1, model = 1, verbose = FALSE)
+
+\method{plot}{waverify2d}(x, ..., main1 = "X", main2 = "Y", main3 = "Climate", 
+    which.plots = c("all", "dwt2d", "details", "energy", "mse", 
+        "rmse", "acc"), separate = FALSE, col, horizontal = TRUE, 
+    loc.byrow = TRUE)
+
+\method{print}{waverify2d}(x, ...)
 }
 \arguments{
   \item{X,Y,Clim}{
-   m by n dyadic matrices (i.e., m = 2^M and n = 2^N, for M, N some integers) giving the verification and forecast fields (and optionally a climatology field), resp.
+   m by n dyadic matrices (i.e., m = 2^M and n = 2^N, for M, N some integers) giving the verification and forecast fields (and optionally a climatology field), resp.  Alternatively, \code{X} may be a \dQuote{SpatialVx} object, in which case, \code{Y} is not given and in either case \code{Clim} must be provided if it is to be used.
 }
    \item{x}{
 list object of class \dQuote{waverify2d} as returned by \code{waverify2d}.
@@ -39,13 +60,18 @@ logical, should the LL submatrix (i.e., the father wavelet or grand mean) be use
 logical, should the Shannon entropy be calculated for the wavelet decomposition?
 }
   \item{which.space}{character (one of \dQuote{field} or \dQuote{wavelet}) naming from which space the detail fields should be used.  If \dQuote{field}, then it is in the original field (or image) space (i.e., the detail reconstruction), and if \dQuote{wavelet}, it will be done in the wavelet space (i.e., the detail wavelet coefficients).}
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+  \item{model}{numeric indicating which forecast model to select for the analysis.}
   \item{main1,main2,main3}{optional characters naming each field to be used for the detail field plots and legend labelling on the energy plot.}
-   \item{which.plots}{character vector describing which}
+   \item{which.plots}{character vector describing which plots to make.  The default is to make all of them.  \dQuote{dwt2d} option uses \code{plot.dwt2d} from \pkg{waveslim}.  \dQuote{details} option makes image plots of the detail fields on which the various statistics are calculated.  The rest of the options give line plots showing the statistics.}
   \item{separate}{logical, should the plots be on their own devices (TRUE) or should some of them be put onto a single multi-panel device (FALSE, default)?}
+    \item{col}{optional argument specifying the \code{col} argument in calls to functions like \code{image}.  Default is a concatenation of gray with \code{time.colors(64)}.}
+    \item{loc.byrow}{logical, if the grids are projections, then \code{poly.image} will be called instead of \code{image}.  In this case, the locations are put into matrices of lon and matrices of lat where the matrices are formed from the columns of \code{loc} (as taken from the attribute).  In this case, \code{loc.byrow} is used for the \code{byrow} argument in the call to \code{matrix}.}
+    \item{horizontal}{logical, should the legend on image plots be horizontal (TRUE, placed at the bottom of the plot) or vertical (FALSE, placed at the right side of the plot)?}
   \item{verbose}{logical, should progress information be printed to the screen, including total run time?
 }
 \item{\dots}{
-optional additonal plot or image.plot parameters.  If detail and energy, mse, rmse or acc plots are desired, must be applicable to both types of plots.
+optional additonal plot or image.plot parameters.  If detail and energy, mse, rmse or acc plots are desired, must be applicable to both types of plots.  Not used by \code{print} method function.
 }
 }
 \details{
@@ -84,7 +110,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{dwt.2d}}, \code{\link{idwt.2d}}, \code{\link{hoods2d}}, \code{\link{hoods2dPrep}}
+\code{\link{dwt.2d}}, \code{\link{idwt.2d}}, \code{\link{hoods2d}}
 }
 \examples{
 grid<- list( x= seq( 0,5,,64), y= seq(0,5,,64))
@@ -97,14 +123,14 @@ look2 <- sim.rf( obj)
 look2[ look2 < 0] <- 0 
 look2 <- zapsmall( look2)
 
-res <- waverify2d(look, look2)
+res <- waverify2d(look, Y=look2)
 plot(res)
 summary(res)
 
 \dontrun{
 data(UKobs6)
 data(UKfcst6)
-look <- waverify2d(UKobs6, UKfcst6)
+look <- waverify2d(UKobs6, Y=UKfcst6)
 plot(look, which.plots="energy")
 look2 <- mowaverify2d(UKobs6, UKfcst6, J=8)
 plot(look2, which.plots="energy")
@@ -117,20 +143,41 @@ pdf("nondyadicMODWTex.pdf")
 plot(look2, main1="NIMROD Analysis", main2="NIMROD Forecast")
 dev.off()
 
+# Alternative using "SpatialVx" object.
+data(UKloc)
+hold <- make.SpatialVx(UKobs6, UKfcst6, loc=UKloc,
+    map=TRUE, field.type="Rainfall", units="mm/h",
+    data.name=c("Nimrod", "Obs 6", "Fcst 6"))
+look <- waverify2d(hold)
+
+plot(look, which.plots="details")
+
 data(pert000)
 data(pert004)
-look <- mowaverify(pert000, pert004, J=8, verbose=TRUE) # Slow, but does not require fields to be dyadic.
+
+# The following is slow, but does not require fields to be dyadic.
+look <- mowaverify2d(pert000, Y=pert004, J=8, verbose=TRUE)
+
 # Also can just do plot(look), but should print to a pdf file (e.g., using pdf()).
 plot(look, which.plots="energy")
 
+# Using a "SpatialVx" object.
+data(ICPg240Locs)
+hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
+            projection=TRUE, map=TRUE, field.type="Precipitation",
+            units="mm/h",
+            data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
+look <- mowaverify2d(hold, verbose=TRUE)
+
+plot(look, which.plots="details")
+
 # Try one with some kind of climatology field.  Here using surrogater2d function.
-data(UKloc)
 hold <- surrogater2d(UKobs6, n=1, maxiter=50, verbose=TRUE)
 hold <- matrix(hold, 256, 256)
 image(hold, col=c("grey",tim.colors(64)), axes=FALSE)
 image.plot(UKloc, col=c("grey",tim.colors(64)), legend.only=TRUE, horizontal=TRUE)
 
-look <- waverify2d(UKobs6, UKfcst6, hold)
+look <- waverify2d(UKobs6, Y=UKfcst6, Clim=hold)
 pdf("waveletEx.pdf")
 plot(look)
 dev.off()

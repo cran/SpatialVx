@@ -1,77 +1,139 @@
-clusterer <- function(X, Y, xloc=NULL, xyp=TRUE, threshold=1e-8, linkage.method="complete", stand=TRUE, trans="identity", verbose=FALSE, ...) {
-   out <- list()
-   out$linkage.method <- linkage.method
-   out$trans <- trans
-   data.name <- c(as.character(substitute(X)), as.character(substitute(Y)))
-   names(data.name) <- c("verification","forecast")
-   out$data.name <- data.name
-   xdim <- dim(X)
-   N <- prod(xdim)
-   out$N <- N
-   if(is.null(xloc)) {
+clusterer <- function(X, Y=NULL, ...) {
+    UseMethod("clusterer", X)
+} # end of 'clusterer' function.
+
+clusterer.SpatialVx <- function(X, Y=NULL, ..., time.point=1, model=1, xyp=TRUE, threshold=1e-8,
+    linkage.method="complete", stand=TRUE, trans="identity", verbose=FALSE) {
+
+    if(!missing(Y) && !is.null(Y)) warning("clusterer.SpatialVx: Y argument is ignored.")
+
+    a <- attributes(X)
+
+    ## Begin: Get the data sets
+    if(!missing(time.point) && !missing(model)) dat <- datagrabber(X, time.point=time.point, model=model)
+    else if(!missing(time.point)) dat <- datagrabber(X, time.point=time.point)
+    else if(!missing(model)) dat <- datagrabber(X, model=model)
+    else dat <- datagrabber(X)
+
+    X <- dat$X
+    Xhat <- dat$Xhat
+    ## End: Get the data sets
+
+    out <- clusterer.default(X=X, Y=Xhat, ..., xloc=a$loc, xyp=xyp, threshold=threshold,
+				linkage.method=linkage.method, stand=stand, trans=trans, a=a, verbose=verbose)
+
+    attr(out, "time.point") <- time.point
+    attr(out, "model") <- model
+
+    if(length(a$data.name) == a$nforecast + 2) {
+        dn <- a$data.name[-(1:2)]
+        vxname <- a$data.name[1:2]
+    } else {
+        dn <- a$data.name[-1]
+        vxname <- a$data.name[1]
+    }
+    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
+    else model.num <- model
+
+    attr(out, "data.name") <- c(vxname, dn[model.num])
+
+    return(out)
+} # end of 'clusterer.SpatialVx' function.
+
+clusterer.default <- function(X, Y=NULL, ..., xloc=NULL, xyp=TRUE, threshold=1e-8, linkage.method="complete",
+    stand=TRUE, trans="identity", a=NULL, verbose=FALSE) {
+
+    out <- list()
+    if(!is.null(a)) {
+
+	if(!is.null(a$names)) a$names <- NULL
+	attributes(out) <- a
+	xdim <- a$xdim
+
+    } else {
+
+	data.name <- c(as.character(substitute(X)), as.character(substitute(Y)))
+        names(data.name) <- c("verification","forecast")
+        attr(out, "data.name") <- data.name
+	xdim <- dim(X)
+	attr(out, "xdim") <- xdim
+
+    }
+
+    out$data <- list(X=X, Xhat=Y)
+
+    out$linkage.method <- linkage.method
+    out$trans <- trans
+    N <- prod(xdim)
+    out$N <- N
+
+    if(is.null(xloc)) {
 	xloc <- cbind(rep(1:xdim[1],xdim[2]),rep(1:xdim[2],each=xdim[1]))
 	goodloc <- !logical(N)
-   } else goodloc <- !is.na(xloc[,1]) & !is.na(xloc[,2])
-   out$xloc <- xloc
-   if(length(threshold)==1) u <- c(threshold, threshold)
-   else u <- threshold
-   out$threshold <- u
-   idX <- !is.na(c(X)) & c(X) >= u[1] & goodloc
-   idY <- !is.na(c(Y)) & c(Y) >= u[2] & goodloc
-   if(xyp) {
+    } else goodloc <- !is.na(xloc[,1]) & !is.na(xloc[,2])
+    if(is.null(a$loc)) attr(out, "loc") <- xloc
+
+    if(length(threshold)==1) u <- c(threshold, threshold)
+    else u <- threshold 
+    attr(out, "threshold") <- u
+
+    idX <- !is.na(c(X)) & c(X) >= u[1] & goodloc
+    idY <- !is.na(c(Y)) & c(Y) >= u[2] & goodloc
+
+    if(xyp) {
 	tmpX <- cbind(xloc[idX,], c(X)[idX])
    	tmpY <- cbind(xloc[idY,], c(Y)[idY])
 	tmpX[,3] <- c(do.call(trans, list(x=tmpX[,3])))
 	tmpY[,3] <- c(do.call(trans, list(x=tmpY[,3])))
-   } else {
+    } else {
 	tmpX <- xloc[idX,]
 	tmpY <- xloc[idY,]
-   }
-   NCx  <- dim(tmpX)[1]
-   NCy  <- dim(tmpY)[1]
-   out$NCo <- NCx:1
-   out$NCf <- NCy:1
-   if(verbose) {
+    }
+    NCx  <- dim(tmpX)[1]
+    NCy  <- dim(tmpY)[1]
+    out$NCo <- NCx:1
+    out$NCf <- NCy:1
+    if(verbose) {
 	cat("\n", NCx, " initial clusters in verification field.\n")
 	cat("\n", NCy, " initial clusters in forecast field.\n")
 	cat("\n", "Performing cluster analysis on verification field.\n")
-   }
-   if(NCx < 2 | NCy < 2) stop("clusterer: Less than two initial clusters in one or both fields.\n")
-   if(stand) {
+    }
+    if(NCx < 2 | NCy < 2) stop("clusterer: Less than two initial clusters in one or both fields.\n")
+    if(stand) {
         tmpX <- (tmpX - colMeans(tmpX, na.rm=TRUE))/sqrt(apply(tmpX,2,var,na.rm=TRUE))
         tmpY <- (tmpY - colMeans(tmpY, na.rm=TRUE))/sqrt(apply(tmpY,2,var,na.rm=TRUE))
-   }
+    }
 
-   args <- list(...)
-   if(is.null(args$method)) metric <- "euclidean"
-   else metric <- args$method
+    args <- list(...)
+    if(is.null(args$method)) metric <- "euclidean"
+    else metric <- args$method
 
-   if(is.element(linkage.method,c("ward","centroid","median")) & metric != "euclidean") stop(paste("clusterer: method must be eulcidean with ", linkage.method, " linkage.", sep=""))
+    if(is.element(linkage.method,c("ward","centroid","median")) & metric != "euclidean") stop(paste("clusterer: method must be eulcidean with ", linkage.method, " linkage.", sep=""))
  
-   dX <- dist(tmpX, ...)
-   XclustObj <- hclust(dX, method=linkage.method)
-   XclustObj2 <- MakeClusterList(XclustObj)
-   if(verbose) cat("\n", "Performing cluster analysis on forecast field.\n")
-   dY <- dist(tmpY, ...)
-   YclustObj <- hclust(dY, method=linkage.method)
-   YclustObj2 <- MakeClusterList(YclustObj)
-   out$cluster.identifiers <- list(X=XclustObj2, Y=YclustObj2)
+    dX <- dist(tmpX, ...)
+    XclustObj <- hclust(dX, method=linkage.method)
+    XclustObj2 <- MakeClusterList(XclustObj)
+    if(verbose) cat("\n", "Performing cluster analysis on forecast field.\n")
+    dY <- dist(tmpY, ...)
+    YclustObj <- hclust(dY, method=linkage.method)
+    YclustObj2 <- MakeClusterList(YclustObj)
+    out$cluster.identifiers <- list(X=XclustObj2, Y=YclustObj2)
 
-   out$idX <- idX
-   out$idY <- idY
-   out$cluster.objects <- list()
-   out$cluster.objects$X <- XclustObj
-   out$cluster.objects$Y <- YclustObj
-
-   zDiss <- matrix(NA, NCx, NCy)
-   if(is.element(linkage.method,c("ward","median","centroid"))) {
+    out$idX <- idX
+    out$idY <- idY
+    out$cluster.objects <- list()
+    out$cluster.objects$X <- XclustObj
+    out$cluster.objects$Y <- YclustObj
+ 
+    zDiss <- matrix(NA, NCx, NCy)
+    if(is.element(linkage.method,c("ward","median","centroid"))) {
 	XclustObjent <- list()
 	XclustObjent[[1]] <- NULL
 	YclustObjent <- XclustObjent
-   }
-   if(verbose) cat("\n", "Finding distances between verification and forecast clusters and sorting them out.\n")
-   Indy <- 1:NCx
-   for(i in 1:NCx) {
+    }
+    if(verbose) cat("\n", "Finding distances between verification and forecast clusters and sorting them out.\n")
+    Indy <- 1:NCx
+    for(i in 1:NCx) {
 	if(verbose) cat(i, " ")
 	if(metric == "euclidean") {
 	   if(is.matrix(tmpY)) zDiss[i,] <- sqrt(rowSums((matrix(tmpX[i,], nrow=nrow(tmpY), ncol=ncol(tmpX), byrow=TRUE) - tmpY)^2, na.rm=TRUE))
@@ -89,10 +151,10 @@ clusterer <- function(X, Y, xloc=NULL, xyp=TRUE, threshold=1e-8, linkage.method=
 		else XclustObjent[[i]] <- (XclustObjent[[mm[i-1,1]+1]] + XclustObjent[[mm[i-1,2]+1]])/2
 	   } else XclustObjent[[i]] <- matrix(colMeans(tmpX[XclustObj2[[i]][[1]],],na.rm=TRUE), nrow=1)
 	} # end of if 'i>1' stmt.
-   } # end of for 'i' loop.
-   if(verbose) cat("\n", "Inter-cluster distances found.  Verification clusters sorted out.  Sorting out forecast clusters.\n")
-   Indy <- 1:NCy
-   for(i in 1:NCy) {
+    } # end of for 'i' loop.
+    if(verbose) cat("\n", "Inter-cluster distances found.  Verification clusters sorted out.  Sorting out forecast clusters.\n")
+    Indy <- 1:NCy
+    for(i in 1:NCy) {
 	if(verbose) cat(i, " ")
 	if(i == 1) YclustObj2[[1]] <- as.list(1:NCy)
         else if(i < NCy)  {
@@ -106,19 +168,19 @@ clusterer <- function(X, Y, xloc=NULL, xyp=TRUE, threshold=1e-8, linkage.method=
               } else YclustObjent[[i]] <- matrix(colMeans(tmpY[YclustObj2[[i]][[1]],],na.rm=TRUE), nrow=1)
            } # end of if 'i>1' stmt.
 	} # end of if 'i < NCy' stmts.
-   } # end of for 'i' loop.
+    } # end of for 'i' loop.
 
-   if(verbose) cat("\n", "Finding inter-cluster distances (NCf X NCo double loop within a double loop).\n")
-   ICdists <- list()
-   ICdists[[1]] <- list()
-   ICdists[[1]][[1]] <- zDiss
-   minICdists <- numeric(0)
-   if(linkage.method=="mcquitty") {
+    if(verbose) cat("\n", "Finding inter-cluster distances (NCf X NCo double loop within a double loop).\n")
+    ICdists <- list()
+    ICdists[[1]] <- list()
+    ICdists[[1]][[1]] <- zDiss
+    minICdists <- numeric(0)
+    if(linkage.method=="mcquitty") {
 	warning("clusterer: McQuitty linkage method not available for comparing clusters across fields.  Using average instead.")
 	out$linkage.method <- c(linkage.method, "average")
 	linkage.method <- "average"
-   }
-   for(i in 1:NCx) {
+    }
+    for(i in 1:NCx) {
 	if(verbose) cat("\n", i, ":\n")
 	lookX <- XclustObj2[[i]]
 	nx <- length(lookX)
@@ -159,14 +221,25 @@ clusterer <- function(X, Y, xloc=NULL, xyp=TRUE, threshold=1e-8, linkage.method=
 	      ICdists[[i]][[j]] <- look
 	      minICdists <- c(minICdists, min(look,na.rm=TRUE))
 	} # end of inner for 'j' loop.
-   } # end of outer for 'i' loop.
+    } # end of outer for 'i' loop.
    
-   if(verbose) cat("\n")
-   out$inter.cluster.dist <- ICdists
-   out$min.intercluster.dists <- minICdists
-   class(out) <- "clusterer"
-   return(out)
-} # end of 'clusterer' function.
+    if(verbose) cat("\n")
+    out$inter.cluster.dist <- ICdists
+    out$min.intercluster.dists <- minICdists
+
+    class(out) <- "clusterer"
+    return(out)
+} # end of 'clusterer.default' function.
+
+print.clusterer <- function(x, ...) {
+
+    a <- attributes(x)
+    if(!is.null(a$msg)) cat(a$msg, "\n")
+    print(a$data.name)
+    cat("\n", "Cluster Analysis performed.\n")
+
+    invisible()
+} # end of 'print.clusterer' function.
 
 summary.clusterer <- function(object, ...) {
    out <- object
@@ -179,7 +252,13 @@ summary.clusterer <- function(object, ...) {
    else silent <- TRUE
    medio <- quantile(object$min.intercluster.dists,probs=0.5)
    u <- medio + z*sigma
-   if(!silent) cat("\n", "Matched clusters determined by clusters whose inter-cluster distance is < ", u, "\n")
+   if(!silent) {
+	a <- attributes(object)
+        if(!is.null(a$msg)) cat(a$msg, "\n")
+        print(a$data.name)
+        cat("\n")
+	cat("\n", "Matched clusters determined by clusters whose inter-cluster distance is < ", u, "\n")
+    }
    out$cutoff <- u
    NCf <- object$NCf
    NCo <- object$NCo
@@ -239,16 +318,95 @@ summary.clusterer <- function(object, ...) {
    invisible(out)
 } # end of 'summary.clusterer' function.
 
-plot.clusterer <- function(x, ...) {
-   par(mfrow=c(4,2), bg="beige", mar=c(4.1,4.1,4.1,4.1), oma=rep(2,4))
-   X <- get(x$data.name[1])
-   Y <- get(x$data.name[2])
-   X[X<x$threshold[1]] <- 0
-   Y[Y<x$threshold[2]] <- 0
-   zl <- range(c(c(X),c(Y)),finite=TRUE)
-   image(X, col=c("gray",tim.colors(64)), zlim=zl, axes=FALSE, main=paste(x$data.name[1], "\n(Threshold = ", x$threshold[1], ")", sep=""))
-   image(Y, col=c("gray",tim.colors(64)), zlim=zl, axes=FALSE, main=paste(x$data.name[2], "\n(Threshold = ", x$threshold[2], ")", sep=""))
-   image.plot(Y, col=c("gray",tim.colors(64)), zlim=zl, legend.only=TRUE, horizontal=TRUE)
+plot.clusterer <- function(x, ..., set.pw=FALSE, icol=c("gray", tim.colors(64)), horizontal=FALSE, loc.byrow=TRUE) {
+
+    a <- attributes(x)
+
+    if(!is.logical(set.pw)) {
+	if(!is.numeric(set.pw) || length(set.pw) != 2) stop("plot.clusterer: invalid set.pw argument.")
+	par(mfrow=set.pw, oma=c(0,0,2,0))
+    } else if(set.pw)  par(mfrow=c(4,2), mar=c(4.1,4.1,4.1,4.1), oma=c(0,0,2,0))
+    else if(!is.null(a$msg)) par(oma=c(0,0,2,0))
+
+    X <- x$data$X
+    Y <- x$data$Xhat
+
+    X[X<x$threshold[1]] <- 0
+    Y[Y<x$threshold[2]] <- 0
+
+    zl <- range(c(c(X),c(Y)),finite=TRUE)
+
+    if(!is.null(a$projection)) proj <- a$projection
+    else proj <- FALSE
+
+    if(!is.null(a$map)) domap <- a$map
+    else domap <- FALSE
+
+    xd <- a$xdim
+
+    if(proj) {
+	loc <- list(x=matrix(a$loc[,1], xd[1], xd[2], byrow=loc.byrow),
+		    y=matrix(a$loc[,2], xd[1], xd[2], byrow=loc.byrow))
+    }
+
+    if(domap) {
+	locr <- apply(a$loc, 2, range, finite=TRUE)
+	ax <- list(x=pretty(round(a$loc[,1], digits=2)), y=pretty(round(a$loc[,2], digits=2)))
+    }
+
+    if(length(a$data.name) == 3) dn <- a$data.name[-1]
+    else dn <- a$data.name
+
+    mainX <- paste(dn[1], "\n(Threshold = ", a$threshold[1], ")", sep="")
+    mainY <- paste(dn[2], "\n(Threshold = ", a$threshold[2], ")", sep="")
+
+    if(domap) {
+
+	if(proj) {
+	    map(xlim=locr[,1], ylim=locr[,2], type="n")
+	    axis(1, at=ax$x, labels=ax$x)
+	    axis(2, at=ax$y, labels=ax$y)
+	    poly.image(loc$x, loc$y, X, add=TRUE, col=icol, zlim=zl, main=mainX)
+	    map(add=TRUE, lwd=1.5)
+	    map(add=TRUE, database="state")
+
+	    map(xlim=locr[,1], ylim=locr[,2], type="n")
+	    axis(1, at=ax$x, labels=ax$x)
+	    axis(2, at=ax$y, labels=ax$y)
+	    poly.image(loc$x, loc$y, Y, add=TRUE, col=icol, zlim=zl, main=mainY)
+	    map(add=TRUE, lwd=1.5)
+            map(add=TRUE, database="state")
+	} else {
+	    map(xlim=locr[,1], ylim=locr[,2], type="n")
+	    axis(1, at=ax$x, labels=ax$x)
+	    axis(2, at=ax$y, labels=ax$y)
+	    image(as.image(X, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE), add=TRUE, col=icol, zlim=zl, main=mainX)
+	    map(add=TRUE, lwd=1.5)
+            map(add=TRUE, database="state")
+
+	    map(xlim=locr[,1], ylim=locr[,2], type="n")
+	    axis(1, at=ax$x, labels=ax$x)
+	    axis(2, at=ax$y, labels=ax$y)
+            image(as.image(Y, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE), add=TRUE, col=icol, zlim=zl, main=mainY)
+            map(add=TRUE, lwd=1.5)
+            map(add=TRUE, database="state")
+	}
+
+    } else {
+	if(proj) {
+
+	    poly.image(loc$x, loc$y, X, col=icol, zlim=zl, main=mainX)
+	    poly.image(loc$x, loc$y, Y, col=icol, zlim=zl, main=mainY)
+
+	} else {
+
+	    image(X, col=icol, zlim=zl, main=mainX)
+      	    image(Y, col=icol, zlim=zl, main=mainY)
+
+	}
+    } # end of if else 'domap' stmts.  
+   image.plot(Y, col=icol, zlim=zl, legend.only=TRUE, horizontal=horizontal)
+
    plot(x$cluster.objects$X, xlab="")
    plot(x$cluster.objects$Y, xlab="")
    hist(x$min.intercluster.dists, col="darkblue", xlab="Minimum inter-cluster distances \n(between fields)", breaks="FD", main="")
@@ -257,6 +415,12 @@ plot.clusterer <- function(x, ...) {
    else res <- summary(x, ...)
    res$par.set <- TRUE
    plot(res)
+
+    if(!is.null(a$msg)) {
+	title("")
+	mtext(a$msg, line=0.05, outer=TRUE)
+    }
+
    invisible()
 } # end of 'plot.clusterer' function.
 
@@ -295,7 +459,56 @@ MakeClusterList <- function(x) {
    return(out)
 } # end of 'MakeClusterList' function.
 
-CSIsamples <- function(X, Y, nbr.csi.samples = 100,
+CSIsamples <- function(x, ...) {
+    UseMethod("CSIsamples", x)
+} # end of 'CSIsamples' function.
+
+CSIsamples.SpatialVx <- function(x, ..., time.point=1, model=1, nbr.csi.samples = 100,
+                   threshold = 20, k = 100, width = 25, stand=TRUE,
+                   z.mult = 0, hit.threshold = 0.1, max.csi.clust = 100,
+                   diss.metric="euclidean", linkage.method="average", verbose=FALSE) {
+
+    a <- attributes(x)
+    TheCall <- match.call()
+
+    ## Begin: Get the data sets
+    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model)
+    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
+    else if(!missing(model)) dat <- datagrabber(x, model=model)
+    else dat <- datagrabber(x)
+
+    X <- dat$X
+    Xhat <- dat$Xhat
+    ## End: Get the data sets
+
+    out <- CSIsamples.default(x=X, ..., xhat=Xhat, nbr.csi.samples=nbr.csi.samples,
+				threshold=threshold, k=k, width=width, stand=stand,
+				z.mult=z.mult, hit.threshold=hit.threshold,
+				max.csi.clust=max.csi.clust, diss.metric=diss.metric,
+				linkage.method=linkage.method, verbose=verbose)
+
+    attr(out, "time.point") <- time.point
+    attr(out, "model") <- model
+
+    if(length(a$data.name) == a$nforecast + 2) {
+        dn <- a$data.name[-(1:2)]
+        vxname <- a$data.name[1:2]
+    } else {
+        dn <- a$data.name[-1]
+        vxname <- a$data.name[1]
+    }
+    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
+    else model.num <- model
+
+    attr(out, "data.name") <- c(vxname, dn[model.num])
+
+    attr(out, "xdim") <- a$xdim
+    attr(out, "msg") <- a$msg
+    out$call <- TheCall
+    return(out)
+} # end of 'CSIsamples.SpatialVx' function.
+
+CSIsamples.default <- function(x, ..., xhat, nbr.csi.samples = 100,
                    threshold = 20, k = 100, width = 25, stand=TRUE,
                    z.mult = 0, hit.threshold = 0.1, max.csi.clust = 100,
                    diss.metric="euclidean", linkage.method="average", verbose=FALSE) {
@@ -303,6 +516,8 @@ CSIsamples <- function(X, Y, nbr.csi.samples = 100,
   ##
   ## Internal functions
   ##
+    X <- x
+    Y <- xhat
   out <- list()
   data.name <- c(as.character(substitute(X)),as.character(substitute(Y))) 
   names(data.name) <- c("verification","forecast")
@@ -425,7 +640,7 @@ CSIsamples <- function(X, Y, nbr.csi.samples = 100,
   out$results <- results
   class(out) <- "CSIsamples"
   return(out)
-} # end of 'CSIsamples' function.
+} # end of 'CSIsamples.default' function.
 
 summary.CSIsamples <- function(object, ...) {
    out <- object
@@ -445,15 +660,28 @@ summary.CSIsamples <- function(object, ...) {
 } # end of 'summary.CSIsamples' function.
 
 plot.CSIsamples <- function(x, ...) {
-   m1 <- paste(x$data.name[1], " vs ", x$data.name[2], sep="")
-   y <- summary(x, silent=TRUE)
-   plot(y, ...)
-   invisible()
+    y <- summary(x, silent=TRUE)
+    plot(y, ...)
+    invisible(y)
 } # end of 'plot.CSIsamples' function.
 
 plot.summary.CSIsamples <- function(x, ...) {
-   m1 <- paste(x$data.name[1], " vs ", x$data.name[2], sep="")
-   plot(x$csi, type="l", ylim=c(0,1), main=m1, xlab="Number of Clusters", ylab="CSI", lwd=1.5)
-   invisible()
+    a <- attributes(x)
+    if(!is.null(a$data.name) && length(a$data.name) == 2) m1 <- paste(a$data.name[1], " vs ", a$data.name[2], sep="")
+    else if(!is.null(a$data.name) && length(a$data.name) == 3) m1 <- paste(a$data.name[2], " vs ", a$data.name[3], sep="")
+    else if(!is.null(x$data.name)) m1 <- paste(x$data.name[1], " vs ", x$data.name[2], sep="")
+    plot(x$csi, type="l", ylim=c(0,1), main=m1, xlab="Number of Clusters", ylab="CSI", lwd=1.5)
+    invisible()
 } # end of 'plot.summary.CSIsamples' function.
 
+print.CSIsamples <- function(x, ...) {
+    a <- attributes(x)
+    if(!is.null(a$msg)) {
+	cat("\n", a$msg, "\n")
+	print(a$data.name)
+    }
+    print(x$call)
+    d <- dim(x$results)
+    if(!is.null(d)) cat("\n", d[2], " samples of ", d[1], "\n")
+    invisible()
+} # end of 'print.CSIsamples' function.

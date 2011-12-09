@@ -8,7 +8,8 @@ Temporal Block Bootstrap Keeping Locations in Space Constant
 Temporal block bootstrap for data at spatial locations (holding locations constant at each iteration).  This is a wrapper function to the tsboot or boot functions for use with the field significance approach of Elmore et al. (2006).
 }
 \usage{
-LocSig(Z, numrep = 1000, block.length = NULL, bootfun = "mean", alpha = 0.05, bca = FALSE, ...)
+LocSig(Z, numrep = 1000, block.length = NULL, bootfun = "mean",
+    alpha = 0.05, bca = FALSE, ...)
 
 \method{plot}{LocSig}(x, loc = NULL, nx = NULL, ny = NULL, ...)
 }

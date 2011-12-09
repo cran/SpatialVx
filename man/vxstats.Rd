@@ -7,16 +7,13 @@ Some Common Traditional Forecast Verification Statistics.
 Calculates some common traditional forecast verification statistics.
 }
 \usage{
-vxstats(Fcst, Obs, which.stats = c("bias", "ts", "ets", "pod", "far", "f", "hk",
-    "bcts", "bcets", "mse"),
-    subset = NULL)
+vxstats(X, Xhat, which.stats = c("bias", "ts", "ets", "pod",
+                 "far", "f", "hk", "bcts", "bcets", "mse"), subset =
+                 NULL)
 }
 \arguments{
-  \item{Fcst}{
-k by m matrix of forecast values.
-}
-  \item{Obs}{
-k by m matrix of observed values.
+    \item{X,Xhat}{
+k by m matrix of verification and forecast values, resp.
 }
   \item{which.stats}{
 character vector giving the names of the desired statistics.  See Details below.

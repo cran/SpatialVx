@@ -26,15 +26,15 @@ distmaploss(x, y, threshold = 0, const = Inf, ...)
 }
 }
 \details{
-These are simple loss functions that can be used in conjunction with \code{spatMLD} to carry out the spatial prediction comparison test (SPCT) as introduced in Hering and Genton (2011); see also Gilleland (2012) in particular for details about the distance map loss function.
+These are simple loss functions that can be used in conjunction with \code{spatMLD} to carry out the spatial prediction comparison test (SPCT) as introduced in Hering and Genton (2011); see also Gilleland (2013) in particular for details about the distance map loss function.
 
-The distance map loss funciton does not zero-out well as the other loss functions do.  Therefore, \code{zero.out} should be \code{FALSE} in the call to \code{spatMLD}.  Further, as pointed out in Gilleland (2012), the distance map loss function can easily be hedged by having a lot of correct negatives.  The image warp loss function is probably better for this purpose if, e.g., there are numerous zero-valued grid points in all fields.
+The distance map loss funciton does not zero-out well as the other loss functions do.  Therefore, \code{zero.out} should be \code{FALSE} in the call to \code{spatMLD}.  Further, as pointed out in Gilleland (2013), the distance map loss function can easily be hedged by having a lot of correct negatives.  The image warp loss function is probably better for this purpose if, e.g., there are numerous zero-valued grid points in all fields.
 }
 \value{
 numeric m by n matrices containing the value of the loss (or skill) function at each location i of the original set of locations (or grid of points).
 }
 \references{
-Gilleland, E. (2012) Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  \emph{Mon. Wea. Rev.}, \bold{141}, (1), 340--355.
+Gilleland, E. (2013) Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  \emph{Mon. Wea. Rev.}, \bold{141}, (1), 340--355.
 
 Hering, A. S. and Genton, M. G. (2011) Comparing spatial predictions.  \emph{Technometrics} \bold{53}, (4), 414--425.
 

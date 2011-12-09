@@ -1,5 +1,10 @@
 \name{SpatialVx-internal}
+\alias{datagrabber}
+\alias{datagrabber.SpatialVx}
+\alias{hoods2dPrep}
 \alias{hoods2dSetUpLists}
+\alias{KernelGradFUN}
+\alias{locmeasures2dPrep}
 \alias{LocListSetup}
 \alias{MakeClusterList}
 \alias{makeEmptyWave}
@@ -14,9 +19,9 @@
 \alias{initGMM}
 \alias{gmmEMstep}
 \alias{gmmNegLogLik}
-\alias{KernelGradFUN}
 \alias{grads1}
 \alias{grads2}
+\alias{plot.saller}
 \title{
 Internal functions for the SpatialVx package
 }

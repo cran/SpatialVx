@@ -13,7 +13,50 @@ makeWaveNames <- function(J) {
    return(out)
 } # end of 'makeWaveNames' function.
 
-waverify2d <- function(	X, Y, Clim=NULL,
+waverify2d <- function(X, ..., Clim=NULL, wavelet.type="haar", J=NULL) {
+    UseMethod("waverify2d", X)
+} # end of 'waverify2d' function.
+
+waverify2d.SpatialVx <- function(X, ..., Clim=NULL, wavelet.type="haar", J=NULL,
+    useLL=FALSE, compute.shannon=FALSE, which.space="field", time.point=1, model=1, verbose=FALSE) {
+
+    out <- list()
+    a <- attributes(X)
+    attributes(out) <- a
+
+    ## Begin: Get the data sets
+    if(!missing(time.point) && !missing(model)) dat <- datagrabber(X, time.point=time.point, model=model)
+    else if(!missing(time.point)) dat <- datagrabber(X, time.point=time.point)
+    else if(!missing(model)) dat <- datagrabber(X, model=model)
+    else dat <- datagrabber(X)
+
+    x <- dat$X
+    y <- dat$Xhat
+    ## End: Get the data sets
+
+    out2 <- waverify2d.default(X=x, Y=y, Clim=Clim, wavelet.type=wavelet.type, J=J,
+			        useLL=useLL, compute.shannon=compute.shannon,
+				which.space=which.space, verbose=verbose)
+
+    out$A <- out2$A
+    out$J <- out2$J
+    out$X.wave <- out2$X.wave
+    out$Y.wave <- out2$Y.wave
+    out$Clim.wave <- out2$Clim.wave
+    out$Shannon.entropy <- out2$Shannon.entropy
+    out$energy <- out2$energy
+    out$mse <- out2$mse
+    out$rmse <- out2$rmse
+    out$acc <- out2$acc
+    out$wave.method <- out2$wave.method
+
+    attr(out, "time.point") <- time.point
+    attr(out, "model") <- model
+    class(out) <- "waverify2d"
+    return(out)
+} # end of 'waverify2d.SpatialVx' function.
+
+waverify2d.default <- function(X, ..., Y, Clim=NULL,
 			wavelet.type="haar", J=NULL, useLL=FALSE,
 			compute.shannon=FALSE, which.space="field",
 			verbose=FALSE) {
@@ -127,19 +170,75 @@ waverify2d <- function(	X, Y, Clim=NULL,
    if( climate) out$acc <- acc.i
    out$type <- wavelet.type
    out$wave.method <- "DWT"
-   if( verbose) print( Sys.time() - begin.time)
+   if(verbose) print( Sys.time() - begin.time)
    class(out) <- "waverify2d"
    return(out)
-} # end of 'waverify2d' function.
+} # end of 'waverify2d.default' function.
 
-plot.waverify2d <- function(x, main1="X", main2="Y", main3="Climate", which.plots=c("all", "dwt2d", "details", "energy", "mse", "rmse", "acc"),
-			separate=FALSE, ...) {
-   X <- x$X.wave
-   Y <- x$Y.wave
-   if(is.null(X) | is.null(Y)) do.detail <- FALSE
-   else do.detail <- TRUE
-   if(climate <- !is.null(x$Clim.wave)) Clim <- x$Clim.wave
-   if(any(is.element(c("all","dwt2d2"),which.plots)) & (x$wave.method == "DWT")) {
+print.waverify2d <- function(x, ...) {
+    a <- attributes(x)
+    if(!is.null(a$data.name)) {
+	cat(a$data.name, "\n")
+	cat(a$msg)
+    }
+
+    cat("\n", "Wavelet method = ", x$wave.method)
+    cat("\n", " number of levels (J) = ", x$J, "\n")
+    cat("Energy:\n")
+    print(x$energy)
+    cat("\n", "MSE:\n")
+    print(x$mse)
+    cat("\n", "RMSE:\n")
+    print(x$rmse)
+
+    invisible()
+} # end of 'print.waverify2d' function.
+
+plot.waverify2d <- function(x, ..., main1="X", main2="Y", main3="Climate",
+    which.plots=c("all", "dwt2d", "details", "energy", "mse", "rmse", "acc"),
+    separate=FALSE, col, horizontal=TRUE, loc.byrow=TRUE) {
+
+    if(missing(col)) col <- c("gray", tim.colors(64))
+
+    which.plots <- tolower(which.plots)
+    which.plots <- match.arg(which.plots)
+
+    a <- attributes(x)
+
+    if(!is.null(a$projection) && any(is.element(c("all","details"), which.plots))) {
+        proj <- a$projection
+	domap <- a$map
+	loc <- a$loc
+	xd <- a$xdim
+	if(proj) loc2 <- list(x=matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow), y=matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow))
+    } else proj <- domap <- FALSE
+
+    if(domap) {
+	locr <- apply(loc, 2, range, finite=TRUE)
+	ax <- list(x=pretty(round(loc[,1], digits=2)), y=pretty(round(loc[,2], digits=2)))
+    }
+
+    if(!is.null(a$data.name)) {
+	if(length(a$data.name) == a$nforecast + 2) dn <- a$data.name[-1]
+	else dn <- a$data.name
+	if(is.numeric(a$model)) model.num <- a$model
+	else model.num <- (1:a$nforecast)[a$model == dn[-1]]
+	dn <- c(dn[1], dn[model.num + 1])
+    }
+
+    if(missing(main1) && !is.null(a$data.name)) main1 <- dn[1]
+    if(missing(main2) && !is.null(a$data.name)) main2 <- dn[2]
+
+
+    if(!is.null(a$msg)) par(oma=c(0,0,2,0))
+
+    X <- x$X.wave
+    Y <- x$Y.wave
+    if(is.null(X) | is.null(Y)) do.detail <- FALSE
+    else do.detail <- TRUE
+    if(climate <- !is.null(x$Clim.wave)) Clim <- x$Clim.wave
+
+    if(any(is.element(c("all","dwt2d2"),which.plots)) & (x$wave.method == "DWT")) {
 	if(!do.detail) stop("plot.waverify2d: sorry, no detail information provided for one or both of the fields.")
 	if(!separate) {
 	   if(climate) nc <- 3
@@ -149,9 +248,9 @@ plot.waverify2d <- function(x, main1="X", main2="Y", main3="Climate", which.plot
 	plot(X, main=main1, ...)
 	plot(Y, main=main2, ...)
 	if(climate) plot(Clim, main=main3, ...)
-   }
-   J <- x$J
-   if(any(is.element(c("all", "details"), which.plots))) {
+    }
+    J <- x$J
+    if(any(is.element(c("all", "details"), which.plots))) {
       if(!do.detail) stop("plot.waverify2d: sorry, no detail information provided for one or both of the fields.")
       tmp <- makeWaveNames(J=J)
       HH <- tmp$HH
@@ -214,10 +313,76 @@ plot.waverify2d <- function(x, main1="X", main2="Y", main3="Climate", which.plot
 	}
 	if(!climate) zl <- range(c(c(invX),c(invY)),na.rm=TRUE)
 	else zl <- range(c(c(invX),c(invY),c(invClim)),na.rm=TRUE)
-	image(invX, main=paste(main1, " (level ", i, ")", sep=""), zlim=zl, col=c("grey",tim.colors(64)), axes=FALSE)
-	if(climate) image(invY, main=paste(main2, " (level ", i, ")", sep=""), zlim=zl, col=c("grey",tim.colors(64)), axes=FALSE)
-	else image.plot(invY, main=paste(main2, " (level ", i, ")", sep=""), zlim=zl, col=c("grey",tim.colors(64)), axes=FALSE)
-	if(climate) image.plot(invX, main=paste(main3, " (level ", i, ")", sep=""), zlim=zl, col=c("grey",tim.colors(64)), axes=FALSE)
+
+	if(domap) {
+	    if(proj) {
+		map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+		poly.image(loc2$x, loc2$y, invX, main=paste(main1, " (level ", i, ")", sep=""),
+				zlim=zl, col=col, axes=FALSE, add=TRUE, ...)
+		map(add=TRUE, lwd=2)
+		map(add=TRUE, database="state")
+
+		map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+		poly.image(loc2$x, loc2$y, invY, main=paste(main2, " (level ", i, ")", sep=""), zlim=zl, col=col, axes=FALSE, add=TRUE, ...)
+		map(add=TRUE, lwd=2)
+                map(add=TRUE, database="state")
+
+		if(climate) {
+                    map(xlim=locr[,1], ylim=locr[,2], type="n")
+		    axis(1, at=ax$x, labels=ax$x)
+		    axis(2, at=ax$y, labels=ax$y)
+		    poly.image(loc2$x, loc2$y, invClim, main=paste(main3, " (level ", i, ")", sep=""), zlim=zl, axes=FALSE, add=TRUE, ...)
+		    map(add=TRUE, lwd=2)
+                    map(add=TRUE, database="state")
+		}
+		title("")
+	    } else {
+		map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+		image(as.image(invX, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=paste(main1, " (level ", i, ")", sep=""),
+                                zlim=zl, col=col, axes=FALSE, add=TRUE, ...)
+		map(add=TRUE, lwd=2)
+                map(add=TRUE, database="state")
+
+		map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+		image(as.image(invY, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=paste(main2, " (level ", i, ")", sep=""),
+				zlim=zl, col=col, axes=FALSE, add=TRUE, ...)
+		map(add=TRUE, lwd=2)
+                map(add=TRUE, database="state")
+
+		if(climate) {
+		    map(xlim=locr[,1], ylim=locr[,2], type="n")
+		    axis(1, at=ax$x, labels=ax$x)
+		    axis(2, at=ax$y, labels=ax$y)
+		    image(as.image(invClim, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE),
+				main=paste(main3, " (level ", i, ")", sep=""), zlim=zl, axes=FALSE, add=TRUE, ...)
+		    map(add=TRUE, lwd=2)
+                    map(add=TRUE, database="state")
+		}
+		title("")
+	    }
+
+	} else {
+
+	    if(proj) {
+		poly.image(loc2$x, loc2$y, invX, main=paste(main1, " (level ", i, ")", sep=""), zlim=zl, col=col, axes=FALSE, ...)
+		poly.image(loc2$x, loc2$y, invY, main=paste(main2, " (level ", i, ")", sep=""), zlim=zl, col=col, axes=FALSE, ...)
+		if(climate) poly.image(loc2$x, loc2$y, invClim, main=paste(main3, " (level ", i, ")", sep=""), zlim=zl, col=col, axes=FALSE, ...)
+	    } else {
+	        image(invX, main=paste(main1, " (level ", i, ")", sep=""), zlim=zl, col=col, axes=FALSE, ...)
+	        image(invY, main=paste(main2, " (level ", i, ")", sep=""), zlim=zl, col=col, axes=FALSE, ...)
+	        if(climate) image(invX, main=paste(main3, " (level ", i, ")", sep=""), zlim=zl, col=col, axes=FALSE, ...) 
+	    }
+	    title("")
+	} # end of if else 'domap' stmts.
+	image.plot(invX, legend.only=TRUE, horizontal=horizontal, col=col, zlim=zl, ...)
 
 	holdX[[HH[i]]] <- holdX[[HH[i]]]*0
 	holdX[[HL[i]]] <- holdX[[HL[i]]]*0
@@ -231,9 +396,9 @@ plot.waverify2d <- function(x, main1="X", main2="Y", main3="Climate", which.plot
            holdClim[[LH[i]]] <- holdClim[[LH[i]]]*0
 	}
       } # end of for 'i' loop.
-   } # end of if do detail plots.
-   par(mfrow=c(1,1), mar=c(5,4,4,2)+0.1)
-   if(is.element("energy",which.plots)) {
+    } # end of if do detail plots.
+    par(mfrow=c(1,1), mar=c(5,4,4,2)+0.1)
+    if(is.element("energy",which.plots)) {
 	yl <- range(c(x$energy),na.rm=TRUE)
 	plot(1:J, x$energy[,1], type="l", xlab="level", ylab="Energy", lwd=1.5, col="darkblue", ylim=yl, ...)
 	lines(1:J, x$energy[,2], lty=2, col="darkblue", lwd=1.5, ylim=yl, ...)
@@ -241,14 +406,57 @@ plot.waverify2d <- function(x, main1="X", main2="Y", main3="Climate", which.plot
 	   lines(1:J, x$energy[,3], lty=3, col="green", lwd=1, ylim=yl, ...)
 	   legend("topleft", legend=c(main1,main2,main3), col=c("darkblue", "darkblue", "green"), lty=1:3, lwd=c(1.5, 1.5, 1), bty="n")
 	} else legend("topleft", legend=c(main1, main2), col="darkblue", lty=1:2, lwd=1.5, bty="n")
-   } # end of plot energies stmts.
-   if(any(is.element(c("all", "mse"),which.plots))) plot(1:J, x$mse, type="l", xlab="level", ylab="MSE", lwd=1.5, col="darkblue", ...)
-   if(any(is.element(c("all", "rmse"),which.plots))) plot(1:J, x$rmse, type="l", xlab="level", ylab="RMSE", lwd=1.5, col="darkblue", ...)
-   if(any(is.element(c("all", "acc"),which.plots)) & climate) plot(1:J, x$acc, type="l", xlab="level", ylab="ACC", lwd=1.5, col="darkblue", ...)
-   invisible()
+    } # end of plot energies stmts.
+    if(any(is.element(c("all", "mse"),which.plots))) plot(1:J, x$mse, type="l", xlab="level", ylab="MSE", lwd=1.5, col="darkblue", ...)
+    if(any(is.element(c("all", "rmse"),which.plots))) plot(1:J, x$rmse, type="l", xlab="level", ylab="RMSE", lwd=1.5, col="darkblue", ...)
+    if(any(is.element(c("all", "acc"),which.plots)) & climate) plot(1:J, x$acc, type="l", xlab="level", ylab="ACC", lwd=1.5, col="darkblue", ...)
+    if(!is.null(a$msg)) mtext(a$msg, line=0.05, outer=TRUE)
+    invisible()
 } # end of 'plot.waverify2d' function.
 
-mowaverify2d <- function(X, Y, Clim=NULL, wavelet.type="haar", J=4, useLL=FALSE, compute.shannon=FALSE, which.space="field", verbose=FALSE) {
+mowaverify2d <- function(X, ..., Clim=NULL, wavelet.type="haar", J=4) {
+    UseMethod("mowaverify2d",X)
+} # end of 'mowaverify2d' function.
+
+mowaverify2d.SpatialVx <- function(X, ..., Clim=NULL, wavelet.type="haar", J=4,
+				    useLL=FALSE, compute.shannon=FALSE, which.space="field",
+				    time.point=1, model=1, verbose=FALSE) {
+
+    out <- list()
+    a <- attributes(X)
+    attributes(out) <- a
+
+    ## Begin: Get the data sets
+    if(!missing(time.point) && !missing(model)) dat <- datagrabber(X, time.point=time.point, model=model)
+    else if(!missing(time.point)) dat <- datagrabber(X, time.point=time.point)
+    else if(!missing(model)) dat <- datagrabber(X, model=model)
+    else dat <- datagrabber(X)
+
+    x <- dat$X
+    y <- dat$Xhat
+    ## End: Get the data sets
+
+    out2 <- mowaverify2d.default(X=x, Clim=Clim, Y=y, wavelet.type=wavelet.type, J=J,
+				    useLL=useLL, compute.shannon=compute.shannon, which.space=which.space, verbose=verbose)
+
+    out$J <- out2$J
+    out$X.wave <- out2$X.wave
+    out$Y.wave <- out2$Y.wave
+    out$energy <- out2$energy
+    out$mse <- out2$mse
+    out$rmse <- out2$rmse
+    if(!is.null(out2$acc)) out$acc <- out2$acc
+    out$wave.type <- out2$wave.type
+    out$wave.method <- out2$wave.method
+
+    attr(out, "time.point") <- time.point
+    attr(out, "model") <- model
+    class(out) <- "waverify2d"
+    return(out)
+} # end of 'mowaverify2d.SpatialVx' function.
+
+mowaverify2d.default <- function(X, ..., Clim=NULL, Y, wavelet.type="haar", J=4,
+				    useLL=FALSE, compute.shannon=FALSE, which.space="field", verbose=FALSE) {
    out <- list()
    out$J <- J
    climate <- !is.null(Clim)
@@ -325,16 +533,35 @@ mowaverify2d <- function(X, Y, Clim=NULL, wavelet.type="haar", J=4, useLL=FALSE,
    out$wave.method <- "MODWT"
    class(out) <- "waverify2d"
    return(out)
-} # end of 'mowaverify2d' function.
+} # end of 'mowaverify2d.default' function.
 
-waveIS <- function(obj, J=NULL, wavelet.type="haar", verbose=FALSE) {
+waveIS <- function(object, J=NULL, wavelet.type="haar", time.point = 1, model = 1, 
+    levels = NULL, max.n = NULL, smooth.fun = "hoods2dsmooth", 
+    smooth.params = NULL, verbose=FALSE) {
+
+    object <- hoods2dPrep(object=object, levels=levels, max.n=max.n,
+		    smooth.fun=smooth.fun, smooth.params=smooth.params) 
+   
+    object.attr <- attributes(object)
+     
    if (verbose) begin.time <- Sys.time()
-   out <- obj
-   thresholds <- obj$thresholds
+   out <- list()
+   attributes(out) <- object.attr
+
+   thresholds <- object.attr$thresholds
    q <- dim(thresholds)[1]
-   Y <- get(obj$Fcst.name)
-   X <- get(obj$Vx.name)
-   xdim <- obj$xdim
+
+   ## Begin: Get the data sets
+   if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
+   else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
+   else if(!missing(model)) dat <- datagrabber(object, model=model)
+   else dat <- datagrabber(object)
+
+   X <- dat$X
+   Y <- dat$Xhat
+   ## End: Get the data sets
+
+   xdim <- object.attr$xdim
    bigN <- prod(xdim)
    binmat <- matrix(0, xdim[1], xdim[2])
    Jtry <- log2(xdim)
@@ -413,31 +640,39 @@ energizer <- function(x,lnames=NULL,J=NULL) {
 
 summary.waveIS <- function(object,...) {
    x <- object
+   a <- attributes(object)
    args <- list(...)
    if(!is.null(args$silent)) silent <- args$silent
    else silent <- FALSE
    J <- x$J
    MSE <- x$MSE
+   colnames(MSE) <- a$qs
    MSEu <- apply(MSE,2,sum,na.rm=TRUE)
    MSEperc <- t(t(MSE)/MSEu)*100
    SSu <- matrix(1 - MSEu/x$MSE.random, nrow=1)
    SS <- x$SS
+   colnames(SS) <- a$qs
    EnVx <- x$EnVx
+   colnames(EnVx) <- a$qs
    EnFcst <- x$EnFcst
+   colnames(EnFcst) <- a$qs
    EnVx.u <- apply(EnVx,2,sum,na.rm=TRUE)
    EnFcst.u  <- apply(EnFcst,2,sum,na.rm=TRUE)
    EnVx.perc <- t(t(EnVx)/EnVx.u)*100
    EnFcst.perc <- t(t(EnFcst)/EnFcst.u)*100
    EnRelDiff <- (EnFcst - EnVx)/(EnFcst + EnVx)
    Bias <- matrix(x$Bias, nrow=1)
-   if(is.null(x$qs)) {
-	if(!all(x$thresholds[,1]==x$thresholds[,2])) threshnames <- NULL
-	else threshnames <- as.character(x$thresholds[,1])
-   }
-   colnames(MSE) <- colnames(EnVx) <- colnames(SSu) <- colnames(SS) <- colnames(Bias) <- colnames(MSEperc) <- colnames(EnFcst) <- colnames(EnVx.perc) <-
-	colnames(EnFcst.perc) <- colnames(EnRelDiff) <- threshnames
-   rownames(MSE) <- rownames(EnVx) <- rownames(SS) <- rownames(MSEperc) <- rownames(EnFcst) <- rownames(EnVx.perc) <- rownames(EnFcst.perc) <- 
-	rownames(EnRelDiff) <- paste("2^",J-(1:J),sep="")
+   colnames(Bias) <- a$qs
+
+   xdim <- a$xdim
+   dyadic <- all(floor(log2(xdim))==ceiling(log2(xdim)))
+   if(dyadic) level.names <- paste("2^",J-(1:J),sep="")
+   else level.names <- as.character(a$levels)
+
+   rownames(MSE) <- rownames(EnVx) <- rownames(SS) <- rownames(MSEperc) <- 
+	rownames(EnFcst) <- rownames(EnVx.perc) <- rownames(EnFcst.perc) <- 
+	rownames(EnRelDiff) <- level.names
+
    if(!silent) {
 	cat("\n", x$Fcst.name, " model field compared with verification field ", x$Vx.name, "\n")
 	cat("MSE by threshold (columns) and level (rows).\n")
@@ -465,17 +700,15 @@ summary.waveIS <- function(object,...) {
 } # end of 'summary.waveIS' function.
 
 plot.waveIS <- function(x, main1="X", main2="Y", which.plots=c("all", "mse", "ss", "energy"), level.label=NULL, ...) {
+   a <- attributes(x)
    x <- summary(x,silent=TRUE)
    J <- x$J
-   xdim <- x$xdim
-   if(is.null(x$qs)) {
-	thresholds <- x$thresholds
-	q <- dim(thresholds)[1]
-	if(!all(thresholds[,1]==thresholds[,2])) thresholds <- 1:q
-	else thresholds <- round(thresholds[,1],digits=2)
-   } else thresholds <- x$qs
-   if(!is.null(x$levels)) {
-	levels <- x$levels
+   xdim <- a$xdim
+   thresholds <- a$qs
+   q <- length(thresholds)
+
+   if(!is.null(a$levels)) {
+	levels <- a$levels
 	if(is.null(level.label)) level.label <- "scale/level"
    } else {
 	dyadic <- all(floor(log2(xdim))==ceiling(log2(xdim)))
@@ -488,13 +721,13 @@ plot.waveIS <- function(x, main1="X", main2="Y", which.plots=c("all", "mse", "ss
    if(any(is.element(c("all","mse"),which.plots))) {
 	par(mfrow=c(2,1), mar=c(5.1,4.1,4.1,5.1))
 	image(x$MSE, col=c("grey",tim.colors(64)), main=paste("MSE (", main1, " vs ", main2, ")", sep=""), xlab=level.label,
-		ylab=paste("threshold (", x$units, ")", sep=""), axes=FALSE)
+		ylab=paste("threshold (", a$units, ")", sep=""), axes=FALSE)
 	axis(1, at=seq(0,1,,J), labels=levels)
 	axis(2, at=seq(0,1,,q), labels=thresholds)
 	image.plot(x$MSE, col=c("grey",tim.colors(64)),legend.only=TRUE)
 	MSEperc <- x$MSEperc
 	image(MSEperc, col=c("grey",tim.colors(64)), zlim=c(0,100), main="MSE %", xlab=level.label,
-				ylab=paste("threshold (", x$units, ")", sep=""), axes=FALSE)
+				ylab=paste("threshold (", a$units, ")", sep=""), axes=FALSE)
         axis(1, at=seq(0,1,,J), labels=levels)
         axis(2, at=seq(0,1,,q), labels=thresholds)
         image.plot(MSEperc, col=c("grey",tim.colors(64)), zlim=c(0,100),legend.only=TRUE)
@@ -502,7 +735,7 @@ plot.waveIS <- function(x, main1="X", main2="Y", which.plots=c("all", "mse", "ss
    if(any(is.element(c("all","ss"),which.plots))) {
 	par(mfrow=c(1,1), mar=c(5.1,4.1,4.1,5.1))
 	image(x$SS, col=c("grey",tim.colors(64)), main=paste("IS Skill Score (", main1, " vs ", main2, ")", sep=""), xlab=level.label,
-				ylab=paste("threshold (", x$units, ")", sep=""), axes=FALSE)
+				ylab=paste("threshold (", a$units, ")", sep=""), axes=FALSE)
         axis(1, at=seq(0,1,,J), labels=levels)
         axis(2, at=seq(0,1,,q), labels=thresholds)
         image.plot(x$SS, col=c("grey",tim.colors(64)),legend.only=TRUE)
@@ -511,29 +744,29 @@ plot.waveIS <- function(x, main1="X", main2="Y", which.plots=c("all", "mse", "ss
 	zl <- range(c(c(x$EnVx),c(x$EnFcst)),finite=TRUE)
 	par(mfrow=c(3,2), mar=c(5.1,4.1,4.1,5.1))
 	image(x$EnVx, col=c("grey",tim.colors(64)), main=paste(main1, " Energy", sep=""), xlab=level.label,
-				ylab=paste("threshold (", x$units, ")", sep=""), axes=FALSE, zlim=zl)
+				ylab=paste("threshold (", a$units, ")", sep=""), axes=FALSE, zlim=zl)
         axis(1, at=seq(0,1,,J), labels=levels)
         axis(2, at=seq(0,1,,q), labels=thresholds)
         image.plot(x$EnVx, col=c("grey",tim.colors(64)),legend.only=TRUE, zlim=zl)
         image(x$EnFcst, col=c("grey",tim.colors(64)), zlim=zl, main=paste(main2, " Energy", sep=""), xlab=level.label,
-                                ylab=paste("threshold (", x$units, ")", sep=""), axes=FALSE)
+                                ylab=paste("threshold (", a$units, ")", sep=""), axes=FALSE)
         axis(1, at=seq(0,1,,J), labels=levels)
         axis(2, at=seq(0,1,,q), labels=thresholds)
         image.plot(x$EnFcst, col=c("grey",tim.colors(64)), zlim=zl,legend.only=TRUE)
 
 	image(x$EnVx.perc, col=c("grey",tim.colors(64)), main=paste(main1, " Energy %", sep=""), xlab=level.label,
-                                ylab=paste("threshold (", x$units, ")", sep=""), axes=FALSE, zlim=c(0,100))
+                                ylab=paste("threshold (", a$units, ")", sep=""), axes=FALSE, zlim=c(0,100))
         axis(1, at=seq(0,1,,J), labels=levels)
         axis(2, at=seq(0,1,,q), labels=thresholds)
         image.plot(x$EnVx.perc, col=c("grey",tim.colors(64)),legend.only=TRUE, zlim=c(0,100))
         image(x$EnFcst.perc, col=c("grey",tim.colors(64)), zlim=c(0,100), main=paste(main2, " Energy %", sep=""), xlab=level.label,
-                                ylab=paste("threshold (", x$units, ")", sep=""), axes=FALSE)
+                                ylab=paste("threshold (", a$units, ")", sep=""), axes=FALSE)
         axis(1, at=seq(0,1,,J), labels=levels)
         axis(2, at=seq(0,1,,q), labels=thresholds)
         image.plot(x$EnFcst.perc, col=c("grey",tim.colors(64)), zlim=c(0,100),legend.only=TRUE)
 
 	image(x$EnRelDiff, col=c("grey",tim.colors(64)), main=paste("Energy Relative Difference (", main1, " vs ", main2, ")", sep=""), xlab=level.label,
-                                ylab=paste("threshold (", x$units, ")", sep=""), axes=FALSE, zlim=c(-1,1))
+                                ylab=paste("threshold (", a$units, ")", sep=""), axes=FALSE, zlim=c(-1,1))
         axis(1, at=seq(0,1,,J), labels=levels)
         axis(2, at=seq(0,1,,q), labels=thresholds)
         image.plot(x$EnRelDiff, col=c("grey",tim.colors(64)), zlim=c(-1,1),legend.only=TRUE)
@@ -541,7 +774,7 @@ plot.waveIS <- function(x, main1="X", main2="Y", which.plots=c("all", "mse", "ss
    invisible()
 } # end of 'plot.waveIS' function.
 
-detailer <- function( x, level, which.space="field", trans.type="DWT", useLL=FALSE, lnames=NULL, J=NULL) {
+detailer <- function(x, level, which.space="field", trans.type="DWT", useLL=FALSE, lnames=NULL, J=NULL) {
    if(is.null(lnames)) {
 	if(is.null(J)) stop("detailer: must supply J if lnames is NULL.")
 	lnames <- makeWaveNames(J=J)
@@ -568,15 +801,30 @@ detailer <- function( x, level, which.space="field", trans.type="DWT", useLL=FAL
    return(out)
 } # end of 'detailer' function.
 
-wavePurifyVx <- function(x,y,object=NULL, climate=NULL, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", "mse"), thresholds=NULL, return.fields=FALSE, verbose=FALSE, ...) {
+wavePurifyVx <- function(x,y,object=NULL, climate=NULL,
+    which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", "mse"),
+    thresholds=NULL, return.fields=FALSE, time.point=1, model=1, verbose=FALSE, ...) {
+
    if(verbose) begin.time <- Sys.time()
    isnt.xy <- missing(x) | missing(y)
    if(isnt.xy & !is.null(object)) {
-	out <- object
-	x <- get(object$Vx.name)
-	y <- get(object$Fcst.name)
-	xdim <- object$xdim
-	thresholds <- object$thresholds
+	out <- list()
+	out.attr <- attributes(object)
+	attributes(out) <- out.attr
+
+	## Begin: Get the data sets
+        if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
+        else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
+        else if(!missing(model)) dat <- datagrabber(object, model=model)
+        else dat <- datagrabber(object)
+
+        x <- dat$X
+        y <- dat$Xhat
+        ## End: Get the data sets
+
+	xdim <- out.attr$xdim
+	thresholds <- out.attr$thresholds
+
    } else if(!isnt.xy) {
 	out <- list()
 	xdim <- dim(x)
@@ -590,6 +838,7 @@ wavePurifyVx <- function(x,y,object=NULL, climate=NULL, which.stats=c("bias", "t
 	out$Vx.name <- as.character(substitute(x))
 	out$Fcst.name <- as.character(substitute(y))
    } else stop("wavePurifyVx: Must supply arguments x and y, or object.")
+
    args <- list(...)
    if(isnt.J <- is.null(args$J)) {
 	J <- floor(log2(min(xdim)))
@@ -623,6 +872,8 @@ wavePurifyVx <- function(x,y,object=NULL, climate=NULL, which.stats=c("bias", "t
         } # end of if 'is.J' stmts.
    } # end of if else 'dyadic' stmts.
    if(return.fields) {
+	out$X <- x
+	out$Xhat <- y
 	out$X2 <- X
 	out$Y2 <- Y
 	if(!is.null(climate)) {
@@ -692,21 +943,27 @@ wavePurifyVx <- function(x,y,object=NULL, climate=NULL, which.stats=c("bias", "t
 	out$acc[threshold] <- numer/denom
       } # end of if do acc stmts.
    } # end of for 'threshold' loop.
+
+   attr(out, "time.point") <- time.point
+   attr(out, "model") <- model   
    class(out) <- "wavePurifyVx"
    if(verbose) print(Sys.time() - begin.time)
    return(out)
 } # end of 'wavePurifyVx' function.
 
 summary.wavePurifyVx <- function(object, ...) {
-   if(!is.null(object$thresholds)) {
-	u <- Thresholds <- object$thresholds
+
+   object.attr <- attributes(object)
+
+   if(!is.null(object.attr$thresholds)) {
+	u <- Thresholds <- object.attr$thresholds
    	q <- dim(u)[1]
    	cat("\n", "Thresholds applied are:\n")
    	print(Thresholds)
-	   if(is.null(object$qs)) {
+	   if(is.null(object.attr$qs)) {
 		if(all(u[,1]==u[,2])) ulab <- as.character(u[,1])
 		else ulab <- as.character(1:q)
-	   } else ulab <- object$qs
+	   } else ulab <- object.attr$qs
 	   if(!is.null(object$bias)) {
 		bias <- matrix(object$bias, nrow=1)
 		colnames(bias) <- ulab
@@ -776,76 +1033,233 @@ summary.wavePurifyVx <- function(object, ...) {
    invisible()
 } # end of 'summary.wavePurifyVx' function.
 
-plot.wavePurifyVx <- function(x, ...) {
+plot.wavePurifyVx <- function(x, ..., set.pw=FALSE, col, zlim, horizontal=TRUE, loc.byrow=TRUE,
+    type=c("stats", "fields")) {
+
+   type <- tolower(type)
+   type <- match.arg(type)
+
+   if(missing(col)) col <- c("gray", tim.colors(64))
+
+   a <- attributes(x)
    nm <- names(x)
-   if(denX <- !is.null(x$X2)) numplots <- 5
-   else numplots <- 1
-   if(denX & !is.null(x$Climate)) numplots <- numplots+2
-   if(is.element("mse",nm) & any(is.element(c("bias","ts","ets","pod","far","hk"),nm))) numplots <- numplots+1
-   if(is.element("acc",nm) & (is.element("mse",nm) | any(is.element(c("bias","ts","ets","pod","far","hk"),nm)))) numplots <- numplots+1
-   if(numplots > 1) {
-	if(is.null(x$Climate)) par(mfrow=c(ceiling(numplots/2),2))
-	else par(mfrow=c(ceiling(numplots/3),3))
+
+   par(oma=c(0,0,2,0))
+
+   if(!is.logical(set.pw) && length(set.pw) == 4 && is.numeric(set.pw)) {
+	par(mfrow=set.pw)
+	set.pw <- FALSE
+   } else if(!is.logical(set.pw)) stop("plot.wavePurifyVx: invalid set.pw argument.")
+
+   denX <- !is.null(x$X2)
+
+   if(set.pw) {
+        if(type=="fields" && denX) numplots <- 4
+        else numplots <- 1
+        if(type=="fields" && denX && !is.null(x$Climate)) numplots <- numplots+2
+        if(type=="stats") {
+            if(is.element("mse",nm) && any(is.element(c("bias","ts","ets","pod","far","hk"),nm))) numplots <- numplots+1
+            if(is.element("acc",nm) && (is.element("mse",nm) | any(is.element(c("bias","ts","ets","pod","far","hk"),nm)))) numplots <- numplots+1
+	}
+        if(numplots > 1) {
+	    if(is.null(x$Climate) && set.pw) par(mfrow=c(ceiling(numplots/2),2))
+            else par(mfrow=c(ceiling(numplots/3),3))
+        }
    }
-   if(denX) {
-	# if(domap <- !is.null(loc <- x$loc)) locr <- apply(loc,2,range,finite=TRUE)
-	X <- get(x$Vx.name)
-	Y <- get(x$Fcst.name)
+
+   if(denX && type=="fields") {
+        domap <- a$map
+	if(is.null(domap)) domap <- FALSE
+
+	loc <- a$loc
+
+	if(domap) {
+	    locr <- apply(loc,2,range,finite=TRUE)
+	    ax <- list(x=pretty(round(loc[,1], digits=2)), y=pretty(round(loc[,2], digits=2)))
+	}
+
+	X <- x$X
+	Xhat <- x$Xhat
 	X2 <- x$X2
 	Y2 <- x$Y2
+
+	xd <- a$xdim
+	if(is.null(xd)) xd <- dim(X)
+	if(is.null(loc)) loc <- cbind(rep(1:xd[1],xd[2]), rep(1:xd[2],each=xd[1]))
+
+	ptitle <- a$data.name
+	if(is.null(ptitle)) ptitle <- c("","")
+	else {
+	    if(length(ptitle) == a$nforecast + 2) ptitle <- ptitle[-1]
+
+	    if(a$nforecast > 1) {
+	        if(!is.numeric(a$model)) {
+		    modnum <- (1:length(ptitle))[ptitle==a$model] - 1
+	        } else modnum <- a$model
+	            ptitle <- c(ptitle[1], ptitle[modnum + 1])
+	    }
+
+	    tiid <- a$time
+	    if(length(tiid) > 1) ptitle <- paste(ptitle, " (t = ", tiid[a$time.point], ")", sep="")
+	} # end of if 'ptitle' is NULL stmts.
+
 	if(!is.null(x$Climate)) {
 		Clim <- x$Climate
 		Clim2 <- x$Climate2
-	}
-	zl <- range( c( c(X), c(Y), c(X2), c(Y2)), finite=TRUE)
-	image(X, col=c("grey",tim.colors(64)), zlim=zl, main=x$Vx.name, axes=FALSE)
-#	if(domap) {
-#	   par(usr=locr)
-#	   map(add=TRUE)
-#	   map(add=TRUE,database="state")
-#	}
-	image(Y, col=c("grey",tim.colors(64)), zlim=zl, main=x$Fcst.name, axes=FALSE)
-#	if(domap) {
-#           par(usr=locr)
-#           map(add=TRUE)
-#           map(add=TRUE,database="state")
-#        }
-	if(!is.null(x$Climate)) {
-	   image(Clim, col=c("grey",tim.colors(64)), zlim=zl, main="Climatology", axes=FALSE)
-	  # if(domap) {
-          #    par(usr=locr)
-          #    map(add=TRUE)
-          #    map(add=TRUE,database="state")
-          # }
-	}
-	image.plot(X, col=c("grey",tim.colors(64)), zlim=zl, legend.only=TRUE)
-	image(X2, col=c("grey",tim.colors(64)), zlim=zl, main=paste(x$Vx.name, " denoised", sep=""), axes=FALSE)
-#	if(domap) {
-#           par(usr=locr)
-#           map(add=TRUE)
-#           map(add=TRUE,database="state")
-#        } 
-        image(Y2, col=c("grey",tim.colors(64)), zlim=zl, main=paste(x$Fcst.name, " denoised", sep=""), axes=FALSE)
-#	if(domap) {
-#           par(usr=locr)
-#           map(add=TRUE)
-#           map(add=TRUE,database="state")
-#        }
-	if(!is.null(x$Climate)) {
-	   image(Clim2, col=c("grey",tim.colors(64)), zlim=zl, main="Climatology denoised", axes=FALSE)
-#	   if(domap) {
-#              par(usr=locr)
-#              map(add=TRUE)
-#              map(add=TRUE,database="state")
-#           } 
-	}
-        image.plot(X, col=c("grey",tim.colors(64)), zlim=zl, legend.only=TRUE)	
-   }
-   if(!is.null(x$thresholds)) {
-      q <- dim(x$thresholds)[1]
+		if(missing(zlim)) zl <- range( c(c(X), c(Xhat), c(X2), c(Y2), c(Clim), c(Clim2)), finite=TRUE)
+	} else if(missing(zlim)) zl <- range( c(c(X), c(Xhat), c(X2), c(Y2)), finite=TRUE)
+
+	proj <- a$projection
+	if(is.null(proj)) proj <- FALSE
+
+	if(proj) {
+	    if(domap) {
+		map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+		poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow), matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
+		    X, main=ptitle[1], col=col, zlim=zl, add=TRUE)
+		map(add=TRUE, lwd=1.5)
+		map(add=TRUE, database="state")
+
+		map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+                poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow), matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
+                    Xhat, main=ptitle[2], col=col, zlim=zl, add=TRUE)
+                map(add=TRUE, lwd=1.5)
+                map(add=TRUE, database="state")
+
+		if(!is.null(x$Climate)) {
+                    map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+                    poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow), matrix(loc[,2], xd[1], xd[2],
+                        byrow=loc.byrow), Clim, main="Climate", col=col, zlim=zl, add=TRUE)
+                    map(add=TRUE, lwd=1.5)
+                    map(add=TRUE, database="state")
+                }
+
+		map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+                poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow), matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
+                    X2, main=paste(ptitle[1], " de-noised", sep=""), col=col, zlim=zl, add=TRUE)
+                map(add=TRUE, lwd=1.5)
+                map(add=TRUE, database="state")
+
+		map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+                poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow), matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
+                    Y2, main=paste(ptitle[2], " de-noised", sep=""), col=col, zlim=zl, add=TRUE)
+                map(add=TRUE, lwd=1.5)
+                map(add=TRUE, database="state")
+
+		if(!is.null(x$Climate)) {
+                    map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+                    poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow), matrix(loc[,2], xd[1], xd[2],
+                        byrow=loc.byrow), Clim2, main="Climate de-noised", col=col, zlim=zl, add=TRUE)
+                    map(add=TRUE, lwd=1.5)
+                    map(add=TRUE, database="state")
+                }
+
+	    } else {
+		poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow), matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
+                    X, main=ptitle[1], col=col, zlim=zl)
+		poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow), matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
+                    Xhat, main=ptitle[2], col=col, zlim=zl)
+		if(!is.null(x$Climate)) {
+		    poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow),
+				matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow), Clim, main="Climate", col=col, zlim=zl)
+		}
+		poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow), matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
+                    X2, main=paste(ptitle[1], " de-noised", sep=""), col=col, zlim=zl)
+		poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow), matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
+                    Y2, main=paste(ptitle[2], " de-noised", sep=""), col=col, zlim=zl)
+		if(!is.null(x$Climate)) {
+                    poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow),
+                                matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow), Clim2, main="Climate de-noised",
+				col=col, zlim=zl)
+                }
+	    }
+	} else {
+	    if(domap) {
+                map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+                image(as.image(X, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=ptitle[1], col=col, zlim=zl, add=TRUE)
+                map(add=TRUE, lwd=1.5)
+                map(add=TRUE, database="state")
+
+                map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+                image(as.image(Xhat, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=ptitle[2], col=col, zlim=zl, add=TRUE)
+                map(add=TRUE, lwd=1.5)
+                map(add=TRUE, database="state")
+
+                if(!is.null(x$Climate)) {
+                    map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+                    image(as.image(Clim, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main="Climate", col=col, zlim=zl, add=TRUE)
+                    map(add=TRUE, lwd=1.5)
+                    map(add=TRUE, database="state")
+                }
+
+                map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+                image(as.image(X2, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=paste(ptitle[1], " de-noised", sep=""),
+		    col=col, zlim=zl, add=TRUE)
+                map(add=TRUE, lwd=1.5)
+                map(add=TRUE, database="state")
+
+                map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+                image(as.image(Y2, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=paste(ptitle[2], " de-noised", sep=""),
+		    col=col, zlim=zl, add=TRUE)
+                map(add=TRUE, lwd=1.5)
+                map(add=TRUE, database="state")
+
+                if(!is.null(x$Climate)) {
+                    map(xlim=locr[,1], ylim=locr[,2], type="n")
+		axis(1, at=ax$x, labels=ax$x)
+		axis(2, at=ax$y, labels=ax$y)
+                    image(as.image(Clim2, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main="Climate de-noised", col=col, zlim=zl, add=TRUE)
+                    map(add=TRUE, lwd=1.5)
+                    map(add=TRUE, database="state")
+                }
+
+            } else {
+                image(as.image(X, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=ptitle[1], col=col, zlim=zl)
+                image(as.image(Xhat, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=ptitle[2], col=col, zlim=zl)
+                if(!is.null(x$Climate)) {
+                    image(as.image(Clim, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main="Climate", col=col, zlim=zl)
+                }
+                image(as.image(X2, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=paste(ptitle[1], " de-noised", sep=""),
+		    col=col, zlim=zl)
+                image(as.image(Y2, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=paste(ptitle[2], " de-noised", sep=""),
+		    col=col, zlim=zl)
+                if(!is.null(x$Climate)) {
+                    image(as.image(Clim2, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main="Climate de-noised",
+                                col=col, zlim=zl)
+                }
+            }
+	} # end of if else 'projection' stmts.
+        image.plot(X, zlim=zl, col=col, horizontal=horizontal, legend.only=TRUE)	
+	return(invisible())
+   } else if(!denX && type == "fields") stop("plot.wavePurifyVx: return.fields must be TRUE in call to wavePurifyVx to use type fields.")
+
+    if(!is.null(a$thresholds)) {
+      q <- dim(a$thresholds)[1]
       if(q  >= 2) {
-	 if(is.null(x$units)) unt <- NULL
-         else unt <- paste("(", x$units, ")", sep="")
+	 if(is.null(a$units)) unt <- NULL
+         else unt <- paste("(", a$units, ")", sep="")
          if(any(is.element(c("bias","ts","ets","pod","far","hk"),nm))) {
 		if(is.element("hk",nm)) yl <- c(-1,1)
 		else if(is.element("ets",nm)) yl <- c(-1/3,1)
@@ -883,7 +1297,9 @@ plot.wavePurifyVx <- function(x, ...) {
                 }
 		if(is.element("bias", nm)) {
 		   if(i==7) i <- 8
-		   par(usr=c(1,q,range(x$bias)))
+		   brg <- range(x$bias, finite=TRUE)
+		   if(length(unique(brg))==1) brg <- c(brg[1]-0.01, brg[2]+0.01)
+		   par(usr=c(1,q,brg))
                    lines(1:q, x$bias, col=i, lty=i, lwd=1.5)
 		   bax <- pretty(sort(unique(x$bias)))
 		   axis(4, at=bax, labels=bax, col=i)
@@ -893,5 +1309,6 @@ plot.wavePurifyVx <- function(x, ...) {
 	   if(is.element("acc",nm)) plot(1:q, x$acc, type="l", col="darkblue", xlab=paste("Threshold ", unt, sep=""), ylab="ACC")
 	} # end of if more than one threshold stmt.
    } # end of if 'thresholds' stmts.
+   mtext(a$msg, line=0.05, outer=TRUE)
    invisible()
 } # end of 'plot.wavePurifyVx' function.

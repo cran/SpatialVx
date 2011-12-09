@@ -4,10 +4,10 @@
 \alias{GFSNAMlocEx}
 \docType{data}
 \title{
-GFS NAM example verification set
+Example Verification Set
 }
 \description{ 
-GFS NAM example verification set with 361 time points in addition to 2352 spatial locations on a grid.
+Example verification set of accumulated precipitation (mm) with 361 time points in addition to 2352 spatial locations on a grid.  Taken from a real, but unknown, weather model and observation analysis (one of GFS or NAM).  Accumulation is either 3-h or 24-h.
 }
 \usage{
 data(GFSNAMfcstEx)
@@ -29,7 +29,10 @@ data(GFSNAMlocEx)
 
 }
 
-\details{GFS/NAM example verification set with 2352 spatial locations over the United States, and 361 time points.  For both the forecast (\code{GFSNAMfcstEx}) and verification (\code{GFSNAMobsEx}), these are numeric matrices whose rows represent time, and columns represent space.  The associated lon/lat coordinates are provided by \code{GFSNAMlocEx} (2352 by 2 data frame with named components giving the lon and lat values).}
+\details{Example verification set with 2352 spatial locations over the United States, and 361 time points.  For both the forecast (\code{GFSNAMfcstEx}) and verification (\code{GFSNAMobsEx}), these are numeric matrices whose rows represent time, and columns represent space.  The associated lon/lat coordinates are provided by \code{GFSNAMlocEx} (2352 by 2 data frame with named components giving the lon and lat values).
+
+Note that the available spatial locations are a subset of the original 70 X 100 60-km grid where each time point had no missing observations.  This example set is included with the package simply toi demonstrate some functionality that involves both space and time; though this is mostly a spatial-only package.
+}
 
 \examples{
 data(GFSNAMfcstEx)

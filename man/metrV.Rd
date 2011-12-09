@@ -1,5 +1,8 @@
 \name{metrV}
 \alias{metrV}
+\alias{metrV.default}
+\alias{metrV.SpatialVx}
+\alias{print.metrV}
 \title{
 Binary Location Metric Proposed in Zhu et al. (2011)
 }
@@ -11,16 +14,24 @@ between two forecast fields and the verificaiton field, if the comparison is per
 between two forecast models against the same verification field.
 }
 \usage{
-metrV(object1, object2 = NULL, lam1 = 0.5, lam2 = 0.5, distfun = "distmapfun",
-    verbose = FALSE, ...)
+metrV(x, ...)
+
+\method{metrV}{default}(x, xhat, xhat2 = NULL, thresholds, lam1 = 0.5, lam2 = 0.5, 
+    distfun = "distmapfun", a = NULL, verbose = FALSE, ...)
+
+\method{metrV}{SpatialVx}(x, time.point = 1, model = 1, lam1 = 0.5, lam2 = 0.5, 
+    distfun = "distmapfun", verbose = FALSE, ...)
+
+\method{print}{metrV}(x, ...)
 }
 \arguments{
-  \item{object1}{
-list object as returned from the \code{locmeasures2dPrep} function.
+  \item{x}{
+Either a list object as returned by \code{make.SpatialVx} or a matrix representing a verificaiton grid.  For the \code{print} method, this is an object returned by \code{metrV}.
 }
-  \item{object2}{
-(optional) list object returned from the \code{locmeasures2dPrep} function containing information for a second forecast model to be compared against the first forecast model (object1) against the same verification field, taken from object1.
+  \item{xhat, xhat2}{
+(xhat2 is optional) matrix representing a forecast grid.
 }
+    \item{thresholds}{q X 2 or q X 3 (if \code{xhat} is not NULL) matrix giving the thresholds to apply to the verification field (first column) and each forecast field.}
   \item{lam1}{
 numeric giving the weight to be applied to the square root of the sum of squared errors of binary fields term in metrV.
 }
@@ -28,6 +39,9 @@ numeric giving the weight to be applied to the square root of the sum of squared
 numeric giving the weight to be applied to the mean error distance term in metrV.
 }
   \item{distfun}{character naming a function with which to calculate the shortest distances between each point x in the grid and the set of events.  Default is the Euclidean distance metric (see the help file for \code{locperf} for more information). }
+    \item{a}{list object giving certain information about the verification set.  These are the attributes of the \dQuote{SpatailVx} object.  May be used here to include information (as attributes of the returned object) that would otherwise not be available to the \code{print} method function.  In particular, the components, \code{msg}, \code{data.name} and \code{qs} are printed if available.}
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+  \item{model}{numeric indicating which forecast model to select for the analysis.  May have length one or two.  If it has length two, the second value is taken to be the second forecast model (i.e., \code{xhat2} in the call to \code{metrV.default}).}
   \item{verbose}{
 logical, should progress information be printed ot the screen.
 }
@@ -53,11 +67,11 @@ One final note is that Eq (6) that defines \code{distOV} in Zhu et al. (2011) is
 \value{
 list object of class \dQuote{metrV} with components:
 
-\item{prep.obj1}{character giving the name of the \code{locmeasures2dPrep} object as in the argument object1.}
-\item{prep.obj2}{If supplied, character giving the name of the \code{locmeasures2dPrep} object as in the argument object2.}
 \item{OvsM1}{k by 3 matrix whose rows represent thresholds and columns give the component distOV, distob and metrV between the verification field and the forecast model 1.}
 \item{OvsM2}{If object2 supplied, k by 3 matrix whose rows represent thresholds and columns give the component distOV, distob and metrV between the verification field and the forecast model 2.}
 \item{M1vsM2}{If object2 supplied, k by 3 matrix whose rows represent thresholds and columns give the component distOV, distob and metrV between model 1 and model 2.}
+
+May also contain attributes as passed by either the a argument or the \dQuote{SpatialVx} object.
 }
 
 \references{
@@ -72,32 +86,44 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{distob}}, \code{\link{distmap}}, \code{\link{im}}, \code{\link{solutionset}}, \code{\link{deltametric}}, \code{\link{locmeasures2d}}, \code{\link{locmeasures2dPrep}}
+\code{\link{distob}}, \code{\link{distmap}}, \code{\link{im}}, \code{\link{solutionset}}, \code{\link{deltametric}}, \code{\link{locmeasures2d}}, \code{\link{make.SpatialVx}}
 }
 \examples{
+
 A <- B <- B2 <- matrix( 0, 10, 12)
 A[2,3] <- 3
 B[4,7] <- 400
 B2[10,12] <- 17
-hold <- locmeasures2dPrep("A", "B", thresholds=c(0.1,3.1,500))
+hold <- make.SpatialVx(A, list(B,B2), thresholds=c(0.1,3.1,500),
+            field.type="contrived", units="none",
+            data.name=c("Example", "A", "B", "B2"))
 metrV(hold)
 
-hold2 <- locmeasures2dPrep("A", "B2", thresholds=c(0.1,3.1,500))
-metrV( hold, hold2)
+metrV(hold, model=c(1,2))
 
 \dontrun{
-data( pert000)
+data(pert000)
 data(pert001)
-testobj <- locmeasures2dPrep( "pert000", "pert001", thresholds=1e-8)
-metrV( testobj) # compare to results in Fig. 3 (top right panel) of Zhu et al. (2011).
+data(ICPg240Locs)
+testobj <- make.SpatialVx(pert000, pert001, thresholds=1e-8,
+                projection=TRUE, map=TRUE, loc=ICPg240Locs,
+                field.type="Precipitation", units="mm/h",
+                data.name=c("ICP Perturbed Cases", "pert000", "pert001"))
+metrV(testobj)
+# compare above to results in Fig. 3 (top right panel) of Zhu et al. (2011).
 
-data( geom000)
-data( geom001)
-testobj <- locmeasures2dPrep( "geom000", "geom001", thresholds=0)
-metrV( testobj)
-# compare above to results in Fig. 2 (top right panel) of Zhu et al. (2011).
-# Note that they differ wildly.  Perhaps because an actual elliptical area
-# is taken in the paper instead of finding the values from the fields themselves?
+data(geom000)
+data(geom001)
+testobj <- make.SpatialVx(geom000, geom001, thresholds=0,
+                projection=TRUE, map=TRUE, loc=ICPg240Locs,
+                field.type="Precipitation", units="mm/h",
+                data.name=c("ICP Geometric Cases", "geom000", "geom001"))
+metrV(testobj)
+# compare above to results in Fig. 2 (top right panel)
+# of Zhu et al. (2011).  Note that they differ wildly.
+# Perhaps because an actual elliptical area is taken in
+# the paper instead of finding the values from the fields
+# themselves?
 }
 
 }

@@ -9,22 +9,30 @@ Merge and/or Match Identified Features Within Two Fields
 Merge and/or match identified features within two fields using the delta metric method described in Gilleland et al. (2008), or the matching only method of Davis et al. (2006a).
 }
 \usage{
-deltamm(x, y = NULL, object = NULL, max.delta = Inf, verbose = FALSE, ...)
+deltamm(object, x, y = NULL, max.delta = Inf, time.point = 1, 
+    model = 1, verbose = FALSE, ...)
 
-\method{plot}{matched}(x, ...)
+\method{plot}{matched}(x, ..., set.pw = FALSE,
+    horizontal = TRUE, loc.byrow = TRUE)
 
-centmatch(x, y = NULL, object = NULL, criteria = 1, const = 14, verbose = FALSE)
+centmatch(object, x, y = NULL, criteria = 1, const = 14, time.point = 1, 
+    model = 1, verbose = FALSE)
 }
 \arguments{
+    \item{object}{
+A list object of class \dQuote{SpatialVx}.  Provided mainly for compatibility with the \code{FeatureSutie} function, but does utilize information from its attributes.  Can be missing.
+}
   \item{x,y}{
 For \code{deltamm}, a list object with components \code{X.feats} and \code{Y.feats}, each of which are list objects containing numbered components within which are objects of class \dQuote{owin} containing logical matrices that define objects for the forecast (Y) and verification (X) fields, resp.  For example, as returned by the \code{convthresh} function.  For \code{plot.matched} a list object as returned by \code{deltamm}.  Argument \code{y} is used if it is not NULL, otherwise argument \code{x} is used (but only one of \code{x} or \code{y} is used).
-}
-  \item{object}{
-Not used.  Provided for compatibility with the \code{FeatureSutie} function.
 }
   \item{max.delta}{single numeric giving a cut-off value for delta that disallows two objects to be merged or matched if the delta between them is larger than this value.}
    \item{criteria}{1, 2 or 3 telling which criteria for determining a match based on centroid distance, D, to use.  The first (1) is a match if D is less than the sum of the sizes of the two features in question (size is the square root of the area of the feature).  The second is a match if D is less than the average size of the two features in question.  The third is a match if D is less than a constant given by the argument \code{const}.}
    \item{const}{numeric giving the number of grid squares whereby if the centroid distance (D) is less than this value, a match is declared (only used if \code{criteria} is 3.}
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+  \item{model}{numeric indicating which forecast model to select for the analysis.}
+    \item{set.pw}{logical, should a panel of plots be determined and set by the function.}
+    \item{horizontal}{optional argument to \code{image.plot} from \pkg{fields}.}
+   \item{loc.byrow}{logical, only used if field is a projection, this determines how the locations should be put into matrices.}
   \item{verbose}{
 logical, should progress information be printed to the screen?
 }
@@ -33,6 +41,8 @@ For \code{deltamm}: additional optional arguments to the \code{deltametric} func
 }
 }
 \details{
+\code{deltamm}:
+
 Gilleland et al. (2008) describe a method for automatically merging, and simultaneously, matching identified objects within two fields (a verification set).  The method was proposed with the general method for spatial forecast verification introduced by Davis et al. (2006 a,b) in mind.  It relies heavily on use of a binary image metric introduced by Baddeley (1992a,b) for comparing binary images; henceforth referred to as the delta metric, or just delta.
 
 The procedure is as follows.  Suppose there are m identified forecast features and n identified verification features.
@@ -48,6 +58,10 @@ The procedure is as follows.  Suppose there are m identified forecast features a
 5. Let Q=[Upsilon, Psi, Ksi], and merge and match objects based on the rankings of delta in Q.  That is, find the smallest delta in Q, and determine which mergings (if any) and matchings correspond to this value.  Remove the appropriate row(s) and column(s) of Q corresponding to the already determined matchings and/or mergings.  Repeat this until all features in at least one field have been exhausted.
 
 The above algorithm suffers from two deficiencies.  First, features that are merged in one field cannot be matched to merged features in another field.  One possible remedy for this is to run this algorithm twice, though this is not a universally good solution.  Second, features can be merged and/or matched to features that are very different from each other.  A possible remedy for this is to use the cut-off argument, max.delta, to disallow mergings or matchings between features whose delta value is not <= this cut-off.  In practice, these two deficiencies are not likely very problematic.
+
+\code{centmatch}:
+
+This function works similarly as \code{deltamm} in that it is designed to work with \code{FeatureSuite} with the same end of matching (but not merging) objects between fields.  It is based on the method proposed by Davis et al. (2006a).
 }
 \value{
 A list object of class \dQuote{matched} is returned by both centmatch and deltamm containing several components.
@@ -57,9 +71,8 @@ A list object of class \dQuote{matched} is returned by both centmatch and deltam
 \item{mm.new.labels}{list object with components mm (an l by 2 matrix showing which features from one field match to which features of the other; moot because they are labeled identically), and unmatched (list object with components fcst and vx, which identify the newly labeled features in each field that were not matched to features in the other field.}
 \item{Q}{(deltamm only) an array of dimension n by m by 3 giving all of the delta values that were computed in determining the mergings and matchings.}
 
-If the argument \sQuote{object} is passed in, then the list object will also contain
+If the argument \sQuote{object} is passed in, then the list object will also contain nearly the same attributes, with the data.name attribute possibly changed to reflect the specific model used.  It will also contain a time.point and model attribute.
 
-\item{data.name}{character vetor naming the verification and forecast fields, resp.}
 }
 \references{
 Baddeley, A. (1992a)  An error metric for binary images.  In \emph{Robust Computer Vision Algorithms}, W. Forstner and S. Ruwiedel, Eds., Wichmann, 59--78.
@@ -80,7 +93,6 @@ Eric Gilleland
 \code{\link{convthresh}}, \code{\link{disjointer}}, \code{\link{deltametric}}, \code{\link{FeatureSuite}}, \code{\link{owin}}, \code{\link{tess}}, \code{\link{tiles}}, \code{\link{connected}}
 }
 \examples{
-\dontrun{
 x <- y <- matrix(0, 100, 100)
 x[2:3,c(3:6, 8:10)] <- 1
 y[c(4:7, 9:10),c(7:9, 11:12)] <- 1
@@ -88,34 +100,36 @@ y[c(4:7, 9:10),c(7:9, 11:12)] <- 1
 x[30:50,45:65] <- 1
 y[c(22:24, 99:100),c(50:52, 99:100)] <- 1
 
-hold <- FeatureSuitePrep("y", "x")
-look <- convthresh( hold, smoothpar=0.5) 
+hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
+    data.name=c("Example", "x", "y"))
+
+look <- convthresh(hold, smoothpar=0.5) 
 par( mfrow=c(1,2))
-image.plot( look$X.labeled)
-image.plot( look$Y.labeled)
+image.plot(look$X.labeled)
+image.plot(look$Y.labeled)
 
-look2 <- deltamm( look)
+look2 <- deltamm(hold, x=look)
 
-look3 <- centmatch(look)
+look3 <- centmatch(hold, x=look)
 
+\dontrun{
 data(pert000)
 data(pert004)
-hold <- FeatureSuitePrep("pert004", "pert000")
-look <- convthresh( hold, smoothpar=10.5)
-par( mfrow=c(1,2))
-zl <- range(c(c(look$X.labeled),c(look$Y.labeled)),finite=TRUE)
-image.plot(look$X.labeled, zlim=zl)
-image.plot(look$Y.labeled, zlim=zl)
+data(ICPg240Locs)
 
-look2 <- deltamm( look, verbose=TRUE)
-image.plot(look2$X.labeled)
-image.plot(look2$Y.labeled)
+hold <- make.SpatialVx(pert000, pert004,
+    loc=ICPg240Locs, projection=TRUE, map=TRUE,
+    field.type="Precipitation", units="mm/h",
+    data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
 
+look <- convthresh(hold, smoothpar=10.5)
+plot(look, set.pw=TRUE)
+
+look2 <- deltamm(hold, x=look, verbose=TRUE)
+plot(look2, set.pw=TRUE)
    }
 
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ math }
 \keyword{ manip }
 \keyword{ graphs}

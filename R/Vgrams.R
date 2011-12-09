@@ -1,46 +1,112 @@
-griddedVgram <- function(object, zero.in=TRUE, zero.out=TRUE, ...) {
-   out <- object
-   X <- get(object$data.name[1])
-   Y <- get(object$data.name[2])
-   out$zero.in <- zero.in
-   out$zero.out <- zero.out
-   out$Vx.vgram.matrix <- list()
-   out$Fcst.vgram.matrix <- list()
-   if(zero.in) out$Vx.vgram.matrix[[1]] <- vgram.matrix(dat=X, ...)
-   else out$Vx.vgram.matrix[[1]] <- NULL
-   if(zero.in) out$Fcst.vgram.matrix[[1]] <- vgram.matrix(dat=Y, ...)
-   else out$Fcst.vgram.matrix[[1]] <- NULL
-   if(zero.out) out$Vx.vgram.matrix[[2]] <- variogram.matrix(dat=X, zero.out=TRUE, ...)
-   else out$Vx.vgram.matrix[[2]] <- NULL
-   if(zero.out) out$Fcst.vgram.matrix[[2]] <- variogram.matrix(dat=Y, zero.out=TRUE, ...)
-   else out$Fcst.vgram.matrix[[2]] <- NULL
-   class(out) <- c(class(object), "griddedVgram")
-   return(out)
+griddedVgram <- function(object, zero.in=TRUE, zero.out=TRUE, time.point=1, model=1, ...) {
+
+    a <- attributes(object)
+    out <- list()
+    if(!is.null(a$names)) a$names <- NULL
+    attributes(out) <- a
+
+    ## Begin: Get the data sets
+    if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
+    else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
+    else if(!missing(model)) dat <- datagrabber(object, model=model)
+    else dat <- datagrabber(object)
+
+    X <- dat$X
+    Y <- dat$Xhat
+    ## End: Get the data sets
+
+    out$zero.in <- zero.in
+    out$zero.out <- zero.out
+
+    out$Vx.vgram.matrix <- list()
+    out$Fcst.vgram.matrix <- list()
+
+    if(zero.in) {
+	out$Vx.vgram.matrix[[1]] <- vgram.matrix(dat=X, ...)
+	out$Fcst.vgram.matrix[[1]] <- vgram.matrix(dat=Y, ...)
+    } else {
+	out$Vx.vgram.matrix[[1]] <- NULL
+	out$Fcst.vgram.matrix[[1]] <- NULL
+    }
+
+    if(zero.out) {
+	out$Vx.vgram.matrix[[2]] <- variogram.matrix(dat=X, zero.out=TRUE, ...)
+	out$Fcst.vgram.matrix[[2]] <- variogram.matrix(dat=Y, zero.out=TRUE, ...)
+    } else {
+	out$Vx.vgram.matrix[[2]] <- NULL
+	out$Fcst.vgram.matrix[[2]] <- NULL
+    }
+
+    attr(out, "time.point") <- time.point
+    attr(out, "model") <- model
+
+    if(length(a$data.name) == a$nforecast + 2) {
+        dn <- a$data.name[-(1:2)]
+        vxname <- a$data.name[1:2]
+    } else {
+        dn <- a$data.name[-1]
+        vxname <- a$data.name[1]
+    }
+    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
+    else model.num <- model
+
+    attr(out, "data.name") <- c(vxname, dn[model.num])
+
+    class(out) <- "griddedVgram"
+    return(out)
 } # end of 'griddedVgram' function.
 
-plot.griddedVgram <- function(x, ...) {
-   mainX <- x$data.name[1]
-   mainY <- x$data.name[2]
+plot.griddedVgram <- function(x, ..., set.pw=FALSE) {
+
+    a <- attributes(x)
+
+    if(length(a$data.name) == 3) {
+	mainX <- a$data.name[2]
+        mainY <- a$data.name[3]
+    } else {
+        mainX <- a$data.name[1]
+        mainY <- a$data.name[2]
+    }
+
    if(x$zero.in) {
       vgX <- x$Vx.vgram.matrix[[1]]
       vgY <- x$Fcst.vgram.matrix[[1]]
    }
+
    if(x$zero.out) {
       vgX.zero <- x$Vx.vgram.matrix[[2]]
       vgY.zero <- x$Fcst.vgram.matrix[[2]]
    }
-   if(((x$zero.in) & !(x$zero.out)) | (!(x$zero.in) & (x$zero.out))) par(mfrow=c(2,2), mar=rep(4.1,4), bg="beige")
-   if(x$zero.in & x$zero.out) par(mfrow=c(4,2), mar=rep(4.1,4), bg="beige")
+
+    if(!is.logical(set.pw) && !is.numeric(set.pw)) stop("plot.griddedVgram: invalid set.pw argument.")
+    else if(!is.logical(set.pw) && is.numeric(set.pw)) {
+
+	if(length(set.pw) != 2) stop("plot.griddedVgram: invalid set.pw argument.")
+	par(mfrow=set.pw, oma=c(0,0,2,0))
+
+    } else if(set.pw) {
+
+	if(((x$zero.in) && !(x$zero.out)) || (!(x$zero.in) & (x$zero.out))) {
+	    par(mfrow=c(2,2), mar=rep(4.1,4), oma=c(0,0,2,0))
+	} else if(x$zero.in && x$zero.out) par(mfrow=c(4,2), mar=rep(4.1,4), oma=c(0,0,2,0))
+
+    } else par(oma=c(0,0,2,0))
+
    if(x$zero.in) {
+
       plot(vgX$d, vgX$vgram, xlab="separation distance", ylab="variogram", main=mainX, col="darkblue")
       points(vgX$d.full, vgX$vgram.full, pch=".", cex=1.25, col="darkblue")
+
       plot(vgY$d, vgY$vgram, xlab="separation distance", ylab="variogram", main=mainY, col="darkblue") 
       points(vgY$d.full, vgY$vgram.full, pch=".", cex=1.25, col="darkblue")
+
       class(vgX) <- "vgram.matrix"
       class(vgY) <- "vgram.matrix"
+
       zl <- range(c(c(vgX$vgram.full), c(vgY$vgram.full)), finite=TRUE)
       plot(vgX, xlab="x separations", ylab="y separations", zlim=zl, ...)
       plot(vgY, xlab="x separations", ylab="y separations", zlim=zl, ...)
+
    }
    if(x$zero.out) {
       plot(vgX.zero$d, vgX.zero$vgram, xlab="separation distance", ylab="variogram", main=paste(mainX, " (non-zeros only)", sep=""), col="darkblue")
@@ -53,6 +119,12 @@ plot.griddedVgram <- function(x, ...) {
       plot(vgX.zero, xlab="x separations", ylab="y separations", zlim=zl, ...)
       plot(vgY.zero, xlab="x separations", ylab="y separations", zlim=zl, ...)
    }
+
+    if(!is.null(a$msg)) {
+	title("")
+	mtext(a$msg, line=0.05, outer=TRUE)
+    }
+
    invisible()
 } # end of 'plot.griddedVgram' function.
 
@@ -96,10 +168,60 @@ distmaploss <- function(x,y, threshold=0, const=Inf, ...) {
    return(abs(dx - dy))
 } # end of 'distmaploss' function.
 
+spatMLD <- function(x, ...) {
+    UseMethod("spatMLD", x)
+} # end of 'spatMLD' function.
 
-spatMLD <- function(x,y1,y2,lossfun="corrskill", trend="ols", loc=NULL, maxrad=20, dx=1, dy=1, zero.out=FALSE, ...) {
+spatMLD.SpatialVx <- function(x, ..., time.point=1, model=c(1,2),
+    lossfun="corrskill", trend="ols", maxrad=20, dx=1, dy=1, zero.out=FALSE) {
+
+    a <- attributes(x)
+
+    ## Begin: Get the data sets
+    if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point, model=model[1])
+    else dat <- datagrabber(x, model=model[1])
+   
+    X <- dat$X
+    Xhat <- dat$Xhat
+
+    if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point, model=model[2])
+    else dat <- datagrabber(x, model=model[2])
+
+    Xhat2 <- dat$Xhat
+    ## End: Get the data sets
+
+    out <- spatMLD.default(x=X, ..., xhat1=Xhat, xhat2=Xhat2, lossfun=lossfun, trend=trend,
+			    loc=a$loc, maxrad=maxrad, dx=dx, dy=dy, zero.out=zero.out)
+
+    if(length(a$data.name) == a$nforecast + 2) {
+        dn <- a$data.name[-(1:2)]
+        vxname <- a$data.name[2]
+    } else {
+        dn <- a$data.name[-1]
+        vxname <- a$data.name[1]
+    }
+    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
+    else model.num <- model
+
+    out$data.name <- c(vxname, dn[model.num])
+
+    attr(out, "time.point") <- time.point
+    attr(out, "model") <- model
+
+    attr(out, "msg") <- a$msg
+    attr(out, "projection") <- a$projection
+    attr(out, "map") <- a$map
+    attr(out, "loc") <- a$loc
+    attr(out, "xdim") <- a$xdim
+
+    return(out)
+} # end of 'spatMLD.SpatialVx' function.
+
+spatMLD.default <- function(x, ..., xhat1, xhat2, lossfun="corrskill", trend="ols",
+    loc=NULL, maxrad=20, dx=1, dy=1, zero.out=FALSE) {
+
    out <- list()
-   data.name <- c(as.character(substitute(x)),as.character(substitute(y1)),as.character(substitute(y2)))
+   data.name <- c(as.character(substitute(x)),as.character(substitute(xhat1)),as.character(substitute(xhat2)))
    names(data.name) <- c("verification","model1", "model2")
    out$data.name <- data.name
    out$trend <- trend
@@ -107,12 +229,12 @@ spatMLD <- function(x,y1,y2,lossfun="corrskill", trend="ols", loc=NULL, maxrad=2
    out$lossfun <- lossfun
    out$lossfun.args <- list(...)
    out$vgram.args <- list(maxrad=maxrad,dx=dx,dy=dy)
-   g1 <- do.call(lossfun, args=c(list(x=x,y=y1),list(...)))
-   g2 <- do.call(lossfun, args=c(list(x=x,y=y2),list(...)))
+   g1 <- do.call(lossfun, args=c(list(x=x,y=xhat1),list(...)))
+   g2 <- do.call(lossfun, args=c(list(x=x,y=xhat2),list(...)))
    d <- matrix(g1-g2, xdim[1], xdim[2])
    if(zero.out) {
 	# zeros <- d == 0
-	zeros <- (x==0) & (y1==0) & (y2==0)
+	zeros <- (x==0) & (xhat1==0) & (xhat2==0)
 	beta <- mean(!zeros, na.rm=TRUE)
 	out$zeros <- zeros
 	out$beta <- beta
@@ -135,13 +257,9 @@ spatMLD <- function(x,y1,y2,lossfun="corrskill", trend="ols", loc=NULL, maxrad=2
    if(!zero.out) vg <- vgram.matrix(dat=d, R=maxrad, dx=dx, dy=dy)
    else vg <- variogram.matrix(dat=d, R=maxrad, dx=dx, dy=dy, zero.out=zero.out)
    out$lossdiff.vgram <- vg
-   # tmp <- data.frame(h=vg$d, v=vg$vgram)
-   # Exp.vgram <- function(h, sigma2=1, theta=1) return(sigma2*(1-exp(-h/theta)))
-   # vgmodel <- nls(v~Exp.vgram(h=h,sigma2=s^2,theta=r), data=tmp, start=list(s=sqrt(vg$vgram[1]), r=maxrad))
-   # out$vgmodel <- vgmodel
    class(out) <- "spatMLD"
    return(out)
-} # end of 'spatMLD' function.
+} # end of 'spatMLD.default' function.
 
 fit.spatMLD <- function(object, start.list=NULL) {
    out <- object
@@ -155,29 +273,69 @@ fit.spatMLD <- function(object, start.list=NULL) {
    return(out)
 } # end of 'fit.spatMLD' function.
 
-plot.spatMLD <- function(x, ...) {
-   msg <- paste(x$lossfun, ": ", x$data.name[2], " vs ", x$data.name[3], " (", x$data.name[1], ")", sep="")
-   par(mfrow=c(2,2), mar=rep(4.1,4), bg="beige")
-   if(is.null(x$zeros)) image.plot(x$d, main=msg, axes=FALSE)
-   else {
-	Im <- x$d
-	Im[x$zeros] <- NA
-	image.plot(Im, main=msg, axes=FALSE)
-   }
-   hist(x$d, breaks="FD", xlab="Mean Loss Differential", col="darkblue", freq=FALSE, main=msg)
-   a <- x$lossdiff.vgram
-   plot(a$d, a$vgram, col="darkblue", xlab="separation distance", ylab="variogram")
-   if(!is.null(x$vgmodel)) {
-	# tmp <- coef(x$vgmodel)
-   	# sig2 <- tmp[1]^2
-   	# r <- tmp[2]
-   	# b <- sig2*(1 - exp(-a$d/r))
-	# lines(a$d, b, col="darkorange", lwd=1.5)
+plot.spatMLD <- function(x, ..., icol=c("gray", tim.colors(64)), loc.byrow=TRUE) {
+
+    tmp <- attributes(x)
+
+    if(is.null(tmp$msg)) msg <- paste("\n", x$lossfun, ": ", x$data.name[2], " vs ", x$data.name[3], " (", x$data.name[1], ")", sep="")
+    else msg <- paste(tmp$msg, "\n", x$lossfun, ": ", x$data.name[2], " vs ", x$data.name[3], " (", x$data.name[1], ")", sep="")
+    
+    par(mfrow=c(2,2), mar=rep(4.1,4), oma=c(0,0,2,0))
+
+    if(is.null(tmp$projection)) proj <- FALSE
+    else proj <- tmp$projection
+
+    if(is.null(tmp$map)) domap <- FALSE
+    else domap <- tmp$map
+
+    if(is.null(tmp$xdim)) proj <- domap <- FALSE
+    else xd <- tmp$xdim
+
+    if(proj) {
+	loc <- list(x=matrix(tmp$loc[,1], xd[1], xd[2], byrow=loc.byrow),
+		    y=matrix(tmp$loc[,2], xd[1], xd[2], byrow=loc.byrow))
+    }
+
+    if(domap) {
+	locr <- apply(tmp$loc, 2, range, finite=TRUE)
+	ax <- list(x=pretty(round(tmp$loc[,1], digits=2)), y=pretty(round(tmp$loc[,2], digits=2)))
+    }
+
+    if(is.null(x$zeros)) Im <- x$d
+    else {
+        Im <- x$d
+        Im[x$zeros] <- NA
+    }
+
+    if(domap) {
+	map(xlim=locr[,1], ylim=locr[,2], type="n")
+	axis(1, at=ax$x, labels=ax$x)
+	axis(2, at=ax$y, labels=ax$y)
+        if(proj) image.plot(loc$x, loc$y, Im, col=icol, add=TRUE, ...)
+        else image.plot(Im, col=icol, add=TRUE, ...)
+        map(add=TRUE, lwd=1.5)
+        map(add=TRUE, database="state")
+    } else {
+	if(proj) image.plot(loc$x, loc$y, Im, col=icol, ...)
+        else image.plot(Im, col=icol, ...)
+    }
+    title("")
+    title("Loss Differential Field")
+
+    hist(x$d, breaks="FD", xlab="Mean Loss Differential", col="darkblue", freq=FALSE,
+	main="Histogram of\nLoss Differential Field")
+    a <- x$lossdiff.vgram
+    plot(a$d, a$vgram, col="darkblue", xlab="separation distance", ylab="variogram")
+    if(!is.null(x$vgmodel)) {
 	lines(a$d, predict(x$vgmodel), col="darkorange", lwd=1.5)
    	legend("bottomright", legend=c("Empirical", "Model"), pch=c("o", ""), col=c("darkblue","darkorange"), lty=c(0,1), lwd=1.5, bty="n")
-   }
-   plot.vgram.matrix(a,main="variogram by direction")
-   invisible()
+    }
+    plot.vgram.matrix(a, main="variogram by direction")
+
+    title("")
+    mtext(msg, line=0.05, outer=TRUE)
+
+    invisible()
 } # end of 'plot.spatMLD' function.
 
 summary.spatMLD <- function(object, ...) {

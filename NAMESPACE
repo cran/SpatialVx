@@ -5,6 +5,11 @@
 exportPattern(".")
 
 # Import all packages listed as Imports or Depends
+importFrom("maps", map)
+importFrom("boot", boot, tsboot, boot.ci)
+importFrom("CircStats", circ.plot, rad, rose.diag, circ.summary)
+importFrom("fastcluster", hclust, hclust.vector)
+importFrom("waveslim", dwt, dwt.2d, idwt, idwt.2d, modwt, modwt.2d, imodwt, imodwt.2d, plot.dwt.2d, denoise.dwt.2d, denoise.modwt.2d)
 import(
-  fields
+  fields, smoothie, spatstat, smatr, turboEM
 )

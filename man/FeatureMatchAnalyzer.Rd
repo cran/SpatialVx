@@ -1,6 +1,7 @@
 \name{FeatureMatchAnalyzer}
 \alias{FeatureMatchAnalyzer}
 \alias{plot.FeatureMatchAnalyzer}
+\alias{print.FeatureMatchAnalyzer}
 \alias{summary.FeatureMatchAnalyzer}
 \alias{FeatureComps}
 \title{
@@ -11,29 +12,33 @@ Analyze matched features of a verification set.
 }
 \usage{
 FeatureMatchAnalyzer(x, y = NULL, matches = NULL, object = NULL,
-                     which.comps = c("cent.dist", "angle.diff", "area.ratio", "int.area",
-                     "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
-                     sizefac = 1, alpha = 0.1, k = 4, p = 2, c = Inf, distfun = "distmapfun", ...)
+    which.comps = c("cent.dist", "angle.diff", "area.ratio", "int.area",
+    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
+    sizefac = 1, alpha = 0.1, k = 4, p = 2, c = Inf, distfun = "distmapfun", ...)
 
 \method{summary}{FeatureMatchAnalyzer}(object, ...)
 
-\method{plot}{FeatureMatchAnalyzer}(x, ...)
+\method{plot}{FeatureMatchAnalyzer}(x, ..., type = c("all", "ph", "mhd", "med", "msd", 
+    "fom", "minsep", "cent.dist", "angle.diff", "area.ratio",
+    "int.area", "bearing", "bdelta", "haus"), set.pw = FALSE)
+
+\method{print}{FeatureMatchAnalyzer}(x, ...)
 
 FeatureComps(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
-             "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"), 
-             sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", deg = TRUE,
-             aty = "compass", ...)
+    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
+    sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", deg = TRUE,
+    aty = "compass", ...)
 }
 \arguments{
   \item{x,y,matches}{
-\code{x}, \code{y} and \code{matches} are list objects with components as output by \code{deltamm} or similar function.  Only one is used, and it first checks for \code{matches}, then \code{y}, and finally \code{x}.  It expects a component names \code{mm.new.labels} that gives the number of matched objects.  In the case of the \code{plot} method function, \code{x} is a list object as returned by \code{FeatureMatchAnalyzer}.
+\code{x}, \code{y} and \code{matches} are list objects with components as output by \code{deltamm} or similar function.  Only one is used, and it first checks for \code{matches}, then \code{y}, and finally \code{x}.  It expects a component names \code{mm.new.labels} that gives the number of matched objects.  In the case of the \code{plot} and \code{print} method functions, \code{x} is a list object as returned by \code{FeatureMatchAnalyzer}.
 }
   \item{X,Y}{list object giving a pixel image as output from \code{solutionset} from package \pkg{spatstat} for the verification and forecast fields, resp.  These arguments are passed directly to the \code{locperf} function.}
   \item{object}{
 Obligatory argument for use with \code{FeatureSuite} function.  Not used by \code{FeatureMatchAnalyzer} (so far).  For the \code{summary} method function for \code{FeatureMatchAnalyzer}, this is the returned value from the self-same function.
 }
-  \item{which.comps}{
-character vector indicating which properties of the features are to be analyzed.
+  \item{which.comps,type}{
+character vector indicating which properties of the features are to be analyzed (\code{which.comps}) or plotted (\code{type}).
 }
   \item{sizefac}{
 single numeric by which area calculations should be multiplied in order to get the desired units.  If unity (default) results are in terms of grid squares.
@@ -54,8 +59,9 @@ numeric giving the cut-off value for the Baddeley metric.
 character naming a distance functions to use in calculating the various binary image measures.  Default is Euclidean distance.
 }
   \item{deg, aty}{optional arguments to the \code{bearing} function.}
+    \item{set.pw}{logical, should plotting panels be set by the function?}
   \item{\dots}{
-Additional arguments to \code{deltametric} from package \pkg{spatstat}.  In case of the \code{summary} method function, additional optional arguments may be passed, which include \code{silent} (logical, should the information be printed to the screen or not?), \code{interest} (numeric vector defining an interest value for calculating total interest for each matched object, if NULL, this is not performed), \code{con} (name of function that takes three arguments, the first two are matrices whose rows are objects and columns are matched feature properties, where the former is a matrix of matched feature property values (e.g., angle difference) and the latter is a matrix of interest values determined by the \code{interest} argument (whereby each row is identical), the third argument to \code{con} must be called \code{which.comps}, and it gives the short-form feature property names (i.e., same as which.comps argument); see details section).  In the case of the \code{plot} method function, these are optional arguments to the function \code{plot}.
+Additional arguments to \code{deltametric} from package \pkg{spatstat}.  In case of the \code{summary} method function, additional optional arguments may be passed, which include \code{silent} (logical, should the information be printed to the screen or not?), \code{interest} (numeric vector defining an interest value for calculating total interest for each matched object, if NULL, this is not performed), \code{con} (name of function that takes three arguments, the first two are matrices whose rows are objects and columns are matched feature properties, where the former is a matrix of matched feature property values (e.g., angle difference) and the latter is a matrix of interest values determined by the \code{interest} argument (whereby each row is identical), the third argument to \code{con} must be called \code{which.comps}, and it gives the short-form feature property names (i.e., same as which.comps argument); see details section).  In the case of the \code{plot} method function, these are optional arguments to the function \code{barplot}.
 }
 }
 \details{
@@ -64,6 +70,8 @@ Additional arguments to \code{deltametric} from package \pkg{spatstat}.  In case
 \code{FeatureComps} is the primary function called by \code{FeatureMatchAnalyzer}, and is designed as a more stand-alone type of function.  Several of the measures that can be calculated are simply the binary image measures/metrics available via, e.g., \code{locperf}.  It calculates comparisons between two matched features (i.e., between the verification and forecast fields).
 
 The \code{summary} method function for \code{FeatureMatchAnalyzer} allows for passing a function, con, to determine confidence for each interest value.  The idea being to set the interest to zero when the particular interest value does not make sense.  For example, angle difference makes no sense if both objects are circles.  Currently, no functions are included in this package for actually doing this, and so the functionality itself has not been tested. 
+
+The \code{print} method function for \code{FeatureMatchAnalyzer} first converts the object to a simple named matrix, then prints the matrix out.  The resulting matrix is returned invisibly.
 
 }
 \value{
@@ -80,6 +88,8 @@ The summary method for FeatureMatchAnalyzer invisibly returns a matrix with the 
 \item{match.properties}{above mentioned matrix.}
 \item{object.interest}{numeric vector giving the total interest for each feature.}
 \item{interest.values}{numeric vector giving the interest values used (i.e., as passed through argument interest.}
+
+\code{print} returns a named vector invisibly.
 }
 \references{
 Davis, C. A., Brown, B. G. and Bullock, R. G. (2006) Object-based verification of precipitation forecasts, Part I: Methodology and application to mesoscale rain areas. \emph{Mon. Wea. Rev.}, \bold{134}, 1772--1784.
@@ -96,18 +106,27 @@ data(ExampleSpatialVxSet)
 x <- ExampleSpatialVxSet$vx
 xhat <- ExampleSpatialVxSet$fcst
 
-hold <- FeatureSuitePrep("x", "xhat")
-look <- convthresh( hold, smoothpar=1.5)
+hold <- make.SpatialVx(x, xhat, field.type="Example",
+    units="units", data.name=c("Example", "x", "xhat"))
+
+look <- convthresh(hold, smoothpar=1.5)
 look2 <- centmatch(look, object=hold)
 tmp <- FeatureMatchAnalyzer(matches=look2)
+tmp
 summary(tmp)
 plot(tmp)
 
 \dontrun{
 data(pert000)
 data(pert004)
-hold <- FeatureSuitePrep("pert000", "pert004")
-look <- convthresh( hold, smoothpar=10.5)
+data(ICPg240Locs)
+
+hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
+    projection=TRUE, map=TRUE, field.type="Precipitation",
+    units="mm/h",
+    data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
+
+look <- convthresh(hold, smoothpar=10.5)
 look2 <- centmatch(look, object=hold)
 tmp <- FeatureMatchAnalyzer(matches=look2)
 summary(tmp)

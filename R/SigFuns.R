@@ -1,3 +1,48 @@
+EBS <- function(object, model=1, block.length=NULL, alpha.boot=0.05, field.sig=0.05, bootR=1000, ntrials=1000, verbose=FALSE) {
+
+    a <- attributes(object)
+    out <- list()
+    attributes(out) <- a
+
+    X <- object[[1]]
+    Xhat <- object[[2]]
+    if(!is.array(Xhat)) {
+	if(!is.numeric(model)) {
+	    nf <- a$nforecast
+	    dn <- a$data.name
+	    if(length(dn) == nf + 2) mod.names <- dn[-(1:2)]
+            else mod.names <- dn[-1]
+            model <- (1:nf)[dn == model]
+            if(is.na(model)) stop("datagrabber: invalid model argument.")
+	}
+	Xhat <- Xhat[[model]]
+    } # end of if 'Xhat' is not an array (i.e., if more than one model in object) stmts.
+
+    X <- t(apply(X, 3, c))
+    Xhat <- t(apply(Xhat, 3, c))
+    loc <- a$loc
+
+    if(!is.null(a$subset)) {
+	id <- a$subset
+	X <- X[,id]
+	Xhat <- Xhat[,id]
+	loc <- loc[id,]
+    }
+
+    res <- spatbiasFS(X=X, Y=Xhat, loc=a$loc, block.length=block.length,
+		    alpha.boot=alpha.boot, field.sig=field.sig, bootR=bootR,
+		    ntrials=ntrials, verbose=verbose)
+
+    out$block.boot.results <- res$block.boot.results
+    out$sig.results <- res$sig.results
+    sig.values <- c(res$field.significance, res$alpha.boot, bootR, ntrials)
+    names(sig.values) <- c("field sig.", "alpha boot", "bootstrap replicates", "number of trials")
+    attr(out, "arguments") <- sig.values
+    attr(out, "which.model") <- model
+    class(out) <- "EBS"
+    return(out)
+} # end of 'EBS' function.
+
 LocSig <- function(Z, numrep=1000, block.length=NULL, bootfun="mean", alpha=0.05, bca=FALSE, ...) {
    if(bootfun=="mean") bootfun <- function(data) return(colMeans(data, na.rm=TRUE))
    else if(is.character(bootfun)) bootfun <- get(bootfun)
@@ -134,6 +179,88 @@ plot.LocSig <- function(x, loc=NULL, nx=NULL, ny=NULL, ...){
   invisible(output)
 }
 
+plot.EBS <- function(x, ..., set.pw=FALSE, loc.byrow=TRUE, col, horizontal) {
+
+    if(missing(col)) col <- c("gray", tim.colors(64))
+    if(missing(horizontal)) horizontal <- TRUE
+
+    if(set.pw) par(mfrow=c(1,2), oma=c(0,0,2,0))
+    else par(oma=c(0,0,2,0))
+
+    Zest <- x$block.boot.results$Estimate
+    ZciR <- x$block.boot.results$Upper - x$block.boot.results$Lower
+
+    a <- attributes(x)
+    xd <- a$xdim
+
+    if(is.null(a$subset)) {
+        if(!is.matrix(Zest)) Zest <- matrix(Zest, xd[1], xd[2])
+        if(!is.matrix(ZciR)) ZciR <- matrix(ZciR, xd[1], xd[2])
+    } 
+
+    if(a$projection && is.null(a$subset)) {
+	xloc <- matrix(a$loc[,1], xd[1], xd[2], byrow=loc.byrow)
+	yloc <- matrix(a$loc[,2], xd[1], xd[2], byrow=loc.byrow)
+    }
+
+    if(!is.null(a$subset)) {
+	if(is.logical(a$subset)) Ns <- sum(a$subset, na.rm=TRUE)
+	else Ns <- length(a$subset)
+	Zest <- as.image(Zest, nx=ceiling(Ns/2), ny=ceiling(Ns/2), x=a$loc[a$subset,], na.rm=TRUE)
+	ZciR <- as.image(ZciR, nx=ceiling(Ns/2), ny=ceiling(Ns/2), x=a$loc[a$subset,], na.rm=TRUE)
+    } else if(!a$reg.grid) {
+	Zest <- as.image(Zest, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE)
+	ZciR <- as.image(ZciR, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE)
+    }
+
+    if(a$map) {
+
+	ax <- list(x=pretty(round(a$loc[,1], digits=2)), y=pretty(round(a$loc[,2], digits=2)))
+
+	if(is.null(a$subset)) r <- apply(a$loc, 2, range, finite=TRUE)
+	else r <- apply(a$loc[a$subset,], 2, range, finite=TRUE)
+
+	map(xlim=r[,1], ylim=r[,2], type="n")
+	axis(1, at=ax$x, labels=ax$x)
+	axis(2, at=ax$y, labels=ax$y)
+	if(a$projection && a$reg.grid && is.null(a$subset)) image.plot(xloc, yloc, Zest, add=TRUE, col=col, main="Mean of Estimate", horizontal=horizontal, ...)
+	else if(a$reg.grid && is.null(a$subset)) image.plot(Zest, add=TRUE, col=col, main="Mean of Estimate", horizontal=horizontal, ...)
+	else image.plot(Zest, add=TRUE, col=col, main="Mean of Estimate", horizontal=horizontal, ...)
+	map(add=TRUE, lwd=1.5)
+	map(database="state", add=TRUE)
+
+	map(xlim=r[,1], ylim=r[,2], type="n")
+	axis(1, at=ax$x, labels=ax$x)
+	axis(2, at=ax$y, labels=ax$y)
+        if(a$projection && a$reg.grid && is.null(a$subset)) image.plot(xloc, yloc, ZciR, add=TRUE, col=col, main="CI Range", horizontal=horizontal, ...)
+        else if(a$reg.grid && is.null(a$subset)) image.plot(ZciR, add=TRUE, col=col, main="Mean of Estimate", horizontal=horizontal, ...)
+        else image.plot(ZciR, add=TRUE, col=col, main="CI Range", horizontal=horizontal, ...)
+        map(add=TRUE, lwd=1.5)
+        map(database="state", add=TRUE)
+
+    } else {
+
+	if(a$projection && a$reg.grid && is.null(a$subset)) image.plot(xloc, yloc, Zest, col=col, main="Mean of Estimate", horizontal=horizontal, ...)
+        else if(a$reg.grid && is.null(a$subset)) image.plot(Zest, col=col, main="Mean of Estimate", horizontal=horizontal, ...)
+        else image.plot(Zest, col=col, main="Mean of Estimate", horizontal=horizontal, ...)
+
+	if(a$projection && a$reg.grid && is.null(a$subset)) image.plot(xloc, yloc, ZciR, col=col, main="CI Range", horizontal=horizontal, ...)
+        else if(a$reg.grid && is.null(a$subset)) image.plot(ZciR, col=col, main="Mean of Estimate", ...)
+        else image.plot(ZciR, col=col, main="CI Range", horizontal=horizontal, ...)
+
+    } # end of if else 'map' stmts.
+
+    if(length(a$data.name) == a$nforecast + 2) {
+	msg <- paste(a$data.name[1], ": ", a$data.name[2], " vs ", a$data.name[a$which.model+2], sep="")
+    } else msg <- paste(a$data.name[2], " vs ", a$data.name[a$which.model+1], sep="")
+    if(a$field.type != "" && a$units != "") msg <- paste(msg, "\n", a$field.type, " (", a$units, ")", sep="")
+    else if(a$field.type != "") msg <- paste(msg, a$field.type, sep="\n")
+    else if(a$units != "") msg <- paste(msg, "\n(", a$units, ")", sep="")
+    mtext(msg, line=0.05, outer=TRUE)
+
+    invisible()
+} # end of 'plot.EBS' function.
+
 inside <- function(DF)
 {
   #
@@ -234,8 +361,8 @@ summary.spatbiasFS <- function(object, ...) {
 
 plot.spatbiasFS <- function(x, ...) {
    msg <- paste("Mean Error: ", x$data.name[2], " vs ", x$data.name[1], sep="")
-   X <- get(x$data.name[1])
-   Y <- get(x$data.name[2])
+   # X <- get(x$data.name[1])
+   # Y <- get(x$data.name[2])
    if(length(x$data.name)==3) loc <- get(x$data.name[3])
    else stop("plot.spatbiasFS: No entry loc.  Must supply location information.")
    est.i <- as.image(x$block.boot.results$Estimate, x=loc)
