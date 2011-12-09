@@ -12,8 +12,7 @@ EBS(object, model = 1, block.length = NULL, alpha.boot = 0.05,
     field.sig = 0.05, bootR = 1000, ntrials = 1000,
     verbose = FALSE)
 
-\method{plot}{EBS}(x, ..., set.pw = FALSE,
-    loc.byrow = TRUE, col, horizontal)
+\method{plot}{EBS}(x, ..., set.pw = FALSE, col, horizontal)
 }
 \arguments{
   \item{object}{ list object of class \dQuote{SpatialVx}.
@@ -38,7 +37,6 @@ numeric integer giving the number of bootstrap replications to use.
 numeric integer giving the number of Monte Carol iterations to use.
 }
     \item{set.pw}{logical, should the plotting panels be set by the function?}
-    \item{loc.byrow}{logical, if locations are a projection (see help file for \code{make.SpatialVx}), then this is the \code{byrow} argument in the call to create matrices of the lcoations (see help file for \code{poly.image} from \pkg{fields}).}
     \item{col, horizontal}{optional arguments to \code{image.plot} from \pkg{fields}.}
   \item{verbose}{
 logical, should progress information be printed to the screen?
@@ -85,8 +83,9 @@ Ref <- array(t(Vx), dim=c(49, 48, 361))
 Mod <- array(t(Fcst), dim=c(49, 48, 361)) 
 
 hold <- make.SpatialVx(Ref, Mod, loc=GFSNAMlocEx,
-    projection=TRUE, map=TRUE, subset=id, field.type="Precipitation",
-    units="mm", data.name=c("GFS/NAM", "Reference", "Model"))
+    projection=TRUE, map=TRUE, loc.byrow = TRUE, subset=id,
+    field.type="Precipitation", units="mm",
+    data.name=c("GFS/NAM", "Reference", "Model"))
 
 look <- EBS(hold, bootR=500, ntrials=500, verbose=TRUE)
 plot(look, set.pw=TRUE)
@@ -96,8 +95,8 @@ plot(look, set.pw=TRUE)
 # A little slower, but not terribly bad.
 
 hold <- make.SpatialVx(Ref, Mod, loc=GFSNAMlocEx,
-    projection=TRUE, map=TRUE, field.type="Precipitation",
-    reg.grid=FALSE, units="mm",
+    projection=TRUE, map=TRUE, loc.byrow = TRUE,
+    field.type="Precipitation", reg.grid=FALSE, units="mm",
     data.name=c("GFS/NAM", "Reference", "Model"))
 
 look <- EBS(hold, bootR=500, ntrials=500, verbose=TRUE)

@@ -1,29 +1,38 @@
 make.SpatialVx <- function(X, Xhat, thresholds=NULL, loc=NULL, projection=FALSE, subset=NULL, time.vals = NULL,
-			    reg.grid = TRUE, map = FALSE, field.type="", units="", data.name=c("X","Xhat"),
+			    reg.grid = TRUE, map = FALSE, loc.byrow = FALSE, field.type="", units="", data.name=c("X","Xhat"),
 			    q=c(0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.9, 0.95), qs=NULL) {
 
     xdim <- dim(X)
 
     if(is.list(Xhat)) {
+
 	nforecast <- length(Xhat)
 	ydim <- dim(Xhat[[1]])
 	ydims <- lapply(Xhat, dim)
 	f <- function(x, d) all(x == d)
 	if(!all(unlist(lapply(ydims, f, d=ydim)))) stop("make.SpatialVx: invalid Xhat argument.")
+
     } else {
+
 	nforecast <- 1
 	ydim <- dim(Xhat)
+
     }
+
     if(all(xdim != ydim)) stop("make.SpatialVx: dim of X must be the same as dim of (each component of) Xhat")
 
     out <- list(X, Xhat)
 
     if(is.null(thresholds)) {
+
 	thresholds <- cbind(quantile(c(X), probs=q, na.rm=TRUE), quantile(c(unlist(Xhat)), probs=q, na.rm=TRUE))
         qs <- as.character(q)
+
     } else if(!is.matrix(thresholds)) {
+
 	qs <- as.character(thresholds)
 	thresholds <- cbind(thresholds, thresholds)
+
     } else qs <- paste("threshold", 1:dim(thresholds)[1])
 
     udim <- dim(thresholds)
@@ -35,8 +44,10 @@ make.SpatialVx <- function(X, Xhat, thresholds=NULL, loc=NULL, projection=FALSE,
     if(is.null(loc)) loc <- cbind(rep(1:xdim[1],xdim[2]), rep(1:xdim[2], each=xdim[1]))
 
     if(is.null(time.vals)) {
+
 	if(length(xdim) == 3) time.vals <- 1:xdim[3]
 	else time.vals <- 1
+
     }
 
     if(length(data.name) == nforecast + 2) msg <- paste("", "\n", data.name[1], sep="")
@@ -53,6 +64,7 @@ make.SpatialVx <- function(X, Xhat, thresholds=NULL, loc=NULL, projection=FALSE,
     attr(out, "thresholds") <- thresholds
     attr(out, "udim") <- udim
     attr(out, "loc") <- loc
+    attr(out, "loc.byrow") <- loc.byrow
     attr(out, "subset") <- subset
     attr(out, "data.name") <- data.name
     attr(out, "nforecast") <- nforecast
@@ -122,9 +134,10 @@ summary.SpatialVx <- function(object, ...) {
     invisible(out)
 } # end of 'summary.SpatialVx' function.
 
-plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zlim, horizontal=TRUE, loc.byrow=TRUE) {
+plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zlim, horizontal=TRUE) {
 
     tmp <- attributes(x)
+    loc.byrow <- tmp$loc.byrow
     nf <- tmp$nforecast
     Nt <- length(tmp$time)
 
@@ -177,21 +190,28 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
     }
 
     if(Nt > 1 && !is.na(time.point)) {
+
         if(is.function(time.point) || is.character(time.point)) {
+
 	    afun <- match.fun(time.point)
 	    X <- apply(Vx, c(1,2), afun, ...)
 	    Xhat <- apply(Fcst, c(1,2), afun, ...)
 	    if(is.character(time.point)) fname <- time.point
 	    else fname <- deparse(substitute(time.point))
 	    ptitle <- paste(ptitle, "\n(aggregated over time by ", fname, ")", sep="")
+
         } else {
+
 	    X <- Vx[,,time.point]
-	    ptitle <- paste(ptitle, "\n(t = ", tmp$times[time.point], ")", sep="")
+	    ptitle <- paste(ptitle, "\n(t = ", tmp$time[time.point], ")", sep="")
+
 	}
+
     } # end of if more than one time point, and !is.na(time.point) stmts.
 
     if(is.na(time.point) && is.na(model)) {
-	tiden <- tmp$times
+
+	tiden <- tmp$time
         tdim <- dim(tiden)
         if(!is.null(tdim)) {
             if(length(tdim) == 2) {
@@ -221,7 +241,7 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
         	
         	map(add=TRUE, lwd=2)
         	map(database="state", add=TRUE, lwd=1.5)
-    	        contour(X, levels=u[,"X"], col="white", add=TRUE)
+    	        # contour(X, levels=u[,"X"], col="white", add=TRUE)
     
         	if(!is.null(ptitle)) title(ptitle[tiid])
       
@@ -241,16 +261,17 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
         	    } else image(as.image(Xhat, x=loc, nx=xd[1], ny=xd[2]), add=TRUE, col=col, zlim=zlim)
     		    map(add=TRUE, lwd=2)
         	    map(database="state", add=TRUE, lwd=1.5)
-    		    if(dim(u)[2] > 2) contour(Xhat, levels=u[,i+1], col="white", add=TRUE)
-    		    else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
+    		    # if(dim(u)[2] > 2) contour(Xhat, levels=u[,i+1], col="white", add=TRUE)
+    		    # else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
     
         	    if(!is.null(ptitle)) title(ptitle[Nt * i + tiid])
         	} # end of for 'i' loop.
 
             } else {
+
         	if(!is.null(ptitle)) image(X, axes=FALSE, col=col, zlim=zlim, main=ptitle[1])
                 else image(X, axes=FALSE, col=col, zlim=zlim)
-    	        contour(X, levels=u[,"X"], col="white", add=TRUE)
+    	        # contour(X, levels=u[,"X"], col="white", add=TRUE)
     
     	        for(i in 1:nf) {
                     if(nf > 1) Xhat <- Fcst[[i]]
@@ -263,13 +284,14 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
 				matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
 				Xhat, col=col, zlim=zlim)
                     } else image(Xhat, axes=FALSE, col=col, zlim=zlim)
-    		    if(dim(u)[2] > 2) contour(Xhat, levels=u[,i+1], col="white", add=TRUE)
-    		    else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
+    		    # if(dim(u)[2] > 2) contour(Xhat, levels=u[,i+1], col="white", add=TRUE)
+    		    # else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
     
                     if(!is.null(ptitle)) title(ptitle[Nt * i + tiid])
                 } # end of for 'i' loop.
     
             } # end of if else 'map' stmts.
+
         } # end of for 'tiid' loop.  
 
         image.plot(x[[1]], legend.only=TRUE, col=col, zlim=zlim, horizontal=horizontal)
@@ -293,7 +315,7 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
 
                 map(add=TRUE, lwd=2)
                 map(database="state", add=TRUE, lwd=1.5)
-                contour(X, levels=u[,"X"], col="white", add=TRUE)
+                # contour(X, levels=u[,"X"], col="white", add=TRUE)
 
                 if(!is.null(ptitle)) title(ptitle[tiid])
 
@@ -312,15 +334,15 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
                 } else image(as.image(Xhat, x=loc, nx=xd[1], ny=xd[2]), add=TRUE, col=col, zlim=zlim)
                 map(add=TRUE, lwd=2)
                 map(database="state", add=TRUE, lwd=1.5)
-                if(dim(u)[2] > 2) contour(Xhat, levels=u[,model+1], col="white", add=TRUE)
-                else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
+                # if(dim(u)[2] > 2) contour(Xhat, levels=u[,model+1], col="white", add=TRUE)
+                # else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
 
                 if(!is.null(ptitle)) title(ptitle[Nt + tiid])
 
             } else {
                 if(!is.null(ptitle)) image(X, axes=FALSE, col=col, zlim=zlim, main=ptitle[1])
                 else image(X, axes=FALSE, col=col, zlim=zlim)
-                contour(X, levels=u[,"X"], col="white", add=TRUE)
+                # contour(X, levels=u[,"X"], col="white", add=TRUE)
 
                 if(nf > 1) Xhat <- Fcst[[model]]
                 else Xhat <- Fcst
@@ -332,8 +354,8 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
                                 matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
                                 Xhat, col=col, zlim=zlim)
                 } else image(Xhat, axes=FALSE, col=col, zlim=zlim)
-                if(dim(u)[2] > 2) contour(Xhat, levels=u[,model+1], col="white", add=TRUE)
-                else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
+                # if(dim(u)[2] > 2) contour(Xhat, levels=u[,model+1], col="white", add=TRUE)
+                # else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
 
                 if(!is.null(ptitle)) title(ptitle[Nt + tiid])
    
@@ -361,7 +383,7 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
 
              map(add=TRUE, lwd=2)
              map(database="state", add=TRUE, lwd=1.5)
-             contour(X, levels=u[,"X"], col="white", add=TRUE)
+             # contour(X, levels=u[,"X"], col="white", add=TRUE)
    
              if(!is.null(ptitle)) title(ptitle[1])
 
@@ -381,8 +403,8 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
                  } else image(as.image(Xhat, x=loc, nx=xd[1], ny=xd[2]), add=TRUE, col=col, zlim=zlim)
                     map(add=TRUE, lwd=2)
                     map(database="state", add=TRUE, lwd=1.5)
-                    if(dim(u)[2] > 2) contour(Xhat, levels=u[,i+1], col="white", add=TRUE)
-                    else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
+                    # if(dim(u)[2] > 2) contour(Xhat, levels=u[,i+1], col="white", add=TRUE)
+                    # else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
 
                     if(!is.null(ptitle)) title(ptitle[i + 1])
                 } # end of for 'i' loop.
@@ -390,7 +412,7 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
             } else {
                 if(!is.null(ptitle)) image(X, axes=FALSE, col=col, zlim=zlim, main=ptitle[1])
                 else image(X, axes=FALSE, col=col, zlim=zlim)
-                contour(X, levels=u[,"X"], col="white", add=TRUE)
+                # contour(X, levels=u[,"X"], col="white", add=TRUE)
 
                 for(i in 1:nf) {
                     if(nf > 1) Xhat <- Fcst[[i]]
@@ -403,8 +425,8 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
                                 matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
                                 Xhat, col=col, zlim=zlim)
                     } else image(Xhat, axes=FALSE, col=col, zlim=zlim)
-                    if(dim(u)[2] > 2) contour(Xhat, levels=u[,i+1], col="white", add=TRUE)
-                    else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
+                    # if(dim(u)[2] > 2) contour(Xhat, levels=u[,i+1], col="white", add=TRUE)
+                    # else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
 
                     if(!is.null(ptitle)) title(ptitle[i + 1])
                 } # end of for 'i' loop.
@@ -416,11 +438,13 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
     } else {
 
 	X <- Vx
-	if(nf > 1) Xhat <- Fcst[[model]]
-	else Xhat <- Fcst
+	# if(nf > 1) Xhat <- Fcst[[model]]
+	# else
+	Xhat <- Fcst
 	if(Nt > 1) Xhat <- Xhat[,,time.point]
 
 	if(tmp$map) {
+
             r <- apply(tmp$loc, 2, range, finite=TRUE)
             map(xlim=r[,1], ylim=r[,2], type="n")
 	    axis(1, at=ax$x, labels=ax$x)
@@ -432,7 +456,7 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
 
             map(add=TRUE, lwd=2)
             map(database="state", add=TRUE, lwd=1.5)
-            contour(X, levels=u[,"X"], col="white", add=TRUE)
+            # contour(X, levels=u[,"X"], col="white", add=TRUE)
 
             if(!is.null(ptitle)) title(ptitle[1])
  
@@ -445,8 +469,8 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
             } else image(as.image(Xhat, x=loc, nx=xd[1], ny=xd[2]), add=TRUE, col=col, zlim=zlim)
             map(add=TRUE, lwd=2)
             map(database="state", add=TRUE, lwd=1.5)
-            if(dim(u)[2] > 2) contour(Xhat, levels=u[,model+1], col="white", add=TRUE)
-            else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
+            # if(dim(u)[2] > 2) contour(Xhat, levels=u[,model+1], col="white", add=TRUE)
+            # else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
 
             if(!is.null(ptitle)) title(ptitle[2])
 
@@ -454,15 +478,15 @@ plot.SpatialVx <- function(x, ..., set.pw=FALSE, time.point=1, model=1, col, zli
 
             if(!is.null(ptitle)) image(X, axes=FALSE, col=col, zlim=zlim, main=ptitle[1])
             else image(X, axes=FALSE, col=col, zlim=zlim)
-            contour(X, levels=u[,"X"], col="white", add=TRUE)
+            # contour(X, levels=u[,"X"], col="white", add=TRUE)
 
             if(tmp$projection & tmp$reg.grid) {
                     poly.image(matrix(loc[,1], xd[1], xd[2], byrow=loc.byrow),
 			matrix(loc[,2], xd[1], xd[2], byrow=loc.byrow),
 			Xhat, col=col, zlim=zlim)
             } else image(Xhat, axes=FALSE, col=col, zlim=zlim)
-            if(dim(u)[2] > 2) contour(Xhat, levels=u[,model+1], col="white", add=TRUE)
-            else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
+            # if(dim(u)[2] > 2) contour(Xhat, levels=u[,model+1], col="white", add=TRUE)
+            # else contour(Xhat, levels=u[,"Xhat"], col="white", add=TRUE)
 
             if(!is.null(ptitle)) title(ptitle[2])
 
@@ -518,6 +542,18 @@ datagrabber.SpatialVx <- function(x, ..., time.point=1, model=1) {
     out <- list(X=Vx, Xhat=Fcst)
     return(out) 
 } # end of 'datagrabber.SpatialVx' function.
+
+datagrabber.features <- function(x, ...) {
+
+    return(list(X = x$X, Xhat = x$Xhat))
+
+} # end of 'data.grabber.features' function.
+
+datagrabber.matched <- function(x, ...) {
+
+    return(list(X = x$X, Xhat = x$Xhat))
+
+} # end of 'data.grabber.matched' function.
 
 hist.SpatialVx <- function(x, ..., time.point=1, model=1) {
    tmp <- attributes(x)

@@ -57,7 +57,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{owin}}, \code{\link{convexhull}}, \code{\link{sma}}, \code{\link{as.psp}}, \code{\link{angles.psp}}, \code{\link{rotate.owin}}, \code{\link{rotate.psp}}, \code{\link{bounding.box}}, \code{\link{midpoints.psp}}, \code{\link{lengths.psp}}, \code{\link{infline}}, \code{\link{clip.infline}}, \code{\link{deltamm}}, \code{\link{FeatureSuite}}, \code{\link{convthresh}}, \code{\link{disjointer}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{solutionset}}
+\code{\link{owin}}, \code{\link{convexhull}}, \code{\link{sma}}, \code{\link{as.psp}}, \code{\link{angles.psp}}, \code{\link{rotate.owin}}, \code{\link{rotate.psp}}, \code{\link{bounding.box}}, \code{\link{midpoints.psp}}, \code{\link{lengths.psp}}, \code{\link{infline}}, \code{\link{clip.infline}}, \code{\link{deltamm}}, \code{\link{convthresh}}, \code{\link{disjointer}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{solutionset}}
 }
 \examples{
 data(ExampleSpatialVxSet)
@@ -81,6 +81,7 @@ data(ICPg240Locs)
 
 hold <- make.SpatialVx(pert000, pert004,
     loc=ICPg240Locs, projection=TRUE, map=TRUE,
+    loc.byrow = TRUE,
     field.type="Precipitation", units="mm/h",
     data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
 

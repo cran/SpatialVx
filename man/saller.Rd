@@ -3,14 +3,13 @@
 \alias{print.saller}
 \alias{summary.saller}
 \title{
-Analyze Features in a Field (Image)
+Feature-based Analysis of a Field (Image)
 }
 \description{
-Functions to analyze features in a field (image) in conjunction, e.g., with the FeatureSuite function.
+Feature-based analysis of a field (image) 
 }
 \usage{
-saller(object, x, y = NULL, matches = NULL, d = NULL, time.point = 1, 
-    model = 1)
+saller(x, d = NULL, time.point = 1, model = 1, distfun = "rdist", ...)
 
 \method{print}{saller}(x, ...)
 
@@ -23,22 +22,16 @@ saller(object, x, y = NULL, matches = NULL, d = NULL, time.point = 1,
 \code{print}: list object returned by \code{saller}.
 }
   \item{object}{
-\code{saller}: A list object of class \dQuote{SpatialVx} as returned by \code{make.SpatialVx} providing information about the original fields.
 
 \code{summary}: object the returned by \code{saller}.
-}
-  \item{y}{
-(optional) if not NULL, it is used instead of \code{x}, and otherwise has the same stucture thereof.  When used with \code{FeatureSuite}, one might want to merge objects in one or both fields before calling the analysis function.  If so, \code{y} is the means by which \code{FeatureSuite} can ensure that this happens.
-}
-  \item{matches}{
-Not used by \code{saller} function.  If matching of features between fields is required, this will be a two-column matrix describing which features from the forecast (first column) match to those of the verificaiton field (second column).
 }
   \item{d}{
 (optional) the SAL (\code{saller}) method requires division by the longest distance between two border points.  If NULL, this is taken to be simply the length of the longest side.
 }
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
   \item{model}{numeric indicating which forecast model to select for the analysis.}
-\item{\dots}{not used.}
+  \item{distfun}{Function with which to calculate centroid distances.  Default uses straight Euclidean.  To do great-circle distance, use \code{rdist.earth} and be sure that \code{object} has a loc attribute with lon/lat coordinates.}
+\item{\dots}{Optional arguments to \code{distfun}.  Not used by \code{print} or \code{summary}.}
 }
 \details{
 saller: Computes S, A, and L of the SAL method introduced by Wernli et al. (2008).
@@ -67,7 +60,7 @@ The SAL method typically looks at a small domain, and it is up to the user to se
 }
 
 \seealso{
-\code{\link{FeatureSuite}}, \code{\link{centroid.owin}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{deltamm}}, \code{\link{make.SpatialVx}}
+\code{\link{centroid.owin}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{deltamm}}, \code{\link{make.SpatialVx}}
 }
 \examples{
 
@@ -82,9 +75,9 @@ hold <- make.SpatialVx(x, xhat, field.type="contrived", units="none",
     data.name=c("Example", "x", "xhat"))
 
 hold2 <- convthresh(hold, smoothpar=5, thresh=q)
-\dontrun{plot(hold2, set.pw=TRUE)}
+\dontrun{plot(hold2)}
 
-look <- saller(hold, hold2)   
+look <- saller(hold2)   
 summary(look)
 
 \dontrun{
@@ -93,15 +86,15 @@ data(pert004)
 data(ICPg240Locs)
 
 hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
-    projection=TRUE, map=TRUE,
+    projection=TRUE, map=TRUE, loc.byrow = TRUE,
     field.type="Precipitation", units="mm/h",
     data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
 
 look <- convthresh(hold, smoothpar=10.5)
 summary(look)
-plot(look, set.pw=TRUE)
+plot(look)
 
-saller(hold, look)
+saller(look)
 
    }
 

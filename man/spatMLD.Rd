@@ -26,8 +26,7 @@ fit.spatMLD(object, start.list = NULL)
 
 \method{summary}{spatMLD}(object, ...)
 
-\method{plot}{spatMLD}(x, ..., icol = c("gray", tim.colors(64)),
-    loc.byrow = TRUE)
+\method{plot}{spatMLD}(x, ..., icol = c("gray", tim.colors(64)))
 }
 \arguments{
   \item{x,xhat1, xhat2}{
@@ -51,7 +50,6 @@ numeric giving the maximum radius for finding variogram differences per the \cod
   \item{start.list}{list with components: \code{s} and \code{r}, which give initial estimates for sqrt(sill) and range parameters of the exponential variogram, resp.}
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
     \item{model}{numeric indicating which forecast model to select for the analysis.}
-	\item{loc.byrow}{logical, when creating matrices of lon and lat coordiantes, should this be done by row (TRUE) or by column (FALSE)?}
     \item{icol}{(optional) color scheme.}
   \item{\dots}{
 \code{spatMLD}: optional additional arguments to \code{lossfun}.  Not used by the summary or plot functions.
@@ -144,7 +142,8 @@ data(pert006)
 data(ICPg240Locs)
 
 hold <- make.SpatialVx(pert000, list(pert004, pert006), loc=ICPg240Locs,
-    projection=TRUE, map=TRUE, field.type="Precipitation", units="mm/h",
+    projection=TRUE, map=TRUE, loc.byrow = TRUE,
+    field.type="Precipitation", units="mm/h",
     data.name=c("ICP Perturbed Cases", "pert000", "pert004", "pert006"))
 
 look <- spatMLD(hold, lossfun="abserrloss", maxrad=8)

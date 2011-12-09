@@ -212,6 +212,7 @@ spatMLD.SpatialVx <- function(x, ..., time.point=1, model=c(1,2),
     attr(out, "projection") <- a$projection
     attr(out, "map") <- a$map
     attr(out, "loc") <- a$loc
+    attr(out, "loc.byrow") <- a$loc.byrow
     attr(out, "xdim") <- a$xdim
 
     return(out)
@@ -221,6 +222,9 @@ spatMLD.default <- function(x, ..., xhat1, xhat2, lossfun="corrskill", trend="ol
     loc=NULL, maxrad=20, dx=1, dy=1, zero.out=FALSE) {
 
    out <- list()
+    attributes(out) <- atmp <- list(...)
+    if(is.null(atmp$loc.byrow)) attr(out, "loc.byrow") <- FALSE
+
    data.name <- c(as.character(substitute(x)),as.character(substitute(xhat1)),as.character(substitute(xhat2)))
    names(data.name) <- c("verification","model1", "model2")
    out$data.name <- data.name
@@ -273,9 +277,10 @@ fit.spatMLD <- function(object, start.list=NULL) {
    return(out)
 } # end of 'fit.spatMLD' function.
 
-plot.spatMLD <- function(x, ..., icol=c("gray", tim.colors(64)), loc.byrow=TRUE) {
+plot.spatMLD <- function(x, ..., icol=c("gray", tim.colors(64))) {
 
     tmp <- attributes(x)
+    loc.byrow <- tmp$loc.byrow
 
     if(is.null(tmp$msg)) msg <- paste("\n", x$lossfun, ": ", x$data.name[2], " vs ", x$data.name[3], " (", x$data.name[1], ")", sep="")
     else msg <- paste(tmp$msg, "\n", x$lossfun, ": ", x$data.name[2], " vs ", x$data.name[3], " (", x$data.name[1], ")", sep="")

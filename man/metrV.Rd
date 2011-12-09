@@ -106,7 +106,7 @@ data(pert000)
 data(pert001)
 data(ICPg240Locs)
 testobj <- make.SpatialVx(pert000, pert001, thresholds=1e-8,
-                projection=TRUE, map=TRUE, loc=ICPg240Locs,
+                projection=TRUE, map=TRUE, loc=ICPg240Locs, loc.byrow = TRUE,
                 field.type="Precipitation", units="mm/h",
                 data.name=c("ICP Perturbed Cases", "pert000", "pert001"))
 metrV(testobj)
@@ -115,7 +115,7 @@ metrV(testobj)
 data(geom000)
 data(geom001)
 testobj <- make.SpatialVx(geom000, geom001, thresholds=0,
-                projection=TRUE, map=TRUE, loc=ICPg240Locs,
+                projection=TRUE, map=TRUE, loc=ICPg240Locs, loc.byrow = TRUE,
                 field.type="Precipitation", units="mm/h",
                 data.name=c("ICP Geometric Cases", "geom000", "geom001"))
 metrV(testobj)

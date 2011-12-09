@@ -1,5 +1,5 @@
 Package: SpatialVx
-Version: 0.1-7
+Version: 0.1-8
 Date: 2011-12-09
 Title: Spatial Forecast Verification
 Author: Eric Gilleland <EricG@ucar.edu>
@@ -11,7 +11,7 @@ Description: Functions to perform spatial forecast verification
 License: GPL (>= 2)
 URL: http://www.ral.ucar.edu/projects/icp
 BugReports: http://www.ral.ucar.edu/projects/icp/SpatialVx
-Packaged: 2013-10-21 20:14:10 UTC; ericg
+Packaged: 2014-01-16 20:55:22 UTC; ericg
 NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2013-10-22 00:55:50
+Date/Publication: 2014-01-16 22:42:57

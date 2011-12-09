@@ -48,7 +48,7 @@ The mean error distance (\dQuote{med}) is the mean of d(x,A) over the points in 
 
 The mean square error distance (\dQuote{msd}) is the mean of the squared d(x,A) over the points in B.  That is, e2.bar = mean( d(x,A)^2), over all x in B.
 
-Pratt's figure of merit (\dQuote{fom}) is given by: FOM(A,B) = sum( 1/(1+alpha*d(x,A)^2))/max(N(A),N(B)), where x in B, and N(A) (N(B)) is the number of points in the set A (B) and alpha is a scaling constant (see, e.g., Pratt, 1977; Abdou and Pratt, 1979).  The scaling constant is typically set to 1/9 when rho is normalized so that the smallest nonzero distance between pixel neighbors is 1.  The default (0.1) here is approximately 1/9.
+Pratt's figure of merit (\dQuote{fom}) is given by: FOM(A,B) = sum( 1/(1+alpha*d(x,A)^2))/max(N(A),N(B)), where x in B, and N(A) (N(B)) is the number of points in the set A (B) and alpha is a scaling constant (see, e.g., Pratt, 1977; Abdou and Pratt, 1979).  The scaling constant is typically set to 1/9 when rho is normalized so that the smallest nonzero distance between pixel neighbors is 1.  The default (0.1) here is approximately 1/9.  If both A and B are empty, the value returned for max(N(A), N(B)) is 1e16 and for d(x,A) for x in B is given a value of zero so that the returned value should be close to zero.
 
 Minimum separation distance between boundaries (\dQuote{minsep}) is just the smallest value of the distance map of one field over the subset where events occur in the other.  This is mainly for when single features within the fields are being compared.
 

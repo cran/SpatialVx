@@ -49,6 +49,7 @@ gmm2d.SpatialVx <- function(x, ..., time.point=1, model=1, K=3, gamma=1, thresho
     attr(out, "projection") <- a$projection
     attr(out, "map") <- a$map
     attr(out, "loc") <- a$loc
+    attr(out, "loc.byrow") <- a$loc.byrow
     attr(out, "msg") <- a$msg
 
     return(out)
@@ -131,9 +132,25 @@ gmm2d.default <- function(x, ..., xhat, K=3, gamma=1, threshold=NULL, initFUN="i
    # fitY <- mvnormalmixEM(sY, lambda=rep(1/K,K), mu=meanY, sigma=sdY, k=K, verb=verbose)
    fitY <- turboem(par=c(meanY,sdY,rep(1/K,K)), fixptfn = gmmEMstep, method="em", xy=sY, k=K)
    if(verbose) cat("\n", "Congratultions, the fits are made.\n")
-   out <- list(fitX=fitX, fitY=fitY, initX=c(meanX,sdX,rep(1/K,K)), initY=c(meanY,sdY,rep(1/K,K)), sX=sX, sY=sY, k=K, Ax=Ax, Ay=Ay, xdim=xdim)
-   class(out) <- "gmm2d"
-   return(out)
+
+    out <- list()
+    attributes(out) <- atmp <- list(...)
+    if(is.null(atmp$loc.byrow)) attr(out, "loc.byrow") <- FALSE
+
+    out$fitX <- fitX
+    out$fitY <- fitY
+    out$initX <- c(meanX,sdX,rep(1/K,K))
+    out$initY <- c(meanY,sdY,rep(1/K,K))
+    out$sX <- sX
+    out$sY <- sY
+    out$k <- K
+    out$Ax <- Ax
+    out$Ay <- Ay
+    out$xdim <- xdim
+
+    class(out) <- "gmm2d"
+
+    return(out)
 } # end of 'gmm2d.default' function.
 
 gmmEMstep <- function(p,xy,k) {
@@ -208,9 +225,10 @@ gmmNegLogLik <- function(p,xy,k) {
    return(-sum(log(Pxy)))
 } # end of internal 'gmmNegLogLik' function.  
 
-plot.gmm2d <- function(x, ..., col=c("gray", tim.colors(64)), zlim=c(0,1), horizontal=TRUE, loc.byrow=TRUE) {
+plot.gmm2d <- function(x, ..., col=c("gray", tim.colors(64)), zlim=c(0,1), horizontal=TRUE) {
 
     a <- attributes(x)
+    loc.byrow <- a$loc.byrow
 
     if(is.null(a$projection)) proj <- FALSE
     else proj <- a$projection

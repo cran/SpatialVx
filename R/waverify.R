@@ -88,6 +88,9 @@ waverify2d.default <- function(X, ..., Y, Clim=NULL,
    ##
    if( verbose)  begin.time <- Sys.time()
    out <- list()
+    attributes(out) <- atmp <- list(...)
+    if(is.null(atmp$loc.byrow)) attr(out, "loc.byrow") <- FALSE
+
    climate <- !is.null( Clim)
    
    N <- dim( Y)[1]
@@ -196,7 +199,7 @@ print.waverify2d <- function(x, ...) {
 
 plot.waverify2d <- function(x, ..., main1="X", main2="Y", main3="Climate",
     which.plots=c("all", "dwt2d", "details", "energy", "mse", "rmse", "acc"),
-    separate=FALSE, col, horizontal=TRUE, loc.byrow=TRUE) {
+    separate=FALSE, col, horizontal=TRUE) {
 
     if(missing(col)) col <- c("gray", tim.colors(64))
 
@@ -204,6 +207,7 @@ plot.waverify2d <- function(x, ..., main1="X", main2="Y", main3="Climate",
     which.plots <- match.arg(which.plots)
 
     a <- attributes(x)
+    loc.byrow <- a$loc.byrow
 
     if(!is.null(a$projection) && any(is.element(c("all","details"), which.plots))) {
         proj <- a$projection
@@ -458,6 +462,9 @@ mowaverify2d.SpatialVx <- function(X, ..., Clim=NULL, wavelet.type="haar", J=4,
 mowaverify2d.default <- function(X, ..., Clim=NULL, Y, wavelet.type="haar", J=4,
 				    useLL=FALSE, compute.shannon=FALSE, which.space="field", verbose=FALSE) {
    out <- list()
+   attributes(out) <- atmp <- list(...)
+   if(is.null(atmp$loc.byrow)) attr(out, "loc.byrow") <- FALSE
+
    out$J <- J
    climate <- !is.null(Clim)
    xdim <- dim(X)
@@ -827,6 +834,8 @@ wavePurifyVx <- function(x,y,object=NULL, climate=NULL,
 
    } else if(!isnt.xy) {
 	out <- list()
+	attributes(out) <- atmp <- list(...)
+	if(is.null(atmp$loc.byrow)) attr(out, "loc.byrow") <- FALSE
 	xdim <- dim(x)
 	if(is.null(thresholds) & any(is.element(c("bias", "ts", "ets", "pod", "far", "f", "hk"), which.stats))) {
 	   thresholds <- cbind( quantile(c(x), probs=c(0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.9, 0.95)),
@@ -1033,8 +1042,7 @@ summary.wavePurifyVx <- function(object, ...) {
    invisible()
 } # end of 'summary.wavePurifyVx' function.
 
-plot.wavePurifyVx <- function(x, ..., set.pw=FALSE, col, zlim, horizontal=TRUE, loc.byrow=TRUE,
-    type=c("stats", "fields")) {
+plot.wavePurifyVx <- function(x, ..., set.pw=FALSE, col, zlim, horizontal=TRUE, type=c("stats", "fields")) {
 
    type <- tolower(type)
    type <- match.arg(type)
@@ -1042,6 +1050,7 @@ plot.wavePurifyVx <- function(x, ..., set.pw=FALSE, col, zlim, horizontal=TRUE, 
    if(missing(col)) col <- c("gray", tim.colors(64))
 
    a <- attributes(x)
+   loc.byrow <- a$loc.byrow
    nm <- names(x)
 
    par(oma=c(0,0,2,0))

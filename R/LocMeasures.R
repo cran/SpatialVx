@@ -86,26 +86,38 @@ locmeasures2d.SpatialVx <- function(object, which.stats=c("baddeley", "hausdorff
     y.id <- im(Fcst)
 
     for(threshold in 1:q) {
+
 	Ix <- solutionset(x.id>=thresholds[threshold,1])
 	Iy <- solutionset(y.id>=thresholds[threshold,2])
+
 	if( "baddeley" %in% which.stats) for(p in 1:np) { 
 			tmpDelta <- try(deltametric(Iy,Ix,p=a$p[p], c=a$bdconst, ...))
 			if(class(tmpDelta) != "try-error") out$baddeley[p, threshold] <- tmpDelta
 			} # end of for 'p' loop.
+
 	if( "hausdorff" %in% which.stats) out$hausdorff[threshold] <- deltametric(Iy,Ix,p=Inf,c=Inf, ...)
+
 	if( "ph" %in% which.stats) for( k in 1:nk) out$ph[k,threshold] <- locperf(X=Ix, Y=Iy, which.stats="ph", k=a$k[k],
 											distfun=distfun, distfun.params)$ph
 	if( w.id <- any( c("mhd", "med", "msd") %in% which.stats)) {
+
 	   tmp <- locperf(X=Ix, Y=Iy, which.stats=c("ph","mhd", "med", "msd")[w.id], distfun=distfun, distfun.params)
 	   if( "mhd" %in% which.stats) out$mhd[threshold] <- tmp$mhd
 	   if( "med" %in% which.stats) out$med[threshold] <- tmp$med
 	   if( "msd" %in% which.stats) out$msd[threshold] <- tmp$msd
+
 	} # end of if do partial and/or modified Hausdorff metric.
+
 	if( "fom" %in% which.stats) {
+
 	   for( i in 1:nalpha) {
+
 		out$fom[i,threshold] <- locperf(X=Ix, Y=Iy, which.stats="fom", alpha=a$alpha[i], distfun=distfun, distfun.params)$fom
+
 	   } # end of for 'a' loop.
+
 	}
+
    } # end of for 'threshold' loop.
    class(out) <- "locmeasures2d"
    return(out)
@@ -283,42 +295,98 @@ distob <- function(X,Y, distfun="distmapfun", ...) {
    return(out)
 }
 
+
 distmapfun <- function(x, ...) {
+
    return( distmap(x, ...)$v)
+
 } # end of 'distmapfun' function.
 
 locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep"), alpha=0.1, k=4, distfun="distmapfun", a=NULL, ...) {
+
    out <- LocListSetup(a=a, which.stats, nthresh=1)
+
    bb <- bounding.box(as.rectangle(X), as.rectangle(Y))
    X <- rebound(X, bb)
    Y <- rebound(Y, bb)
-   # dY <- distmap(Y, ...)$v
+   # dY <- distmap(Y, ...)
    dY <- do.call(distfun, list(x=Y, ...))
-   if( any( c("med", "msd", "fom", "minsep") %in% which.stats)) Z <- dY[X$m]
-   if( any( c("msd", "fom") %in% which.stats)) {
+
+    if(!any(Y$m)) {
+
+	dY <- unique(c(dY))
+	dYcheck <- FALSE
+
+    } else dYcheck <- TRUE
+
+    if(!any(X$m)) dXcheck <- FALSE
+    else dXcheck <- TRUE
+
+   if(any(c("med", "msd", "fom", "minsep") %in% which.stats)) {
+
+	if(dYcheck) Z <- dY[X$m]
+	else if(any(X$m)) {
+
+	    Z <- X$m
+	    Z[X$m] <- dY
+
+	} else Z <- 0
+
+    }
+
+   if(any(c("msd", "fom") %in% which.stats)) {
+
 	Z2 <- Z^2
-	if( "fom" %in% which.stats) N <- max( sum( colSums(X$m, na.rm=TRUE), na.rm=TRUE), sum( colSums(Y$m, na.rm=TRUE), na.rm=TRUE), na.rm=TRUE)
+
+	if( "fom" %in% which.stats) {
+
+	    if(dYcheck && dXcheck) N <- max( sum( colSums(X$m, na.rm=TRUE), na.rm=TRUE), sum( colSums(Y$m, na.rm=TRUE), na.rm=TRUE), na.rm=TRUE)
+	    else if(dYcheck && !dXcheck) N <- sum( colSums(Y$m, na.rm=TRUE), na.rm=TRUE)
+	    else if(!dYcheck && dXcheck) N <- sum( colSums(X$m, na.rm=TRUE), na.rm=TRUE)
+	    else N <- 1e16
+
+	} # end of if do fom stmts.
+
    }
+
    if( any( c("ph", "mhd") %in% which.stats)) {
-	# dX <- distmap(X, ...)$v
+
+	# dX <- distmap(X, ...)
 	dX <- do.call(distfun, list(x=X, ...))
-	diffXY <- sort( c( abs(dX - dY)), decreasing=TRUE)
+
+	diffXY <- sort( c(abs(dX - dY)), decreasing=TRUE)
+
 	if( "ph" %in% which.stats) {
-	   if( k >= 1) out$ph <- diffXY[k]
-	   else if( k >= 0 & k < 1) out$ph <- quantile( diffXY, probs=k)
-	   else out$ph <- NA
+
+	    if(dXcheck || dYcheck) {
+
+	   	if( k >= 1) out$ph <- diffXY[k]
+	   	else if( k >= 0 && k < 1) out$ph <- quantile( diffXY, probs=k)
+	   	else out$ph <- NA
+
+	    } else out$ph <- diffXY[1]
+
 	}
+
 	if( "mhd" %in% which.stats) {
-	   V <- dX[Y$m]
+
+	   if(dXcheck) V <- dX[Y$m]
+	    else if(any(Y$m)) V <- dX
+	    else V <- 0
 	   out$mhd <- max( c( mean(Z, na.rm=TRUE), mean(V, na.rm=TRUE), na.rm=TRUE))
+
 	}
+
    } # end of if do partial- and/or modified- Hausdorff stmts.
+
    if( "med" %in% which.stats) out$med <- mean( Z, na.rm=TRUE)
    if( "msd" %in% which.stats) out$msd <- mean( Z2, na.rm=TRUE)
    if( "fom" %in% which.stats) out$fom <- sum( 1/(1+alpha*Z2), na.rm=TRUE)/N
    if( "minsep" %in% which.stats) out$minsep <- min( c(Z), na.rm=TRUE)
+
    return( out)
-}
+
+} # end of 'locperf' function.
 
 LocListSetup <- function(a, which.stats= c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom", "minsep"),
 			    nthresh=1, np=1, nk=1, nalpha=1) {

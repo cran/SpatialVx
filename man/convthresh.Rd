@@ -27,8 +27,7 @@ threshfac(object, fac = 0.06666667, q = 0.95, wash.out = NULL,
 
 disjointer(x, method = "C")
 
-\method{plot}{features}(x, ..., set.pw = FALSE,
-    loc.byrow = TRUE, horizontal = TRUE)
+\method{plot}{features}(x, ..., type = c("both", "obs", "model"))
 
 \method{print}{features}(x, ...)
 
@@ -68,13 +67,13 @@ logical, should negative values and relatively very small values be set to zero 
   \item{method}{ character giving the connected components algorithm to be used in function \code{connected} from \pkg{spatstat}.}
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
   \item{model}{numeric indicating which forecast model to select for the analysis.}
-    \item{set.pw}{logical, should a panel of plots be determined and set by the function.}
-    \item{horizontal}{optional argument to \code{image.plot} from \pkg{fields}.}
-   \item{loc.byrow}{logical, only used if field is a projection, this determines how the locations should be put into matrices.}
+  \item{type}{character string stating which features to plot (observed, forecast or both).  If both, a panel of two plots will be made side-by-side.}
   \item{\dots}{
 \code{convthresh} and \code{threshfac}: additional arguments to \code{idfun}.
 
-Not used by the \code{plot}, \code{print} or \code{summary} method functions.
+\code{plot} method function has optional arguments to \code{image.plot} for the color legend bar only.
+
+Not used by the \code{print} or \code{summary} method functions.
 
 The \code{summary} method function can take the argument: \code{silent}--logical, should information be printed to the screen (FALSE) or not (TRUE).
 }
@@ -124,7 +123,7 @@ Wernli, H., Hofmann, C. and Zimmer, M. (2009)  Spatial forecast verification met
 Eric Gilleland
 }
 \seealso{
-\code{\link{connected}}, \code{\link{as.im}}, \code{\link{tess}}, \code{\link{tiles}}, \code{\link{owin}}, \code{\link{FeatureSuite}}, \code{\link{make.SpatialVx}}
+\code{\link{connected}}, \code{\link{as.im}}, \code{\link{tess}}, \code{\link{tiles}}, \code{\link{owin}}, \code{\link{make.SpatialVx}}
 }
 \examples{
 x <- y <- matrix(0, 10, 12)
@@ -141,15 +140,15 @@ length(look$Y.feats) # four ovjects in y.
 plot(look$X.feats)
 plot(look$Y.feats)
 
-plot(look, set.pw=TRUE) 
+plot(look) 
 look2 <- summary(look)
 plot(look2)
 
 look3 <- threshsizer(hold, Ncontig=5)
-plot(look3, set.pw=TRUE)
+plot(look3)
 
 look4 <- threshfac(hold)
-plot(look4, set.pw=TRUE)
+plot(look4)
 
 \dontrun{
 data(pert000)
@@ -157,7 +156,7 @@ data(pert004)
 data(ICPg240Locs)
 
 hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
-    projection=TRUE, map=TRUE,
+    projection=TRUE, map=TRUE, loc.byrow = TRUE,
     field.type="Precipitation", units="mm/h",
     data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
 

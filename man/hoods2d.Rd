@@ -14,7 +14,7 @@ hoods2d(object, which.methods = c("mincvr", "multi.event",
     Pe = NULL, levels = NULL, max.n = NULL, smooth.fun = "hoods2dsmooth", 
     smooth.params = NULL, verbose = FALSE)
 
-\method{plot}{hoods2d}(x, ..., set.pw=FALSE)
+\method{plot}{hoods2d}(x, ..., set.pw=FALSE, add.text = FALSE)
 
 \method{print}{hoods2d}(x, ...)
 }
@@ -31,6 +31,7 @@ hoods2d(object, which.methods = c("mincvr", "multi.event",
   \item{verbose}{logical, should progress information be printed to the screen?  Will also give the amount of time (in hours, minutes, or seconds) that the function took to run.}
   \item{x}{list object output from \code{hoods2d}.}
   \item{set.pw}{logical or length 2 vector, should the function try to set plot window panels within a device?  Generally, it is better to do this yourself, or use this function in conjunction with something like \code{pdf} to allow each plot to print to a separate page.  If \code{set.pw} is a length 2 vector, then this is the vector that is used in the call to \code{mfrow}.  Note that if \code{mfcol} is desired instead (or some other plot layout), then \code{set.pw} should be set to FALSE (default).}
+    \item{add.text}{logical, should the text values of FSS be added to its quilt plot?}
   \item{\dots}{not used.}
 }
 \details{
@@ -109,8 +110,10 @@ data(UKfcst6)
 data(UKloc)
 
 hold <- make.SpatialVx(UKobs6, UKfcst6, thresholds=c(0.01, 20.01),
-    projection=TRUE, map=TRUE, loc=UKloc, field.type="Precipitation",
-    units="mm/h", data.name=c("Nimrod", "Observations 6", "Forecast 6"))
+    projection=TRUE, map=TRUE, loc=UKloc, loc.byrow = TRUE,
+    field.type="Precipitation", units="mm/h",
+    data.name=c("Nimrod", "Observations 6", "Forecast 6"))
+
 hold
 plot(hold)
 hist(hold, col="darkblue")
@@ -124,7 +127,7 @@ data(geom000)
 data(ICPg240Locs)
 
 hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
-    projection=TRUE, map=TRUE, loc=ICPg240Locs,
+    projection=TRUE, map=TRUE, loc=ICPg240Locs, loc.byrow = TRUE,
     field.type="Geometric Objects Pretending to be Precipitation",
     units="mm/h", data.name=c("ICP Geometric Cases", "geom000", "geom001"))
 
@@ -135,7 +138,7 @@ plot( look) # Might want to use 'pdf' first.
 data(pert004)
 data(pert000)
 hold <- make.SpatialVx(pert000, pert004, thresholds=c(1,10,50),
-    projection=TRUE, map=TRUE, loc=ICPg240Locs,
+    projection=TRUE, map=TRUE, loc=ICPg240Locs, loc.byrow = TRUE,
     field.type="Precipitation", units="mm/h",
     data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
 

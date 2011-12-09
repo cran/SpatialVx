@@ -34,7 +34,7 @@ data(geom001)
 data(geom000)
 data(ICPg240Locs)
 hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
-    loc=ICPg240Locs, projection=TRUE, map=TRUE,
+    loc=ICPg240Locs, projection=TRUE, map=TRUE, loc.byrow = TRUE,
     field.type="Precipitation", units="mm/h",
     data.name=c("Geometric ICP Test Cases", "geom000", "geom001"))
 look <- hoods2d(hold, levels=c(1, 3, 5, 17, 33, 65), verbose=TRUE)

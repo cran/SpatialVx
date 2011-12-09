@@ -167,7 +167,7 @@ print.hoods2d <- function(x, ...) {
 } # end of 'print.hoods2d' function.
 
 plot.hoods2d <-
-function(x, ..., set.pw=FALSE) {
+function(x, ..., set.pw=FALSE, add.text = FALSE) {
    a <- attributes(x)
    mets <- names(x)
 
@@ -236,7 +236,7 @@ function(x, ..., set.pw=FALSE) {
 	look$values <- x$fss$values
 	look$fss.random <- x$fss$fss.random
 	look$fss.uniform <- x$fss$fss.uniform
-	try(fss2dPlot( look, main="Fractions Skill Score (FSS)"))
+	try(fss2dPlot(look, main="Fractions Skill Score (FSS)", add.text = add.text))
    } # end of if 'fss' stmts.
    if( "pragmatic" %in% mets) {
 	if(set.pw && length(mets) == 1) par( mfrow=c(2,2), oma=c(0,0,2,0))
@@ -250,7 +250,7 @@ function(x, ..., set.pw=FALSE) {
 } # end of 'plot.hoods2d' function.
 
 fss2dPlot <-
-function(x, ..., set.pw=FALSE) {
+function(x, ..., set.pw=FALSE, add.text = FALSE) {
    ##
    ## Function to make useful plots for the output from 'fss2d'.
    ##
@@ -282,7 +282,7 @@ function(x, ..., set.pw=FALSE) {
         xlb <- "Threshold index number"
    }
    image( t( x$values), xaxt="n", yaxt="n", xlab=xlb, ylab="Neighborhood size (grid squares)", col=c("grey", tim.colors(64)), ...)
-   text( x=seq(0,1,,q)[ rep(1:q,l)], y=seq(0,1,,l)[ rep(1:l,each=q)], labels=round( t( x$values), digits=2))
+   if(add.text) text( x=seq(0,1,,q)[ rep(1:q,l)], y=seq(0,1,,l)[ rep(1:l,each=q)], labels=round( t( x$values), digits=2))
    axis( 1, at=seq(0,1,,q), labels=a1.labels)
    if( any( x$thresholds[,1] != x$thresholds[,2])) warning("fss2dPlot: thresholds differ for the two fields, labels only for the first")
    axis( 2, at=seq(0,1,,length(x$levels)), labels=x$levels)
@@ -710,7 +710,7 @@ function(x, args, ...) {
    }
 
    image( t( x), xaxt="n", yaxt="n", xlab=xlb, ylab="Neighborhood size (grid squares)", col=c("grey", heat.colors(12)), ...)
-   text(x=seq(0,1,,q)[ rep(1:q,l)], y=seq(0,1,,l)[ rep(1:l,each=q)], labels=round( t( x), digits=2))
+   if(!is.null(args$text) && args$text) text(x=seq(0,1,,q)[ rep(1:q,l)], y=seq(0,1,,l)[ rep(1:l,each=q)], labels=round( t( x), digits=2))
    if(!is.null(a1.labels)) axis(1, at=seq(0,1,,q), labels=a1.labels)
    axis( 2, at=seq(0,1,,length(args$levels)), labels=args$levels)
    image.plot( t( x), legend.only=TRUE, col=c("grey", heat.colors(12)), ...)
