@@ -10,7 +10,8 @@ Localization performance measures
 Some localization performance (distance) measures for binary images.
 }
 \usage{
-locperf(X, Y, which.stats = c("ph", "mhd", "med", "msd", "fom", "minsep"), alpha = 0.1, k = 4, distfun = "distmapfun", ...)
+locperf(X, Y, which.stats = c("ph", "mhd", "med", "msd", "fom", "minsep"),
+	alpha = 0.1, k = 4, distfun = "distmapfun", ...)
 distob(X, Y, distfun = "distmapfun", ...)
 distmapfun(x, ...)
 }
@@ -59,7 +60,6 @@ For computational efficiency, the distance transform method is used via \code{di
 \value{
 \code{locperf} returns a list object with components depending on \code{which.stats}: one or more of the following, each of which is a single numeric.
 \item{ph }{numeric giving the value of the partial }
-\item{comp2 }{Description of 'comp2'}
 
 \code{distob} returns a single numeric.
 

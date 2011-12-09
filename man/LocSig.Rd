@@ -25,7 +25,7 @@ positive numeric/integer giving the desired block lengths.  If NULL, \code{floor
 character naming an R function to be applied to each replicate sample.  Must return a single number, but is otherwise the \code{statistic} argument for function \code{tsboot} (or \code{boot} if \code{block.length} = 1).
 }
   \item{alpha}{
-numeric giving teh value of \code{alpha} to obtain (1-\code{alpha})*100 percent CI's for \code{bootfun}.
+numeric giving the value of \code{alpha} to obtain (1-\code{alpha})*100 percent CI's for \code{bootfun}.
 }
   \item{bca}{
 logical, should bias-corrected and adjusted (BCa) CI's be calculated?  Only used if \code{block.length} = 1.  Will give a warning if this argument is TRUE, and \code{block.length} > 1, and will use the percentile method.
@@ -62,11 +62,11 @@ Eric Gilleland
 data(GFSNAMfcstEx)
 data(GFSNAMobsEx)
 data(GFSNAMlocEx)
-id <- GFSNAMlocEx[,"Lon"] >=-100 & GFSNAMlocEx[,"Lon"] <= -75 & GFSNAMlocEx[,"Lat"] <= 36
+id <- GFSNAMlocEx[,"Lon"] >=-90 & GFSNAMlocEx[,"Lon"] <= -75 & GFSNAMlocEx[,"Lat"] <= 40
 look <- LocSig(GFSNAMfcstEx[,id] - GFSNAMobsEx[,id], numrep=500)
 stats(look)
 \dontrun{
-plot(look, loc=cbind(GFSNAMlocEx$Lon[id],GFSNAMlocEx$Lat[id]))
+plot(look, loc=GFSNAMlocEx[id,])
 }
 }
 \keyword{ distribution }

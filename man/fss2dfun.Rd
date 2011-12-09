@@ -14,7 +14,8 @@ fuzzyjoint2dfun(sPy, sPx, subset = NULL)
 MinCvg2dfun(sIy, sIx, subset = NULL)
 multicon2dfun(sIy, Ix, subset = NULL)
 pragmatic2dfun(sPy, Ix, mIx = NULL, subset = NULL)
-upscale2dfun(sYy, sYx, threshold = NULL, which.stats = c("rmse", "bias", "ts", "ets"), subset = NULL)
+upscale2dfun(sYy, sYx, threshold = NULL, which.stats = c("rmse", "bias", "ts", "ets"),
+	subset = NULL)
 }
 \arguments{
   \item{sPy}{n X m matrix giving a smoothed binary forecast field.}
@@ -46,7 +47,7 @@ upscale2dfun(sYy, sYx, threshold = NULL, which.stats = c("rmse", "bias", "ts", "
   \item{bias}{numeric giving the frequency bias.}
  }
 
-\references{Ebert EE, 2008. Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25 Available at http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf
+\references{Ebert EE, 2008. Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25 Available at \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
 
 Ebert, E. E., 2009: Neighborhood verification: A strategy for rewarding close forecasts.  \emph{Wea. Forecasting}, \bold{24}, 1498-1510, DOI: 10.1175/2009WAF2222251.1.
 

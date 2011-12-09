@@ -8,7 +8,8 @@ Calculate various neighborhood verification statistics for a gridded verificatio
 Calculates most of the various neighborhood verification statistics for a gridded verification set as reviewed in Ebert (2008).
 }
 \usage{
-hoods2d(obj, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "fss", "pragmatic"), verbose = FALSE)
+hoods2d(obj, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "fss", "pragmatic"),
+	verbose = FALSE)
 \method{plot}{hoods2d}(x, ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -54,7 +55,7 @@ Options for 'which.methods' include:
 \references{
 Atger, F., 2001: Verification of intense precipitation forecasts from single models and ensemble prediction systems.  \emph{Nonlin. Proc. Geophys.}, \bold{8}, 401--417.
 
-Ebert, E. E., 2008: Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25 Available at http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf
+Ebert, E. E., 2008: Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25 Available at \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
 
 Ebert, E. E., 2009: Neighborhood verification: A strategy for rewarding close forecasts.  \emph{Wea. Forecasting}, \bold{24}, 1498--1510, DOI: 10.1175/2009WAF2222251.1.
 
@@ -92,12 +93,14 @@ plot(look)
 data(geom001)
 data(geom000)
 data(ICPg240Locs)
-hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01), levels=c(1, 3, 9, 17, 33, 65, 129, 257), loc=ICPg240Locs, units="in/100")
+hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01), levels=c(1, 3, 9, 17, 33, 65, 129, 257),
+	loc=ICPg240Locs, units="in/100")
 look <- hoods2d(hold, verbose=TRUE)
 plot( look) # Might want to use 'pdf' to print these out so that all of them can be observed.
 data(pert004)
 data(pert000)
-hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,10,50), levels=c(1, 3, 17, 33, 65, 129, 257), loc=ICPg240Locs, units="mm/h")
+hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,10,50), levels=c(1, 3, 17, 33, 65, 129, 257),
+	loc=ICPg240Locs, units="mm/h")
 look <- hoods2d( hold, verbose=TRUE)
 plot( look)}
 }

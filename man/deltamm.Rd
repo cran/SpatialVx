@@ -1,22 +1,22 @@
 \name{deltamm}
 \alias{deltamm}
-\alias{plot.deltamm}
+\alias{plot.matched}
 \alias{centmatch}
 \title{
 Merge and/or match identified features within two fields
 }
 \description{
-Merge and/or match identified features within two fields using the delta metric method described in Gilleland et al. (2008), or the mathcing method of Davis et al. (2006a).
+Merge and/or match identified features within two fields using the delta metric method described in Gilleland et al. (2008), or the matching only method of Davis et al. (2006a).
 }
 \usage{
 deltamm(x, y = NULL, object = NULL, max.delta = Inf, verbose = FALSE, ...)
-\method{plot}{deltamm}(x, ...)
+\method{plot}{matched}(x, ...)
 centmatch(x, y = NULL, object = NULL, criteria = 1, const = 14, verbose = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x,y}{
-For \code{deltamm}, a list object with components \code{X.feats} and \code{Y.feats}, each of which are list objects containing numbered components within which are objects of class "owin" containing logical matrices that define objects for the forecast (Y) and verification (X) fields, resp.  For example, as returned by the \code{convthresh} function.  For \code{plot.deltamm} a list object as returned by \code{deltamm}.  Argument \code{y} is used if it is not NULL, otherwise argument \code{x} is used (but only one of \code{x} or \code{y} is used).
+For \code{deltamm}, a list object with components \code{X.feats} and \code{Y.feats}, each of which are list objects containing numbered components within which are objects of class "owin" containing logical matrices that define objects for the forecast (Y) and verification (X) fields, resp.  For example, as returned by the \code{convthresh} function.  For \code{plot.matched} a list object as returned by \code{deltamm}.  Argument \code{y} is used if it is not NULL, otherwise argument \code{x} is used (but only one of \code{x} or \code{y} is used).
 }
   \item{object}{
 Not used.  Provided for compatibility with the \code{FeatureSutie} function.
@@ -28,7 +28,7 @@ Not used.  Provided for compatibility with the \code{FeatureSutie} function.
 logical, should progress information be printed to the screen?
 }
   \item{\dots}{
-For \code{deltamm}: additional optional arguments to the \code{deltametric} function from package \pkg{spatstat}.  For \code{plot.deltamm}, additional arguments to the \code{plot} function.
+For \code{deltamm}: additional optional arguments to the \code{deltametric} function from package \pkg{spatstat}.  For \code{plot.matched}, additional arguments to the \code{plot} function.  May use 'no.label' (logical, should a title be put on the plot or not) and 'plot.set' (anything other than NULL will keep this function from re-setting the par option 'mfrow'; otherwise, it will set it to have one row and two columns).
 }
 }
 \details{
@@ -49,12 +49,12 @@ The procedure is as follows.  Suppose there are m identified forecast features a
 The above algorithm suffers from two deficiencies.  First, features that are merged in one field cannot be matched to merged features in another field.  One possible remedy for this is to run this algorithm twice, though this is not a universally good solution.  Second, features can be merged and/or matched to features that are very different from each other.  A possible remedy for this is to use the cut-off argument, max.delta, to disallow mergings or matchings between features whose delta value is not <= this cut-off.  In practice, these two deficiencies are not likely very problematic.
 }
 \value{
-A list object is returned containing several components.
+A list object of class "matched" is returned by both centmatch and deltamm containing several components.
 \item{X.feats, Y.feats }{list objects with one component for each possibly merged feature for the each of the forecast (Y.feats) and verification (X.feats) fields.  Each component of these lists contains an object of class "owin" containing binary fields indicating the whereabouts of the possibly merged features. }
 \item{X.labeled,Y.labeled}{matrices of dimension equal to the original fields identifying the newly merged features of each field.  If l features are matched between fields, then the first l features are labeled in 1 to l such that features labeled r <= l in one field match the corresponding feature labeled r in the other field. }
 \item{mm.old.labels}{an l X 2 matrix indicating which features from one field match to features of the other based on the feature labels that were passed into the function (i.e., these labels have now changed).}
 \item{mm.new.labels}{list object with components mm (an l X 2 matrix showing which features from one field match to which features of the other; moot because they are labeled identically), and unmatched (list object with components fcst and vx, which identify the newly labeled features in each field that were not matched to features in the other field.}
-\item{Q}{an array of dimension n X m X 3 giving all of the delta values that were computed in determining the mergings and matchings.}
+\item{Q}{(deltamm only) an array of dimension n X m X 3 giving all of the delta values that were computed in determining the mergings and matchings.}
 }
 \references{
 Baddeley, A., 1992a.  An error metric for binary images.  In \emph{Robust Computer Vision Algorithms}, W. Forstner and S. Ruwiedel, Eds., Wichmann, 59--78.

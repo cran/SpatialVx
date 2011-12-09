@@ -3,7 +3,8 @@
 \title{Perform a onvolution smooth on a 2-d field.}
 \description{Perform a onvolution smooth on a 2-d field.  Default is to take an average over all neighbors within (n-1)/2 grid points from each grid point.  Uses FFT with the convolution theorem for computational efficiency.}
 \usage{
-kernel2dsmooth(x, kernel.type=NULL, K = NULL, W = NULL, X = NULL, xdim = NULL, Nxy = NULL, setup = FALSE, verbose = FALSE, ...)
+kernel2dsmooth(x, kernel.type=NULL, K = NULL, W = NULL, X = NULL, xdim = NULL, Nxy = NULL,
+	setup = FALSE, verbose = FALSE, ...)
 }
 
 \arguments{
@@ -34,7 +35,7 @@ Davis CA, BG Brown, and RG Bullock, 2006a. Object-based verification of precipit
 
 Davis CA, BG Brown, and RG Bullock, 2006b. Object-based verification of precipitation forecasts, Part II: Application to convective rain systems. \emph{Mon. Wea. Rev.}, \bold{134}, 1785--1795.
 
-Ebert E. E., 2008. Fuzzy verification of high resolution gridded forecasts: A review and proposed framework. \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25.  Available at http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf
+Ebert E. E., 2008. Fuzzy verification of high resolution gridded forecasts: A review and proposed framework. \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25.  Available at \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
 
 Hastie, T. J. and Tibshirani, R. J., 1990: \emph{Generalized Additive Models}. Chapman \& Hall/CRC Monographs on Statistics and Applied Probability 43, 335pp.
 

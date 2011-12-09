@@ -7,7 +7,8 @@ Calculate some common traditional forecast verification statistics.
 Calculates some common traditional forecast verification statistics.
 }
 \usage{
-vxstats(Fcst, Obs, which.stats = c("bias", "ts", "ets", "pod", "far", "f", "hk", "bcts", "bcets", "mse"), subset = NULL)
+vxstats(Fcst, Obs, which.stats = c("bias", "ts", "ets", "pod", "far", "f", "hk",
+	"bcts", "bcets", "mse"), subset = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

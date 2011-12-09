@@ -61,7 +61,7 @@ list object of class "metrV" with components:
 }
 
 \references{
-Baddeley, A. J., 1992: An error metric for binary images.  In \emph{Robust Computer Vision Algorithms}, W. Forstner and S. Ruwiedel, Eds., Wichmann, 59--78.  Available at: http://www.google.com/url?sa=t&rct=j&q=an%20error%20metric%20for%20binary%20images&source=web&cd=1&ved=0CB4QFjAA&url=http%3A%2F%2Fciteseerx.ist.psu.edu%2Fviewdoc%2Fdownload%3Fdoi%3D10.1.1.52.3879%26rep%3Drep1%26type%3Dpdf&ei=GdXoTrSRJaSIsQLh1tiYCQ&usg=AFQjCNE2Ngehh_J2dXIsonPCMAvAL-fz_g&cad=rja
+Baddeley, A. J., 1992: An error metric for binary images.  In \emph{Robust Computer Vision Algorithms}, W. Forstner and S. Ruwiedel, Eds., Wichmann, 59--78.
 
 Peli, T. and D. Malah, 1982: A study on edge detection algorithms.  \emph{Computer Graphics and Image Processing}, \bold{20}, 1--21.
 

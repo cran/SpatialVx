@@ -44,7 +44,7 @@ the value of Pthresh found above.  The verification statistic determined by whic
 Ebert EE, 2008. Fuzzy verification of high resolution gridded
      forecasts: A review and proposed framework.  \emph{Meteorol. Appl.},
      \bold{15}, 51-64. DOI: 10.1002/met.25 Available at
-     http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf
+     \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
 }
 \author{
 Eric Gilleland
@@ -66,10 +66,12 @@ look
 data(geom001)
 data(geom000)
 data(ICPg240Locs)
-hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01), levels=c(1, 3, 65), loc=ICPg240Locs, units="in/100")
+hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01), levels=c(1, 3, 65),
+	loc=ICPg240Locs, units="in/100")
 look <- pphindcast2d( hold, verbose=TRUE)
 par( mfrow=c(1,2))
-hoods2dPlot( look$values, args=list( thresholds=hold$thresholds, units="in/100", levels=hold$levels), main="Gilbert Skill Score")
+hoods2dPlot( look$values, args=list( thresholds=hold$thresholds, units="in/100", levels=hold$levels),
+	main="Gilbert Skill Score")
 }
 }
 \keyword{ math }

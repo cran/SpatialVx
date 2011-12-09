@@ -11,7 +11,8 @@ Create surrogate fields
 Create surrogate fields that have the same power spectrum and pdf as the original field.
 }
 \usage{
-surrogater2d(Im, frac = 0.95, n = 10, lossfun = "mae", maxiter = 100, zero.down = TRUE, verbose = FALSE, ...)
+surrogater2d(Im, frac = 0.95, n = 10, lossfun = "mae", maxiter = 100, zero.down = TRUE,
+	verbose = FALSE, ...)
 aaft2d(Im, bigdim = NULL)
 fft2d(x, bigdim = NULL, ...)
 mae(x1, x2, ...)

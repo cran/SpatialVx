@@ -34,7 +34,7 @@ These are simple loss functions that can be used in conjunction with spatMLD to 
 numeric m X n matrices containing the value of the loss (or skill) function at each location i of the original set of locations (or grid of points).
 }
 \references{
-Gilleland, E., 2012: Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  Submitted to \emph{Mon. Wea. Rev.}
+Gilleland, E., 2012: Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  Accepted to \emph{Mon. Wea. Rev.}  Available at Early Online Release (\url{http://journals.ametsoc.org/doi/pdf/10.1175/MWR-D-12-00155.1})
 
 Hering, A. S. and M. G. Genton, 2011: Comparing spatial predictions.  \emph{Technometrics} \bold{53}, (4), 414 - 425.
 
@@ -56,5 +56,4 @@ return(abs(x - y))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ math }

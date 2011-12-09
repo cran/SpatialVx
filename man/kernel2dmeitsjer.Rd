@@ -43,7 +43,7 @@ The specific types of kernels that can be made are as follows.  In each case, h=
 
 "multiquad" The multiquadratic kernel is similar to the rational quadratic kernel, and is given by K(a) = sqrt(h + a^2).  The inverse is given by 1/K(a).  Requires the arguments nx, ny and a be specified.  Optionally takes a logical named inverse determining whether to return the inverse multiquadratic kernel or not.
 
-"prewitt" Prewitt filter kernel, which emphasizes horizontal (vertical) edges through approximation of a vertical (horizontal) gradient.  Optionally takes a logical argument named 'transpose', which if FALSE (default) emphasis is on horizontal, and if TRUE emphasis is on vertical.  Returns a 3 X 3 matrix whose first row is all ones, second row is all zeros, and third row is all negative ones for the transpose=FALSE case, and the transpose of this matrix in teh transpose=TRUE case.
+"prewitt" Prewitt filter kernel, which emphasizes horizontal (vertical) edges through approximation of a vertical (horizontal) gradient.  Optionally takes a logical argument named 'transpose', which if FALSE (default) emphasis is on horizontal, and if TRUE emphasis is on vertical.  Returns a 3 X 3 matrix whose first row is all ones, second row is all zeros, and third row is all negative ones for the transpose=FALSE case, and the transpose of this matrix in the transpose=TRUE case.
 
 "power" The power kernel is defined by K(p) = -h^p.  The log power kernel is similarly defined as K(p) = -log(h^p+1).  Requires specification of the arguments nx, ny and p.  Alternatively takes the logical do.log to determine whether the log power kernel should be returned (TRUE) or not (FALSE).  Default if not passed is to do the power kernel.  Returns an nx X ny matrix.  See Souza (2010) for more details.
 
@@ -69,7 +69,7 @@ Davis CA, BG Brown, and RG Bullock, 2006a. Object-based verification of precipit
 
 Davis CA, BG Brown, and RG Bullock, 2006b. Object-based verification of precipitation forecasts, Part II: Application to convective rain systems. \emph{Mon. Wea. Rev.}, \bold{134}, 1785--1795.
 
-Ebert E. E., 2008. Fuzzy verification of high resolution gridded forecasts: A review and proposed framework. \emph{Meteorol. Appl.}, \bold{15}, 51-64. DOI: 10.1002/met.25.  Available at http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf
+Ebert E. E., 2008. Fuzzy verification of high resolution gridded forecasts: A review and proposed framework. \emph{Meteorol. Appl.}, \bold{15}, 51-64. DOI: 10.1002/met.25.  Available at \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
 
 Hastie, T. J. and Tibshirani, R. J., 1990: \emph{Generalized Additive Models}. Chapman \& Hall/CRC Monographs on Statistics and Applied Probability 43, 335pp.
 

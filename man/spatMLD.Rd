@@ -10,8 +10,9 @@ Test for equal predictive ability on average over a regularly gridded space
 Test for equal predictive ability (for two forecast models) on average over a regularly gridded space using the method of Hering and Genton (2011).
 }
 \usage{
-spatMLD(x, y1, y2, lossfun = "corrskill", trend = "ols", loc = NULL, maxrad = 20, dx = 1, dy = 1, zero.out = FALSE, ...)
-fit.spatMLD(object)
+spatMLD(x, y1, y2, lossfun = "corrskill", trend = "ols", loc = NULL, maxrad = 20,
+	dx = 1, dy = 1, zero.out = FALSE, ...)
+fit.spatMLD(object, start.list = NULL)
 \method{summary}{spatMLD}(object, ...)
 \method{plot}{spatMLD}(x, ...)
 }
@@ -35,6 +36,7 @@ numeric giving the maximum radius for finding variogram differences per the \cod
 \code{dx} and \code{dy} of \code{vgram.matrix}.
 }
   \item{zero.out}{logical, should the variogram be computed only over non-zero values of the process?  If TRUE, a modified version of \code{vgram.matrix} is used (\code{variogram.matrix}).}
+  \item{start.list}{list with components: \code{s} and \code{r}, which give initial estimates for sqrt(sill) and range parameters of the exponential variogram, resp.}
   \item{\dots}{
 \code{spatMLD}: optional additional arguments to \code{lossfun}.  Not used by the summary or plot functions.
 }
@@ -56,9 +58,13 @@ The test statistic is given by
 
 where C(h) = gamma(infinity|p) - gamma(h|p) is a fitted covariance function for the loss differential field.  The test statistic is assumed to be N(0,1) so that if the p-value is smaller than the desired level of significance, the null hypothesis is not accepted.
 
-For this function, an exponential variogram is used (at some point, this function will be amended to allow general variogram models).  Specifically,
+For 'fit.spatMLD', an exponential variogram is used. Specifically,
 
-		gamma(h|sigma,theta) = sigma^2*(1 - exp(-h/theta))
+		gamma(h | theta=(s,r)) = s^2*(1 - exp(-h/r)),
+
+where 's' is sqrt(sill) and 'r' is the range (nugget effects are not accounted for here).  If 'fit.spatMLD' should fail, and the empirical variogram appears to be reasonable (e.g., use the 'plot' method function on 'spatMLD' output to check that the empirical variogram is concave), then try giving alternative starting values fo rthe 'nls' function by using the 'start.list' argument.  The default is to use the variogram value for the shortest separation distance as an initial estimate for 's', and 'maxrad' as the initial estimate for 'r'.
+
+Currently, it is not possible to fit other variogram models with this function.  Such flexibility may possibly be added in a future release.  In the meantime, use 'fit.spatMLD' as a template to make your own similar function; just be sure to return an object of class "nls", and it should work seamlessly with the plot and summary method functions for a "spatMLD" object.  For example, if it is desired to include the nugget or an extra factor (e.g., 3 as used in Hering and Genton, 2011), then a new similar function would need to be created.
 
 Also, although the testing procedure can be applied to irregularly spaced locations (non-gridded), this function is set up only for gridded fields in order to take advantage of computational efficiencies (i.e., use of vgram.matrix), as these are the types of verification sets in mind for this package.  Eventually, a similar function will be added for non-gridded fields.
 
@@ -67,6 +73,7 @@ The above test assumes constant spatial trend.  It is possible to remove any spa
 The actual test statistic is computed by the summary function.  Isotropy can be checked by the plot in the lower right panel of the result of the plot method function.  The function nls is used to fit the variogram model.
 
 For application to precipitation fields, and introduction to the image warp (coming soon) and distance map loss functions, see Gilleland (2012).
+
 }
 \value{
   A list object is returned with possible components:
@@ -76,7 +83,7 @@ For application to precipitation fields, and introduction to the image warp (com
   \item{trend}{If trend is "ols", a list object of class "lm".  If trend is a numeric, it is the same as the value passed in.}
   \item{loc}{If trend is "ols" or a numeric, then this is the same as the argument passed in, or if NULL, it is the expanded grid coordinates.}
   \item{lossdiff.vgram}{list object as returned by vgram.matrix}
-  \item{vgmodel}{list object as returned by nls containing the fitted exponential variogram model where s is the estimate of sigma, and r of theta (i.e., the range).}
+  \item{vgmodel}{list object as returned by nls containing the fitted exponential variogram model where s is the estimate of sqrt(sill), and r of the range parameter (assuming 'fit.spatMLD' was used to fit the variogram model).}
 
 summary.spatMLD invisibly returns the same list object as above with additional components:
   \item{Dbar}{the estimated mean loss differential (over the entire field).}
@@ -84,7 +91,7 @@ summary.spatMLD invisibly returns the same list object as above with additional 
   \item{p.value}{the (two-sided) p-value under the assumption of standard normality of the test statistic.}
 }
 \references{
-Gilleland, E., 2012: Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  Submitted to \emph{Mon. Wea. Rev.}
+Gilleland, E., 2012: Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  Accepted to \emph{Mon. Wea. Rev.} Available at Early Online Release (\url{http://journals.ametsoc.org/doi/pdf/10.1175/MWR-D-12-00155.1}).
 
 Hering, A. S. and M. G. Genton, 2011: Comparing spatial predictions.  \emph{Technometrics} \bold{53}, (4), 414 - 425.
 }
@@ -95,6 +102,26 @@ Eric Gilleland
 \code{\link{vgram.matrix}}, \code{\link{nls}}, \code{\link{corrskill}}, \code{\link{abserrloss}}, \code{\link{sqerrloss}}, \code{\link{distmaploss}}
 }
 \examples{
+grid<- list( x= seq( 0,5,,25), y= seq(0,5,,25))
+obj<-Exp.image.cov( grid=grid, theta=.5, setup=TRUE)
+look<- sim.rf( obj)
+look[ look < 0] <- 0
+look <- zapsmall( look)
+     
+look2 <- sim.rf( obj)*.25
+look2[ look2 < 0] <- 0
+look2 <- zapsmall( look2)
+
+look3 <- sim.rf( obj)*2 + 5
+look3[ look3 < 0] <- 0 
+look3 <- zapsmall( look3)
+
+res <- spatMLD(x=look, y1=look2, y2=look3, lossfun="abserrloss", maxrad=8)
+res <- fit.spatMLD(res)
+res <- summary(res)
+plot(res)
+
+\dontrun{
 data(pert000)
 data(pert004)
 data(pert006)
@@ -102,6 +129,7 @@ look <- spatMLD(x=pert000, y1=pert004, y2=pert006, lossfun="abserrloss", maxrad=
 look <- fit.spatMLD(look)
 plot(look)
 summary(look)
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

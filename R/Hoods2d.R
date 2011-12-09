@@ -90,7 +90,7 @@ function( obj, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "fss
 
 hoods2dPrep <-
 function( Fcst.name, Vx.name, thresholds=NULL, Pe=NULL, levels=NULL, max.n=NULL, subset=NULL,
-                                loc=NULL, qs=NULL, units=NULL, smooth.fun="hoods2dsmooth", smooth.params=NULL) {
+                                loc=NULL, qs=NULL, field.type="", units=NULL, smooth.fun="hoods2dsmooth", smooth.params=NULL, mapit=FALSE) {
    out <- list()
    out$Fcst.name <- Fcst.name
    out$Vx.name <- Vx.name
@@ -98,6 +98,7 @@ function( Fcst.name, Vx.name, thresholds=NULL, Pe=NULL, levels=NULL, max.n=NULL,
    Obs <- get( Vx.name)
    dimF <- dim( Fcst)
    out$xdim <- dimF
+   out$map <- mapit
    if( any(dimF != dim( Obs))) stop("fss2d: dim of Obs must be the same as dim of Fcst.")
    Nxy <- prod( dimF)
    out$Nxy <- Nxy
@@ -130,6 +131,60 @@ function( Fcst.name, Vx.name, thresholds=NULL, Pe=NULL, levels=NULL, max.n=NULL,
    class( out) <- "hoods2dPrep"
    return( out)
 } # end of 'hoods2dPrep' function.
+
+plot.hoods2dPrep <- function(x, ...) {
+   X <- get(x$Vx.name)
+   Y <- get(x$Fcst.name)
+   zl <- range(c(c(X),c(Y)),finite=TRUE)
+   par(mfrow=c(1,2),mar=c(4.1,2.1,4.1,2.1))
+   image(X, col=c("gray", tim.colors(64)), axes=FALSE, zlim=zl, main=paste(x$Vx.name, "\n", x$field.type, " (", x$units, ")", sep=""))
+   if(!is.null(x$thresholds)) contour(X, levels=x$thresholds[,2], add=TRUE, lwd=0.5, lty=2, col="gray")
+   if(x$map) {
+	par(usr=c(range(x$loc[,1],finite=TRUE),range(x$loc[,2], finite=TRUE)))
+	map(add=TRUE)
+	map(add=TRUE,database="state",lty=2)
+   }
+   image(Y, col=c("gray", tim.colors(64)), axes=FALSE, zlim=zl, main=paste(x$Fcst.name, "\n", x$field.type, " (", x$units, ")", sep=""))
+   if(!is.null(x$thresholds)) contour(Y, levels=x$thresholds[,1], add=TRUE, lwd=0.5, lty=2, col="gray")
+   if(x$map) {
+        par(usr=c(range(x$loc[,1],finite=TRUE),range(x$loc[,2], finite=TRUE)))
+        map(add=TRUE)
+	map(add=TRUE,database="state",lty=2)
+   }
+   image.plot(Y, col=c("gray", tim.colors(64)), zlim=zl, legend.only=TRUE, legend.mar=2.1, horizontal=TRUE)
+   # X <- as.im(X)
+   # hist(X, col="darkblue", main="", probability=TRUE, ylim=c(0,1), xlab="Grid value")
+   # Y <- as.im(Y)
+   # hist(Y, col="darkblue", main="", probability=TRUE, ylim=c(0,1), xlab="Grid value")
+   invisible()
+} # end of 'plot.hoods2dPrep' function.
+
+hist.hoods2dPrep <- function(x, ...) {
+   X <- get(x$Vx.name)
+   Y <- get(x$Fcst.name)
+   u <- x$thresholds
+   udim <- dim(u)
+   udim[1] <- udim[1]+1
+   par(mfrow=udim)
+   for(i in 1:udim[1]) {
+	if(i==1) {
+	   m1 <- paste(x$Vx.name, "\n", "All ", x$field.type, " values", sep="")
+	   m2 <- paste(x$Fcst.name, "\n", "All ", x$field.type, " values", sep="")
+	   tmpX <- c(X)
+	   tmpY <- c(Y)
+	} else {
+	   m1 <- paste("Only values >= ", u[i-1,2], " ", x$units, sep="")
+	   m2 <- paste("Only values >= ", u[i-1,1], " ", x$units, sep="")
+	   tmpX <- c(X[X>=u[i-1,2]])
+	   tmpY <- c(Y[Y>=u[i-1,1]])
+	}
+	if(i==udim[1]) x1 <- paste(x$field.type, " (", x$units, ")", sep="")
+	else x1 <- ""
+	hist(tmpX, main=m1, xlab=x1, ...)
+	hist(tmpY, main=m2, xlab=x1, ...)
+   } # end of for 'i' loop.
+   invisible()
+} # end of 'hist.hoods2dPrep' function.
 
 plot.hoods2d <-
 function(x, ...) {

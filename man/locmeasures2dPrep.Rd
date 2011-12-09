@@ -7,7 +7,8 @@ Set up a list object for locmeasures2d
 Sets up a list object to run with locmeasures2d.
 }
 \usage{
-locmeasures2dPrep(Fcst.name, Vx.name, thresholds = NULL, k = NULL, alpha = 0.1, bdconst = NULL, p = 2, loc = NULL, qs = NULL, units = NULL)
+locmeasures2dPrep(Fcst.name, Vx.name, thresholds = NULL, k = NULL, alpha = 0.1,
+	bdconst = NULL, p = 2, loc = NULL, qs = NULL, units = NULL)
 }
 \arguments{
   \item{Fcst.name}{

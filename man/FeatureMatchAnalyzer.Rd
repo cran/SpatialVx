@@ -1,5 +1,7 @@
 \name{FeatureMatchAnalyzer}
 \alias{FeatureMatchAnalyzer}
+\alias{plot.FeatureMatchAnalyzer}
+\alias{summary.FeatureMatchAnalyzer}
 \alias{FeatureComps}
 \title{
 Analyze Features of a Verification Set
@@ -8,16 +10,23 @@ Analyze Features of a Verification Set
 Analyze matched features of a verification set.
 }
 \usage{
-FeatureMatchAnalyzer(x, y = NULL, matches = NULL, object = NULL, which.comps = c("cent.dist", "angle.diff", "area.ratio", "int.area", "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep"), sizefac = 1, alpha = 0.1, k = 4, p = 2, c = Inf, distfun = "distmapfun", ...)
-FeatureComps(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area", "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep"), sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", ...)
+FeatureMatchAnalyzer(x, y = NULL, matches = NULL, object = NULL,
+	which.comps = c("cent.dist", "angle.diff", "area.ratio", "int.area",
+			"bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
+	sizefac = 1, alpha = 0.1, k = 4, p = 2, c = Inf, distfun = "distmapfun", ...)
+\method{summary}{FeatureMatchAnalyzer}(object, ...)
+\method{plot}{FeatureMatchAnalyzer}(x, ...)
+FeatureComps(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
+		"bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"), 
+	sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", deg = TRUE, aty = "compass", ...)
 }
 \arguments{
   \item{x,y,matches}{
-\code{x}, \code{y} and \code{matches} are list objects with components as output by \code{deltamm} or similar function.  Only one is used, and it first checks for \code{matches}, then \code{y}, and finally \code{x}.  It expects a component names \code{mm.new.labels} that gives the number of matched objects.
+\code{x}, \code{y} and \code{matches} are list objects with components as output by \code{deltamm} or similar function.  Only one is used, and it first checks for \code{matches}, then \code{y}, and finally \code{x}.  It expects a component names \code{mm.new.labels} that gives the number of matched objects.  In the case of the \code{plot} method function, \code{x} is a list object as returned by \code{FeatureMatchAnalyzer}.
 }
   \item{X,Y}{list object giving a pixel image as output from \code{solutionset} from package \pkg{spatstat} for the verification and forecast fields, resp.  These arguments are passed directly to the \code{locperf} function.}
   \item{object}{
-Obligatory argument for use with \code{FeatureSuite} function.  Not used by \code{FeatureMatchAnalyzer} (so far).
+Obligatory argument for use with \code{FeatureSuite} function.  Not used by \code{FeatureMatchAnalyzer} (so far).  For the \code{summary} method function for \code{FeatureMatchAnalyzer}, this is the returned value from the self-same function.
 }
   \item{which.comps}{
 character vector indicating which properties of the features are to be analyzed.
@@ -26,7 +35,7 @@ character vector indicating which properties of the features are to be analyzed.
 single numeric by which area calculations should be multiplied in order to get the desired units.  If unity (default) results are in terms of grid squares.
 }
   \item{alpha}{
-numeric value for teh FOM measure (see the help file for \code{locperf}.
+numeric value for the FOM measure (see the help file for \code{locperf}.
 }
   \item{k}{
 numeric indicating which quantile to use if the partial Hausdorff measure is to be used.
@@ -40,14 +49,17 @@ numeric giving the cut-off value for the Baddeley metric.
   \item{distfun}{
 character naming a distance functions to use in calculating the various binary image measures.  Default is Euclidean distance.
 }
+  \item{deg, aty}{optional arguments to the \code{bearing} function.}
   \item{\dots}{
-Additional arguments to \code{deltametric}.
+Additional arguments to \code{deltametric}.  In case of the \code{summary} method function, additional optional arguments may be passed, which include \code{silent} (logical, should the information be printed to the screen or not?), \code{interest} (numeric vector defining an interest value for calculating total interest for each matched object, if NULL, this is not performed), \code{con} (name of function that takes three arguments, the first two are matrices whose rows are objects and columns are matched feature properties, where the former is a matrix of matched feature property values (e.g., angle difference) and the latter is a matrix of interest values determined by the \code{interest} argument (whereby each row is identical), the third argument to \code{con} must be called \code{which.comps}, and it gives the short-form feature property names (i.e., same as which.comps argument); see details section).  In the case of the \code{plot} method function, these are optional arguments to the function \code{plot}.
 }
 }
 \details{
 FeatureMatchAnalyzer is designed to be used with 'FeatureSuite'.  It is set up to calculate the values discussed in sec. 4 of Davis et al. (2006) for a single verification set (i.e., mean and standard deviation are not computed because it is only a single case).  If criteria is 1, then features separated by a distance D < the sum of the sizes of the two features (size of a feature is defined as the square root of its area) are considered a match.  If criteria is 2, then a match is made if D < the average of the sizes of the two features.  Finally, criteria 3 decides a match as being anything less than a pre-determined constant.
 
 FeatureComps is the primary function called by FeatureMatchAnalyzer, and is designed as a more stand-alone type of function.  Several of the measures that can be calculated are simply the binary image measures/metrics available via, e.g., locperf.  It calculates comparisons between two matched features (i.e., between the verification and forecast fields).
+
+The summary method function for FeatureMatchAnalyzer allows for passing a function, con, to determine confidence for each interest value.  The idea being to set the interest to zero when the particular interest value does not make sense.  For example, angle difference makes no sense if both objects are circles.  Currently, no functions are included in this package for actually doing this, and so the functionality itself has not been tested. 
 
 }
 \value{
@@ -58,15 +70,21 @@ FeatureMatchAnalyzer returns a list of list objects.  The specific components de
    \item{int.area}{numeric giving the intersection area of the features.}
    \item{bdelta}{numeric giving Baddeley's delta metric between the two features.}
    \item{haus, ph, mhd, med, msd, fom, minsep}{numeric, see locperf for specific information.}
+   \item{bearing}{numeric giving the bearing from the forecast object centroid to the observed object centroid.}
+The summary method for FeatureMatchAnalyzer invisibly returns a matrix with the same information, but where each matched object is a row and each column is the specific statistic.  Or, if optional interest argument is passed, a list with components:
+
+\item{match.properties}{above mentioned matrix.}
+\item{object.interest}{numeric vector giving the total interest for each feature.}
+\item{interest.values}{numeric vector giving the interest values used (i.e., as passed through argument interest.}
 }
 \references{
-Davis CA, BG Brown, and RG Bullock, 2006. Object-based verification of precipitation forecasts, Part I: Methodology and application to mesoscale rain areas. \emph{Mon. Wea. Rev.}, \bold{134}, 1772--1784.
+Davis C. A., B. G. Brown, and R. G. Bullock, 2006. Object-based verification of precipitation forecasts, Part I: Methodology and application to mesoscale rain areas. \emph{Mon. Wea. Rev.}, \bold{134}, 1772--1784.
 }
 \author{
 Eric Gilleland
 }
 \seealso{
-\code{\link{locperf}}, \code{\link{FeatureSuite}}, \code{\link{convthresh}}, \code{\link{deltamm}}, \code{\link{deltametric}}
+\code{\link{locperf}}, \code{\link{FeatureSuite}}, \code{\link{convthresh}}, \code{\link{deltamm}}, \code{\link{deltametric}}, \code{\link{bearing}}
 }
 \examples{
 x <- y <- matrix(0, 10, 12)
