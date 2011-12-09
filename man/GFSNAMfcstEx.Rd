@@ -9,9 +9,10 @@ GFS NAM example verification set
 \description{ 
 GFS NAM example verification set with 361 time points in addition to 2352 spatial locations on a grid.
 }
-\usage{data(GFSNAMfcstEx)
-        data(GFSNAMobsEx)
-        data(GFSNAMlocEx)
+\usage{
+data(GFSNAMfcstEx)
+data(GFSNAMobsEx)
+data(GFSNAMlocEx)
 }
 \format{
   The format is:
@@ -28,16 +29,16 @@ GFS NAM example verification set with 361 time points in addition to 2352 spatia
 
 }
 
-\details{GFS/NAM example verification set with 2352 spatial locations over the United States, and 361 time points.  For both the forecast (GFSNAMfcstEx) and verification (GFSNAMobsEx), these are numeric matrices whose rows represent time, and columns represent space.  The associated lon/lat coordinates are provided by GFSNAMlocEx (2352 X 2 data frame with named components giving the lon and lat values).}
+\details{GFS/NAM example verification set with 2352 spatial locations over the United States, and 361 time points.  For both the forecast (\code{GFSNAMfcstEx}) and verification (\code{GFSNAMobsEx}), these are numeric matrices whose rows represent time, and columns represent space.  The associated lon/lat coordinates are provided by \code{GFSNAMlocEx} (2352 by 2 data frame with named components giving the lon and lat values).}
 
 \examples{
 data(GFSNAMfcstEx)
 data(GFSNAMobsEx)
 data(GFSNAMlocEx)
 
-x <- colMeans(GFSNAMfcstEx,na.rm=TRUE)
-y <- colMeans(GFSNAMobsEx,na.rm=TRUE)
-look <- as.image(x-y, x=GFSNAMlocEx)
+x <- colMeans(GFSNAMfcstEx, na.rm=TRUE)
+y <- colMeans(GFSNAMobsEx, na.rm=TRUE)
+look <- as.image(x - y, x=GFSNAMlocEx)
 image.plot(look)
 }
 \keyword{datasets}

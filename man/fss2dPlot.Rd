@@ -1,9 +1,8 @@
 \name{fss2dPlot}
 \alias{fss2dPlot}
 \alias{upscale2dPlot}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Create several graphics for list objects returned from hoods2d
+Create Several Graphics for List Objects Returned from hoods2d
 }
 \description{
 Creates several graphics for list objects returned from hoods2d.  Mostly quilt and matrix plots for displaying results of smoothing fields over different neighborhood lengths and thresholds.
@@ -36,8 +35,9 @@ No value is returned.  A series of plots are created.  It may be useful to use t
 \dontrun{data(geom001)
 data(geom000)
 data(ICPg240Locs)
-hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01), levels=c(1, 3, 5, 33, 65),
-		loc=ICPg240Locs, units="in/100")
+hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01),
+    levels=c(1, 3, 5, 33, 65),
+    loc=ICPg240Locs, units="in/100")
 look <- hoods2d(hold, verbose=TRUE)
 plot( look)}
 }

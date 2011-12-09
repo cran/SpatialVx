@@ -1,4 +1,4 @@
-ampstats <- function(Fcst, Vx, only.nonzero=FALSE) {
+ampstats <- function(Vx, Fcst, only.nonzero=FALSE) {
    if( only.nonzero) {
 	idy <- Fcst != 0
 	idx <- Vx != 0
@@ -17,10 +17,11 @@ ampstats <- function(Fcst, Vx, only.nonzero=FALSE) {
    return( list( mean.fcst=m1, mean.vx=m2, var.fcst=v1, var.vx=v2, cov=v12))
 } # end of 'ampstats' function.
 
-UIQI <- function(Fcst, Vx, ...) {
+UIQI <- function(Vx, Fcst, ...) {
    out <- list()
-   out$Fcst.name <- as.character( substitute( Fcst))
-   out$Vx.name <- as.character( substitute( Vx))
+   data.name <- c(as.character( substitute( Vx)), as.character( substitute( Fcst)))
+   names(data.name) <- c("verification","forecast")
+   out$data.name <- data.name
    tmp <- ampstats( Fcst=Fcst, Vx=Vx, ...)
    sig12 <- sqrt( tmp$var.fcst*tmp$var.vx)
    if( !is.na( tmp$cov)) rho <- tmp$cov/sig12
@@ -172,8 +173,8 @@ aaft2d <- function(Im, bigdim=NULL) {
 FQI <- function( object, surr=NULL, ...) {
    out <- list()
    out$prep.object <- as.character( substitute( object))
-   Y <- get( object$Fcst.name)
-   X <- get( object$Vx.name)
+   X <- get( object$data.name[1])
+   Y <- get( object$data.name[2])
    if( is.null( surr)) surr <- surrogater2d( Im=X, ...)
    xdim <- dim( X)
    Yim <- im( Y)
@@ -198,7 +199,7 @@ FQI <- function( object, surr=NULL, ...) {
 	X2[!idx] <- 0
 	Y2 <- Y
 	Y2[!idy] <- 0
-	denom <- UIQI( Fcst=X2, Vx=Y2, only.nonzero=TRUE)$UIQI
+	denom <- UIQI( Vx=X2, Fcst=Y2, only.nonzero=TRUE)$UIQI
 	uiqi.norm[threshold] <- denom
 	for( k in 1:nk) {
 	   num1 <- locperf( X=Ix, Y=Iy, which.stats="ph", k=ks[k])$ph
@@ -224,8 +225,8 @@ summary.fqi <- function(object, ...) {
 	if( all( u[,1] == u[,2])) lu <- as.character(u[,1])
 	else lu <- paste(1:q, ": (", u[,1], ", ", u[,2], "); ", sep="")
    }
-   cat("Comparison between model ", x$Fcst.name, " and verification field ", x$Vx.name, ":\n")
-   cat("\n", "Thresholds are (Fcst, Vx): ", lu, "\n")
+   cat("Comparison between model ", x$data.name[2], " and verification field ", x$data.name[1], ":\n")
+   cat("\n", "Thresholds are: ", lu, "\n")
    k <- paste("k = ", as.character( x$k), "; ", sep="")
 
    y <- object$phd.norm

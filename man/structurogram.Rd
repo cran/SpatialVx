@@ -1,19 +1,18 @@
 \name{structurogram}
 \alias{structurogram}
 \alias{plot.structurogram}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Structure function for non-gridded spatial fields.
+Structure Function for Non-Gridded Spatial Fields.
 }
 \description{
 Computes pairwise differences (raised to the q-th power) as a function of distance.  Returns either raw values or statistics from binning.
 }
 \usage{
 structurogram(loc, y, q = 2, id = NULL, d = NULL, lon.lat = FALSE, dmax = NULL,
-	N = NULL, breaks = NULL)
+    N = NULL, breaks = NULL)
+
 \method{plot}{structurogram}(x, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{loc}{
 numeric matrix where each row is the coordinate of a point in the field.
@@ -47,16 +46,16 @@ numeric vector giving bin boundaries for binning structure function values.  Nee
 }
 
 \details{
-This function is basically an exact copy of vgram from package 'fields' whereby the differences are raised to a power of q instead of 2.  That is, it calculates the structure function given by Eq (4) in harris et al. (2001).  Namely,
+This function is basically an exact copy of \code{vgram} from package \pkg{fields} whereby the differences are raised to a power of q instead of 2.  That is, it calculates the structure function given by Eq (4) in harris et al. (2001).  Namely,
 
         S_q(l_x,l_y) = <|R(x+l_x,y+l_y) - R(x,y)|^q>
 
 where R is the field of interest, <> denotes the average over pixels in the image (note, in Harris et al. (2001), this is only over non-zero pixels, so is only equivalent to this equation if zero-valued points are first removed from y and loc), l_x and l_y are lags in the x and y directions, resp.  If q=2, then this is the semivariogram.
 
-The plot method function plots the structure by separation distance (circles) along with a dark blue line giving the bin centers.
+The \code{plot} method function plots the structure by separation distance (circles) along with a dark blue line giving the bin centers.
 }
 \value{
-A list object of class "structurogram" is returned with components:
+A list object of class \dQuote{structurogram} is returned with components:
   \item{d }{numeric vector giving the pair-wise distances.}
   \item{val }{numeric vector giving the structure function values for each distance.}
   \item{q}{numeric giving the value of q passed into the funciton.}
@@ -66,7 +65,7 @@ A list object of class "structurogram" is returned with components:
 The plot method function does not return anything.
 }
 \references{
-Harris, D., E. Foufoula-Georgiou, K. K. Droegemeier, and J. J. Levit, 2001.  Multiscale statistical properties of a high-resolution precipitation forecast.  \emph{J. Hydrometeorol.}, \bold{2}, 406 - 418.
+Harris, D., Foufoula-Georgiou, E., Droegemeier, K. K. and Levit, J. J. (2001)  Multiscale statistical properties of a high-resolution precipitation forecast.  \emph{J. Hydrometeorol.}, \bold{2}, 406--418.
 }
 \author{
 Eric Gilleland
@@ -89,6 +88,4 @@ look <- structurogram( x,y, N=15, lon.lat=TRUE, q=1)
 plot(look)
 
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ math }

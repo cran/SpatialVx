@@ -1,7 +1,7 @@
 \name{bearing}
 \alias{bearing}
 \title{
-Find the bearing from one spatial location to another
+Bearing from One Spatial Location to Another
 }
 \description{
 Find the bearing from one spatial location to another.
@@ -15,7 +15,7 @@ bearing(point1, point2, deg = TRUE, aty = "compass")
 logical, should the output be converted from radians to degrees?
 }
   \item{aty}{
-character stating either "compass" (default) or "radial".  The former gives the standard compass bearing angle (0 is north, increase clockwise), and the latter is for polar coordinates (0 is East, increase counter-clockwise).
+character stating either \dQuote{compass} (default) or \dQuote{radial}.  The former gives the standard compass bearing angle (0 is north, increase clockwise), and the latter is for polar coordinates (0 is East, increase counter-clockwise).
 }
 }
 \details{
@@ -37,10 +37,10 @@ Note that there is no simple relationship between the bearing of A to B vs. the 
 numeric giving the bearing angle.
 }
 \references{
-Keay, Wally, Land Navigation: Routefinding with Map & Compass, Coventry, UK: Clifford Press Ltd. (1995), ISBN 0319008452, 978-0319008454
+Keay, W. (1995) Land Navigation: Routefinding with Map & Compass, Coventry, UK: Clifford Press Ltd., ISBN 0319008452, 978-0319008454
 }
 \author{
-Eric Gilleland and Randy Bullock
+Eric Gilleland and Randy Bullock, bullock \dQuote{at} ucar.edu
 }
 
 \seealso{

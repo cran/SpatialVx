@@ -1,7 +1,7 @@
 \name{Aindex}
 \alias{Aindex}
 \title{
-Area index
+Area Index
 }
 \description{
 Calculate Area index described in AghaKouchak et al. (2011).
@@ -11,7 +11,7 @@ Aindex(x, thresh = NULL, dx = 1, dy = 1)
 }
 \arguments{
   \item{x}{
-m X n numeric matrix giving the field for which the area index is to be calculated.
+m by n numeric matrix giving the field for which the area index is to be calculated.
 }
   \item{thresh}{
 Values under this threshold are set to zero.  If NULL, it will be set to 1e-8 (a very small value).
@@ -34,7 +34,7 @@ A list with components:
 \item{dx,dy}{the values of dx and dy as input to the function.}
 }
 \references{
-AghaKouchak, A., N. Nasrollahi, J. Li, B. Imam, and S. Sorooshian, 2011: Geometrical characterization of precipitation patterns.  \emph{J. Hydrometeorology}, \bold{12}, 274--285, DOI: 10.1175/2010JHM1298.1
+AghaKouchak, A., Nasrollahi, N., Li, J., Imam, B. and Sorooshian, S. (2011) Geometrical characterization of precipitation patterns.  \emph{J. Hydrometeorology}, \bold{12}, 274--285, doi:10.1175/2010JHM1298.1.
 }
 \author{
 Eric Gilleland
@@ -44,12 +44,12 @@ Eric Gilleland
 \code{\link{as.im}}, \code{\link{solutionset}}, \code{\link{convexhull}}, \code{\link{Cindex}}, \code{\link{Sindex}}
 }
 \examples{
+\dontrun{
 # Gemetric shape that is highly structured.
 data(geom000)
 Aindex(geom000)
-Aindex(geom000,dx=4,dy=4)
+Aindex(geom000, dx=4, dy=4)
 
-\dontrun{
 # Two separate areas with highly structured shapes, but far away from each other.
 data(pert000)
 Aindex(pert000, thresh=20, dx=4, dy=4)

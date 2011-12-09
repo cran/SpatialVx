@@ -3,21 +3,22 @@
 \alias{aaft2d}
 \alias{fft2d}
 \alias{mae}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Create surrogate fields
+Create Surrogate Fields
 }
 \description{
 Create surrogate fields that have the same power spectrum and pdf as the original field.
 }
 \usage{
 surrogater2d(Im, frac = 0.95, n = 10, lossfun = "mae", maxiter = 100, zero.down = TRUE,
-	verbose = FALSE, ...)
+    verbose = FALSE, ...)
+
 aaft2d(Im, bigdim = NULL)
+
 fft2d(x, bigdim = NULL, ...)
+
 mae(x1, x2, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{Im}{
 matrix from which surrogates are to be made.
@@ -48,7 +49,7 @@ additional arguments: in the case of \code{fft2d}, they are additional arguments
 }
 }
 \details{
-The fft2d function was written to simplify some of the code in surrogater2d and aaft2d.  It is simply a call to the R function fft, but it first resets the dimensions to ones that should maximize the efficiency.  It will also return the dimensions if they are not passed in.
+The \code{fft2d} function was written to simplify some of the code in \code{surrogater2d} and \code{aaft2d}.  It is simply a call to the \R function \code{fft}, but it first resets the dimensions to ones that should maximize the efficiency.  It will also return the dimensions if they are not passed in.
 
 Surrogates are used in non-linear time series analysis to simulate similar time series for hypothesis testing purposes (e.g., Kantz and Schreiber, 1997).  Venugopal et al. (2005) use surrogates of two-dimensional fields as part of their Forecast Quality Index (FQI); which is the intention here.  Theiler et al. (1992) proposed a method known as the amplitude adjusted Fourier transform (AAFT) algorithm, and Schreiber and Schmitz (1996) proposed a modification to this approach in order to obtain surrogates with both the same power spectrum and pdf as the original series.
 
@@ -78,13 +79,13 @@ In the case of fft2d: If bigdim is NULL, a list object is returned with componen
 In the case of mae: a single numeric giving the mean absolute error between x1 and x2.
 }
 \references{
-Kantz, H. and T. Schreiber, 1997: \emph{Nonlinear time series analysis}.  Cambridge University Press, Cambridge, U.K., 304pp.
+Kantz, H. and Schreiber, T. (1997) \emph{Nonlinear time series analysis}.  Cambridge University Press, Cambridge, U.K., 304pp.
 
-Schreiber, T. and A. Schmitz, 1996: Improved surrogate data for nonlinearity tests.  \emph{Physical Review Letters}, \bold{77}(4), 635--638.
+Schreiber, T. and Schmitz, A. (1996) Improved surrogate data for nonlinearity tests.  \emph{Physical Review Letters}, \bold{77}(4), 635--638.
 
-Theiler, J., S. Eubank, A. Longtin, B. Galdrikian, and J. D. Farmer, 1992: \emph{Physica} (Amsterdam) \bold{58D}, 77.
+Theiler, J., Eubank, S. Longtin, A. Galdrikian, B. and Farmer, J. D. (1992) \emph{Physica} (Amsterdam) \bold{58D}, 77.
 
-Venugopal, V., S. Basu, and E. Foufoula-Georgiou, 2005: A new metric for comparing precipitation patterns with an application to ensemble forecasts.  \emph{J. Geophys. Res.}, \bold{110}, D08111, doi:10.1029/2004JD005395, 11pp.
+Venugopal, V., Basu, S. and Foufoula-Georgiou, E. (2005) A new metric for comparing precipitation patterns with an application to ensemble forecasts.  \emph{J. Geophys. Res.}, \bold{110}, D08111, doi:10.1029/2004JD005395, 11pp.
 }
 \author{
 Eric Gilleland, this code was adapted from matlab code written by Sukanta Basu (2007) available at: http://www.ral.ucar.edu/projects/icp/Software/FeaturesBased/FQI/Perturbed.m
@@ -94,10 +95,12 @@ Eric Gilleland, this code was adapted from matlab code written by Sukanta Basu (
 \code{\link{fft}}, \code{\link{locmeasures2d}}, \code{\link{UIQI}}, \code{\link{ampstats}}
 }
 \examples{
-grid<- list( x= seq( 0,5,,100), y= seq(0,5,,100)) 
-obj<-Exp.image.cov( grid=grid, theta=.5, setup=TRUE)
-look<- sim.rf( obj)  
-look2 <- surrogater2d( look, zero.down=FALSE, n=3)
+data(ExampleSpatialVxSet)
+
+x <- ExampleSpatialVxSet$vx
+
+z <- surrogater2d( x, zero.down=FALSE, n=3)
+
 \dontrun{
 par( mfrow=c(2,2))
 image.plot( look)
@@ -110,7 +113,5 @@ tmp <- surrogater( pert000, n=10, verbose=TRUE)
 boxplot( cbind( c(pert000), apply( tmp, 3, c)))
   }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ math }
 \keyword{ manip }

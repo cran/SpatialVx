@@ -6,7 +6,8 @@
 Spatial Forecast Verification
 }
 \description{
-\pkg{SpatialVx} contains functions to perform several spatial forecast verification methods.  this release has functionality to do most of the traditional and neighborhood smoothing methods, as well as FQI and several binary image measures/metrics.  Some feature-based methods functions are also included.}
+\pkg{SpatialVx} contains functions to perform many spatial forecast verification methods.
+}
 
 \details{
 
@@ -16,7 +17,7 @@ Primary functions include:
 
 1a. Neighbordoohd Methods:
 
-Neighborhood methods generally apply a convolution kernel smoother to one or both of the fields in the verificaiton set, and then apply the traditional scores.  Most of the methods reviewe in Ebert (2008, 2009) are included in this package.  The main functions are:
+Neighborhood methods generally apply a convolution kernel smoother to one or both of the fields in the verificaiton set, and then apply the traditional scores.  Most of the methods reviewed in Ebert (2008, 2009) are included in this package.  The main functions are:
 
 \code{hoods2dPrep}, \code{hoods2d}, \code{pphindcast2d}, \code{kernel2dsmooth}, and \code{plot.hoods2d}.
 
@@ -24,25 +25,47 @@ Neighborhood methods generally apply a convolution kernel smoother to one or bot
 
 Scale separation refers to the idea of applying a band-pass filter (and/or doing a multi-resolution analysis, MRA) to the verification set.  Typically, skill is assessed on a scale-by-scale basis.  However, other techniques are also applied.  For example, denoising the field before applying traditional statistics, using the variogram, or applying a statistical test based on the variogram (these last are less similar to the spirit of the scale separation idea, but are at least somewhat related).
 
-There is functionality to do the wavelet methods proposed in Briggs and Levine (1997).  In particular, to simply denoise the fields before applying traditional verification statistics, use \code{wavePurifyVx}.  To apply verification statistics to detail fields (in either the wavelet or field space), use \code{waverify2d} (dyadic fields) or \code{mowaverify2d} (non-dyadic or dyadic) fields.
+There is functionality to do the wavelet methods proposed in Briggs and Levine (1997).  In particular, to simply denoise the fields before applying traditional verification statistics, use 
 
-The intensity-scale technique introduced in Casati et al. (2004) and the new developments of the technique proposed in Casati (2010) can be performed with \code{waveIS}.
+\code{wavePurifyVx}.
 
-Although not strictly a "scale separation" method, the structure function (for which the variogram is a special case) is in the same spirit in the sense that it analyzes the field for different separation distances, and these "scales" are separate from each other (i.e., the score does not necessarily improve or decline as the scale increases).  This package contains essentially wrapper functions to the \code{vgram.matrix} and \code{plot.vgram.matrix} functions from the fields package.  It also has a function (\code{variogram.matrix}) that is a modification of \code{vgram.matrix} that allows for missing values.  The primary function for this is called \code{griddedVgram}, and it has a \code{plot} method function.  It also contains slight modifications of these functions (small modifications of the fields functions) to calculate the structure function of Harris et al. (2001).  These functions are called \code{structurogram} (for non-gridded fields) and \code{structurogram.matrix} (for gridded fields).  The latter allows for ignoring zero-valued grid points (as detailed in Harris et al., 2001) where the former does not (they must be removed prior to calling the function).
+To apply verification statistics to detail fields (in either the wavelet or field space), use:
+
+ \code{waverify2d} (dyadic fields) or \code{mowaverify2d} (non-dyadic or dyadic) fields.
+
+The intensity-scale technique introduced in Casati et al. (2004) and the new developments of the technique proposed in Casati (2010) can be performed with
+
+\code{waveIS}.
+
+Although not strictly a \dQuote{scale separation} method, the structure function (for which the variogram is a special case) is in the same spirit in the sense that it analyzes the field for different separation distances, and these \dQuote{scales} are separate from each other (i.e., the score does not necessarily improve or decline as the scale increases).  This package contains essentially wrapper functions to the \code{vgram.matrix} and \code{plot.vgram.matrix} functions from the fields package, but there is also a function called
+
+\code{variogram.matrix}
+
+that is a modification of \code{vgram.matrix} that allows for missing values.  The primary function for doing this is called
+
+\code{griddedVgram}, which has a \code{plot} method function associated with it.
+
+There are also slight modifications of these functions (small modifications of the fields functions) to calculate the structure function of Harris et al. (2001).  These functions are called
+
+ \code{structurogram} (for non-gridded fields) and \code{structurogram.matrix} (for gridded fields).
+
+The latter allows for ignoring zero-valued grid points (as detailed in Harris et al., 2001) where the former does not (they must be removed prior to calling the function).
 
 2. Displacement Methods:  
 
-In Gilleland et al (2009), this category was broken into two main types as field deformation and features-based.  The former lumped together binary image measures/metrics with field deformation techniques because the binary image measures inform about the "similarity" (or dissimilarity) between the spatial extent of two fields (across the entire field).  Here, they are broken down further into those that yield a only a single (or small vector of) metric(s) or measure(s) (location measures), and those that have mechanisms for moving grid-point locations to match the fields better spatially (field deformation).
+In Gilleland et al (2009), this category was broken into two main types as field deformation and features-based.  The former lumped together binary image measures/metrics with field deformation techniques because the binary image measures inform about the \dQuote{similarity} (or dissimilarity) between the spatial extent or pattern of two fields (across the entire field).  Here, they are broken down further into those that yield only a single (or small vector of) metric(s) or measure(s) (location measures), and those that have mechanisms for moving grid-point locations to match the fields better spatially (field deformation).
 
 2a. Location Measures: 
 
-Included here are the well-known Hausdorff metric, the partial-Hausdorff measure, FQI (Venugopal et al., 2005), Baddeley's delta metric (Gilleland, 2011; Schwedler et al., 2011), metrV (Zhu et al., 2011), as well as the localization performance measures described in Baddeley, 1992: mean error distance, mean square error distance, and Pratt's Figure of Merit (FOM).
+Included here are the well-known Hausdorff metric, the partial-Hausdorff measure, FQI (Venugopal et al., 2005), Baddeley's delta metric (Baddeley, 1992; Gilleland, 2011; Schwedler et al., 2011), metrV (Zhu et al., 2011), as well as the localization performance measures described in Baddeley, 1992: mean error distance, mean square error distance, and Pratt's Figure of Merit (FOM).
 
 \code{locmeasures2dPrep}, \code{locmeasures2d}, \code{metrV}, \code{distob}, \code{locperf}
 
 2b. Field deformation:
 
-Thanks to Caren Marzban for supplying his optical flow code for this package (it has been modified some).  These functions perform the analyses described in Marzban and Sandgathe (2010) and are based on the work of Lucas and Kanade (1981).  See the help file for \code{OF}.
+Thanks to Caren Marzban for supplying his optical flow code for this package (it has been modified some).  These functions perform the analyses described in Marzban and Sandgathe (2010) and are based on the work of Lucas and Kanade (1981).  See the help file for
+
+\code{OF}.
 
 A separate image warping pacakge is in the works, and functionality will be included here probably with some wrapper functions specific to spatial forecast verification needs.
 
@@ -53,15 +76,23 @@ Currently, there is some functionality for performing the analyses introduced in
 \code{FeatureSuitePrep}, \code{FeatureFunPrep}, \code{FeatureSuite}, \code{FeatureMatchAnalyzer},
 \code{saller}, \code{deltamm}, \code{convthresh}
 
-The cluster analysis methods of Marzban and Sandgathe (2006; 2008) have been added.  The former method was written from scratch by Eric Gilleland (cf. \code{clusterer}) and the latter variation was modified from code originally written by Hillary Lyons (cf. \code{CSIsamples}).
+The cluster analysis methods of Marzban and Sandgathe (2006; 2008) have been added.  The former method was written from scratch by Eric Gilleland 
+
+\code{clusterer}
+
+and the latter variation was modified from code originally written by Hillary Lyons 
+
+\code{CSIsamples}.
 
 2d. Geometrical characterization measures:
 
-Perhaps the measures in this sub-heading are best described as part-and-parcel of 2c.  They are certainly useful in that domain, but have been proposed also for entire fields by AghaKouchak et al. (2011); though similar measures have been applied in, e.g., MODE.  The measures introduced in AghaKouchak et al. (2011) available here are: connectivity index (Cindex), shape index (Sindex), and area index (Aindex).  See the help files for each to learn more.
+Perhaps the measures in this sub-heading are best described as part-and-parcel of 2c.  They are certainly useful in that domain, but have been proposed also for entire fields by AghaKouchak et al. (2011); though similar measures have been applied in, e.g., MODE.  The measures introduced in AghaKouchak et al. (2011) available here are: connectivity index (Cindex), shape index (Sindex), and area index (Aindex):
+
+\code{Cindex}, \code{Sindex}, \code{Aindex}
 
 3. Statistical inferences for spatial (and/or spatiotemporal) fields:
 
-In addition to the methods categorized in Gilleland et al. (2009), there are also functions for making comparisons between two spatial fields.  Currently, this entails only one such method (more to come), whcih requires temporal information as well.  It is the field significance approach detailed in Elmore et al. (2006).  It involves using a circular block bootstrap (CBB) algorithm (usually for the mean error) at each grid point (or location) individually to determine grid-point significance (null hypothesis that the mean error is zero), and then a semi-parametric Monte Carlo method viz. Livezey and Chen (1983) to determine field significance.
+In addition to the methods categorized in Gilleland et al. (2009), there are also functions for making comparisons between two spatial fields.  The field significance approach detailed in Elmore et al. (2006), which requires a temporal dimension as well, involves using a circular block bootstrap (CBB) algorithm (usually for the mean error) at each grid point (or location) individually to determine grid-point significance (null hypothesis that the mean error is zero), and then a semi-parametric Monte Carlo method viz. Livezey and Chen (1983) to determine field significance.
 
 \code{spatbiasFS}, \code{LocSig}, \code{MCdof}
 
@@ -71,100 +102,119 @@ In addition, the mean loss differential approach of Hering and Genton (2011) is 
 
 The bias corrected TS and ETS (or TS dHdA and ETS dHdA) introduced in Mesinger (2008) are now included within the \code{vxstats} function.
 
-The 2-d Gaussian Mixture Model (GMM) approach introduced in Lakshmanan and Kain (2010) can be carried out using the \code{gmm2d} function (to estimate the GMM) and the associated \code{summary} function calculates the parameter comparisons.  Also available is a \code{plot} and \code{predict} function, but it can be very slow to run.  The \code{gmm2d} employs an initialization function that takes the K largest object areas (connected components) and uses their centroids as initial estimates for the means, and uses the axes as initial guesses for the standard deviations.  The user may supply their own initial estimate function.
+The 2-d Gaussian Mixture Model (GMM) approach introduced in Lakshmanan and Kain (2010) can be carried out using the
 
-The S1 score and anomaly correlation (ACC) are available through the functions \code{S1} and \code{ACC}.  See Brown et al. (2012) and Thompson and Carter (1972) for more on these statistics.
+\code{gmm2d}
 
-Also included is a function to do the geographic box-plot of Willmott et al. (2007).  See the help file for \code{GeoBoxPlot}.
+function (to estimate the GMM) and the associated \code{summary} function calculates the parameter comparisons.  Also available are \code{plot} and \code{predict} method functions, but it can be very slow to run.  The \code{gmm2d} employs an initialization function that takes the K largest object areas (connected components) and uses their centroids as initial estimates for the means, and uses the axes as initial guesses for the standard deviations.  However, the user may supply their own initial estimate function.
+
+The S1 score and anomaly correlation (ACC) are available through the functions
+
+\code{S1} and \code{ACC}.
+
+See Brown et al. (2012) and Thompson and Carter (1972) for more on these statistics.
+
+Also included is a function to do the geographic box-plot of Willmott et al. (2007).  Namely,
+
+\code{GeoBoxPlot}.
 
 Datasets:
 
-All of the initial Spatial Forecast Verification Inter-Comparison Project (ICP, http://www.ral.ucar.edu/projects/icp) data sets used in the special collection of the Weather and Forecasting journal are included.  See the help file for 'obs0426', which will give information on all of the datasets included, as well as an example for plotting the data.
+All of the initial Spatial Forecast Verification Inter-Comparison Project (ICP, \url{http://www.ral.ucar.edu/projects/icp}) data sets used in the special collection of the Weather and Forecasting journal are included.  See the help file for 
+
+\code{obs0426},
+
+which gives information on all of these datasets that are included, as well as two examples for plotting them: one that does not preserve projections, but plots the data without modification, and another that preserves the projections, but possibly with some interpolative smoothing.
 
 Ebert (2008) provides a nice review of these methods.  Roberts and Lean (2008) describes one of the methods, as well as the primary boxcar kernel smoothing method used throughout this package.  Gilleland et al. (2009, 2010) provides an overview of most of the various recently proposed methods, and Ahijevych et al. (2009) describes the data sets included in this package.  Some of these have been applied to the ICP test cases in Ebert (2009).
 
 Additionally, one of the NIMROD cases (as provided by the UK Met Office) analyzed in Casati et al (2004) (case 6) is included along with approximate lon/lat locations.  See the help file for UKobs6 more information.
 
-A spatio-temporal verification dataset is also included for testing the method of Elmore et al. (2006).  See the help file for 'GFSNAMfcstEx' for more information.
+A spatio-temporal verification dataset is also included for testing the method of Elmore et al. (2006).  See the help file for
 
-A simulated dataset similar to the one used in Marzban and Sandgathe (2010) is also available and is called 'hump' (see its help file for more details).
+\code{GFSNAMfcstEx}.
+
+A simulated dataset similar to the one used in Marzban and Sandgathe (2010) is also available and is called 
+
+\code{hump}.
 }
 
 \author{
 Eric Gilleland
 }
 \references{
-AghaKouchak, A., N. Nasrollahi, J. Li, B. Imam, and S. Sorooshian, 2011: Geometrical characterization of precipitation patterns.  \emph{J. Hydrometeorology}, \bold{12}, 274--285, DOI: 10.1175/2010JHM1298.1
+AghaKouchak, A., Nasrollahi, N. Li, J. Imam, B. and Sorooshian, S. (2011) Geometrical characterization of precipitation patterns.  \emph{J. Hydrometeorology}, \bold{12}, 274--285, doi:10.1175/2010JHM1298.1.
 
-Ahijevych, D., E. Gilleland, B. G. Brown, and E. E. Ebert, 2009. Application of spatial verification methods to idealized and NWP gridded precipitation forecasts. \emph{Wea. Forecasting}, \bold{24} (6), 1485--1497.
+Ahijevych, D., Gilleland, E., Brown, B. G. and Ebert, E. E. (2009) Application of spatial verification methods to idealized and NWP gridded precipitation forecasts. \emph{Wea. Forecasting}, \bold{24} (6), 1485--1497.
 
-Baddeley, A. J., 1992: An error metric for binary images.  In \emph{Robust Computer Vision Algorithms}, W. Forstner and S. Ruwiedel, Eds., Wichmann, 59--78.
+Baddeley, A. J. (1992) An error metric for binary images.  In \emph{Robust Computer Vision Algorithms}, Forstner, W. and Ruwiedel, S. Eds., Wichmann, 59--78.
 
-Blaschke, T., S. Lang, and  G. Hay (Eds.), 2008.  Object-Based Image Analysis.  Springer-Verlag, Berlin, Germany, 818 pp.
+Blaschke, T., Lang, S. and  Hay, G. (Eds.) (2008)  Object-Based Image Analysis.  Berlin, Germany: Springer-Verlag, 818 pp.
 
-Briggs, W. M. and R. A. Levine, 1997. Wavelets and field forecast verification. \emph{Mon. Wea. Rev.}, \bold{125}, 1329--1341.
+Briggs, W. M. and Levine, R. A. (1997) Wavelets and field forecast verification. \emph{Mon. Wea. Rev.}, \bold{125}, 1329--1341.
 
-Brown, B. G., Gilleland, E. and Ebert, E. E., 2012. Chapter 6: Forecasts of spatial fields. pp. 95 - 117, In \emph{Forecast Verification: A Practitioner's Guide in Atmospheric Science}, 2nd edition. Edts. IT Jolliffee and DB Stephenson, Wiley, Chichester, West Sussex, UK, 274 pp.
+Brown, B. G., Gilleland, E. and Ebert, E. E. (2012) Chapter 6: Forecasts of spatial fields. pp. 95--117, In \emph{Forecast Verification: A Practitioner's Guide in Atmospheric Science}, 2nd edition. Edts. Jolliffe, I. T. and Stephenson, D. B., Chichester, West Sussex, U.K.: Wiley, 274 pp.
 
-Casati, B., 2010: New Developments of the Intensity-Scale Technique within the Spatial Verification Methods Inter-Comparison Project. \emph{Wea. Forecasting} \bold{25}, (1), 113--143, DOI: 10.1175/2009WAF2222257.1.
+Casati, B. (2010) New Developments of the Intensity-Scale Technique within the Spatial Verification Methods Inter-Comparison Project. \emph{Wea. Forecasting} \bold{25}, (1), 113--143, doi:10.1175/2009WAF2222257.1.
 
-Casati B., G. Ross, and D. B. Stephenson, 2004. A new intensity-scale approach for the verification of spatial precipitation forecasts. \emph{Meteorol. Appl.} \bold{11}, 141--154.
+Casati, B., Ross, G. and Stephenson, D. B. (2004) A new intensity-scale approach for the verification of spatial precipitation forecasts. \emph{Meteorol. Appl.} \bold{11}, 141--154.
 
-Davis C. A., B. G. Brown, and R. G. Bullock, 2006. Object-based verification of precipitation forecasts, Part I: Methodology and application to mesoscale rain areas. \emph{Mon. Wea. Rev.}, \bold{134}, 1772--1784
+Davis, C. A., Brown, B. G. and Bullock, R. G. (2006) Object-based verification of precipitation forecasts, Part I: Methodology and application to mesoscale rain areas. \emph{Mon. Wea. Rev.}, \bold{134}, 1772--1784.
 
-Ebert E. E., 2008. Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25 Available at \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
+Ebert, E. E. (2008) Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25 Available at \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
 
-Ebert, E. E., 2009: Neighborhood verification: A strategy for rewarding close forecasts.  \emph{Wea. Forecasting}, \bold{24}, 1498-1510, DOI: 10.1175/2009WAF2222251.1.
+Ebert, E. E. (2009) Neighborhood verification: A strategy for rewarding close forecasts.  \emph{Wea. Forecasting}, \bold{24}, 1498--1510, doi:10.1175/2009WAF2222251.1.
 
-Elmore, K. L., M. E. Baldwin, and D. M. Schultz, 2006: Field significance revisited: Spatial bias errors in forecasts as applied to the Eta model.  \emph{Mon. Wea. Rev.}, \bold{134}, 519--531.
+Elmore, K. L., Baldwin, M. E. and Schultz, D. M. (2006) Field significance revisited: Spatial bias errors in forecasts as applied to the Eta model.  \emph{Mon. Wea. Rev.}, \bold{134}, 519--531.
 
-Gilleland, E., 2012: Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  Accepted to \emph{Mon. Wea. Rev.} Available at Early Online Release (\url{http://journals.ametsoc.org/doi/pdf/10.1175/MWR-D-12-00155.1}).
+Gilleland, E. (2012) Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  \emph{Mon. Wea. Rev.}, \bold{141}, (1), 340--355.
 
-Gilleland, E., 2011.  Spatial forecast verification: Baddeley's delta metric applied to the ICP test cases.  \emph{Wea. Forecasting}, \bold{26}, 409--415, DOI: 10.1175/WAF-D-10-05061.1.
+Gilleland, E. (2011)  Spatial forecast verification: Baddeley's delta metric applied to the ICP test cases.  \emph{Wea. Forecasting}, \bold{26}, 409--415, doi:10.1175/WAF-D-10-05061.1.
 
-Gilleland, E., T. C. M. Lee, J. Halley Gotway, R. G. Bullock, and B. G. Brown, 2008: Computationally efficient spatial forecast verification using Baddeley's delta image metric.  \emph{Mon. Wea. Rev.}, \bold{136}, 1747--1757.
+Gilleland, E., Lee, T. C. M., Halley Gotway, J., Bullock, R. G. and Brown, B. G. (2008) Computationally efficient spatial forecast verification using Baddeley's delta image metric.  \emph{Mon. Wea. Rev.}, \bold{136}, 1747--1757.
 
-Gilleland, E., D. Ahijevych, B. G. Brown, B. Casati, and E. E. Ebert, 2009. Intercomparison of Spatial Forecast Verification Methods. \emph{Wea. Forecasting}, \bold{24}, 1416--1430, DOI: 10.1175/2009WAF2222269.1.
+Gilleland, E., Ahijevych, D., Brown, B. G., Casati, B. and Ebert, E. E. (2009) Intercomparison of Spatial Forecast Verification Methods. \emph{Wea. Forecasting}, \bold{24}, 1416--1430, doi:10.1175/2009WAF2222269.1.
 
-Gilleland, E., D. A. Ahijevych, B. G. Brown and E. E. Ebert, 2010: Verifying Forecasts Spatially. \emph{Bull. Amer. Meteor. Soc.}, October, 1365--1373.
+Gilleland, E., Ahijevych, D. A., Brown, B. G. and Ebert, E. E. (2010) Verifying Forecasts Spatially. \emph{Bull. Amer. Meteor. Soc.}, October, 1365--1373.
 
-Harris, D., E. Foufoula-Georgiou, K. K. Droegemeier, and J. J. Levit, 2001.  Multiscale statistical properties of a high-resolution precipitation forecast.  \emph{J. Hydrometeorol.}, \bold{2}, 406 - 418.
+Harris, D., Foufoula-Georgiou, E., Droegemeier, K. K. and Levit, J. J. (2001)  Multiscale statistical properties of a high-resolution precipitation forecast.  \emph{J. Hydrometeorol.}, \bold{2}, 406--418.
 
-Hering, A. S. and M. G. Genton, 2011: Comparing spatial predictions.  \emph{Technometrics} \bold{53}, (4), 414 - 425.
+Hering, A. S. and Genton, M. G. (2011) Comparing spatial predictions.  \emph{Technometrics} \bold{53}, (4), 414--425.
 
-Lakshmanan, V. and J. S. Kain, 2010: A Gaussian Mixture Model Approach to Forecast Verification. \emph{Wea. Forecasting}, \bold{25} (3), 908 - 920.
+Lakshmanan, V. and Kain, J. S. (2010) A Gaussian Mixture Model Approach to Forecast Verification. \emph{Wea. Forecasting}, \bold{25} (3), 908--920.
 
-Livezey, R. E. and W. Y. Chen, 1983: Statistical field significance and its determination by Monte Carlo techniques.  \emph{Mon. Wea. Rev.}, \bold{111}, 46--59.
+Livezey, R. E. and Chen, W. Y. (1983) Statistical field significance and its determination by Monte Carlo techniques.  \emph{Mon. Wea. Rev.}, \bold{111}, 46--59.
 
-Lucas, B D. and T. Kanade, 1981.  An iterative image registration technique with an application to stereo vision.  \emph{Proc. Imaging Understanding Workshop}, DARPA, 121 - 130.
+Lucas, B D. and Kanade, T. (1981)  An iterative image registration technique with an application to stereo vision.  \emph{Proc. Imaging Understanding Workshop}, DARPA, 121--130.
 
-Marzban, C. and S. Sandgathe, 2006: Cluster analysis for verification of precipitation fields.  \emph{Wea. Forecasting}, \bold{21}, 824 - 838.
+Marzban, C. and Sandgathe, S. (2006) Cluster analysis for verification of precipitation fields.  \emph{Wea. Forecasting}, \bold{21}, 824--838.
 
-Marzban, C., S. Sandgathe, 2008: Cluster Analysis for Object-Oriented Verification of Fields: A Variation. \emph{Mon. Wea. Rev.}, \bold{136}, (3), 1013 - 1025.
+Marzban, C. and Sandgathe, S. (2008) Cluster Analysis for Object-Oriented Verification of Fields: A Variation. \emph{Mon. Wea. Rev.}, \bold{136}, (3), 1013--1025.
 
-Marzban, C. and S. Sandgathe, 2009: Verification with variograms.  \emph{Wea. Forecasting}, \bold{24} (4), 1102--1120, doi: 10.1175/2009WAF2222122.1
+Marzban, C. and Sandgathe, S. (2009) Verification with variograms.  \emph{Wea. Forecasting}, \bold{24} (4), 1102--1120, doi: 10.1175/2009WAF2222122.1
 
-Marzban, C. and S. Sandgathe, 2010.  Optical flow for verification.  \emph{Wea. Forecasting}, \bold{25}, 1479 - 1494, doi:10.1175/2010WAF2222351.1.
+Marzban, C. and Sandgathe, S. (2010) Optical flow for verification.  \emph{Wea. Forecasting}, \bold{25}, 1479--1494, doi:10.1175/2010WAF2222351.1.
 
-Mesinger, F., 2008: Bias adjusted precipitation threat scores.  \emph{Adv. Geosci.}, \bold{16}, 137--142.
+Mesinger, F. (2008) Bias adjusted precipitation threat scores.  \emph{Adv. Geosci.}, \bold{16}, 137--142.
 
-Roberts, N. M. and H. W. Lean, 2008: Scale-selective verification of rainfall accumulations from high-resolution forecasts of convective events.  \emph{Mon. Wea. Rev.}, \bold{136}, 78--97. DOI: 10.1175/2007MWR2123.1.
+Roberts, N. M. and Lean, H. W. (2008) Scale-selective verification of rainfall accumulations from high-resolution forecasts of convective events.  \emph{Mon. Wea. Rev.}, \bold{136}, 78--97. doi:10.1175/2007MWR2123.1.
 
-Schwedler, B. R. J. and M. E. Baldwin, 2011.  Diagnosing the sensitivity of binary image measures to bias, location, and event frequency within a forecast verification framework.  \emph{Wea. Forecasting}, \bold{26}, 1032--1044, doi: 10.1175/WAF-D-11-00032.1.
+Schwedler, B. R. J. and Baldwin, M. E. (2011)  Diagnosing the sensitivity of binary image measures to bias, location, and event frequency within a forecast verification framework.  \emph{Wea. Forecasting}, \bold{26}, 1032--1044, doi:10.1175/WAF-D-11-00032.1.
 
-Thompson, J. C. and G. M. Carter, 1972. On some characteristics of the S1 score.  \emph{J. Appl. Meteorol.}, \bold{11}, 1384 - 1385.
+Thompson, J. C. and Carter, G. M. (1972) On some characteristics of the S1 score.  \emph{J. Appl. Meteorol.}, \bold{11}, 1384--1385.
 
-Venugopal, V., S. Basu, and E. Foufoula-Georgiou, 2005: A new metric for comparing precipitation patterns with an application to ensemble forecasts.  \emph{J. Geophys. Res.}, \bold{110}, D08111, doi:10.1029/2004JD005395, 11pp.
+Venugopal, V., Basu, S. and Foufoula-Georgiou, E. (2005) A new metric for comparing precipitation patterns with an application to ensemble forecasts.  \emph{J. Geophys. Res.}, \bold{110}, D08111, doi:10.1029/2004JD005395, 11pp.
 
-Wernli, H., M. Paulat, M. Hagen, and C. Frei, 2008.  SAL--A novel quality measure for the verification of quantitative precipitation forecasts.  \emph{Mon. Wea. Rev.}, \bold{136}, 4470--4487.
+Wernli, H., Paulat, M., Hagen, M. and Frei, C. (2008)  SAL--A novel quality measure for the verification of quantitative precipitation forecasts.  \emph{Mon. Wea. Rev.}, \bold{136}, 4470--4487.
 
-Wernli, H., C. Hofmann, and M. Zimmer, 2009.  Spatial forecast verification methods intercomparison project: Application of the SAL technique.  \emph{Wea. Forecasting}, \bold{24}, 1472--1484, DOI: 10.1175/2009WAF2222271.1
+Wernli, H., Hofmann, C. and Zimmer, M. (2009)  Spatial forecast verification methods intercomparison project: Application of the SAL technique.  \emph{Wea. Forecasting}, \bold{24}, 1472--1484, doi:10.1175/2009WAF2222271.1
 
-Willmott, C. J., S. M. Robeson, and K. Matsuura, 2007.  Geographic box plots.  \emph{Physical Geography}, \bold{28}, 331--344, DOI: 10.2747/0272-3646.28.4.331.
+Willmott, C. J., Robeson, S. M. and Matsuura, K. (2007)  Geographic box plots.  \emph{Physical Geography}, \bold{28}, 331--344, DOI: 10.2747/0272-3646.28.4.331.
 
-Zhu, M., V. Lakshmanan, P. Zhang, Y. Hong, K. Cheng, and S. Chen, 2011: Spatial verification using a true metric.  \emph{Atmos. Res.}, \bold{102}, 408--419, doi:10.1016/j.atmosres.2011.09.004.
+Zhu, M., Lakshmanan, V. Zhang, P. Hong, Y. Cheng, K. and Chen, S. (2011) Spatial verification using a true metric.  \emph{Atmos. Res.}, \bold{102}, 408--419, doi:10.1016/j.atmosres.2011.09.004.
 }
 \examples{
-## See help files for above named functions for specific examples (and to get started).
+## See help files for above named functions and datasets
+## for specific examples.
 }
 \keyword{ package}

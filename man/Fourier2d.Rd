@@ -1,8 +1,7 @@
 \name{Fourier2d}
 \alias{Fourier2d}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Function to compute the Fast Fourier Transform (FFT) of a gridded field.
+Fast Fourier Transform (FFT) of a 2-d Gridded Field
 }
 \description{
 Function to compute the Fast Fourier Transform (FFT) of a gridded field.  The field is first expanded, and zero padded.
@@ -10,9 +9,8 @@ Function to compute the Fast Fourier Transform (FFT) of a gridded field.  The fi
 \usage{
 Fourier2d(x, bigdim = NULL, kdim = NULL)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{n X m matrix giving the gridded field to transform.}
+  \item{x}{n by m matrix giving the gridded field to transform.}
   \item{bigdim}{ (optional) numeric vector of length 2.  If NULL, it will be found from kdim.  One of this argument or kdim must be given.}
   \item{kdim}{ (optional) numeric vector of length 2 giving the dimension of the kernel to be applied.  If bigdim is NULL, then the optimal dimension for the FFT is calculated from the dimension of x and kdim.}
 }

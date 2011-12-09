@@ -11,14 +11,18 @@ Analyze matched features of a verification set.
 }
 \usage{
 FeatureMatchAnalyzer(x, y = NULL, matches = NULL, object = NULL,
-	which.comps = c("cent.dist", "angle.diff", "area.ratio", "int.area",
-			"bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
-	sizefac = 1, alpha = 0.1, k = 4, p = 2, c = Inf, distfun = "distmapfun", ...)
+                     which.comps = c("cent.dist", "angle.diff", "area.ratio", "int.area",
+                     "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
+                     sizefac = 1, alpha = 0.1, k = 4, p = 2, c = Inf, distfun = "distmapfun", ...)
+
 \method{summary}{FeatureMatchAnalyzer}(object, ...)
+
 \method{plot}{FeatureMatchAnalyzer}(x, ...)
+
 FeatureComps(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
-		"bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"), 
-	sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", deg = TRUE, aty = "compass", ...)
+             "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"), 
+             sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", deg = TRUE,
+             aty = "compass", ...)
 }
 \arguments{
   \item{x,y,matches}{
@@ -51,15 +55,15 @@ character naming a distance functions to use in calculating the various binary i
 }
   \item{deg, aty}{optional arguments to the \code{bearing} function.}
   \item{\dots}{
-Additional arguments to \code{deltametric}.  In case of the \code{summary} method function, additional optional arguments may be passed, which include \code{silent} (logical, should the information be printed to the screen or not?), \code{interest} (numeric vector defining an interest value for calculating total interest for each matched object, if NULL, this is not performed), \code{con} (name of function that takes three arguments, the first two are matrices whose rows are objects and columns are matched feature properties, where the former is a matrix of matched feature property values (e.g., angle difference) and the latter is a matrix of interest values determined by the \code{interest} argument (whereby each row is identical), the third argument to \code{con} must be called \code{which.comps}, and it gives the short-form feature property names (i.e., same as which.comps argument); see details section).  In the case of the \code{plot} method function, these are optional arguments to the function \code{plot}.
+Additional arguments to \code{deltametric} from package \pkg{spatstat}.  In case of the \code{summary} method function, additional optional arguments may be passed, which include \code{silent} (logical, should the information be printed to the screen or not?), \code{interest} (numeric vector defining an interest value for calculating total interest for each matched object, if NULL, this is not performed), \code{con} (name of function that takes three arguments, the first two are matrices whose rows are objects and columns are matched feature properties, where the former is a matrix of matched feature property values (e.g., angle difference) and the latter is a matrix of interest values determined by the \code{interest} argument (whereby each row is identical), the third argument to \code{con} must be called \code{which.comps}, and it gives the short-form feature property names (i.e., same as which.comps argument); see details section).  In the case of the \code{plot} method function, these are optional arguments to the function \code{plot}.
 }
 }
 \details{
-FeatureMatchAnalyzer is designed to be used with 'FeatureSuite'.  It is set up to calculate the values discussed in sec. 4 of Davis et al. (2006) for a single verification set (i.e., mean and standard deviation are not computed because it is only a single case).  If criteria is 1, then features separated by a distance D < the sum of the sizes of the two features (size of a feature is defined as the square root of its area) are considered a match.  If criteria is 2, then a match is made if D < the average of the sizes of the two features.  Finally, criteria 3 decides a match as being anything less than a pre-determined constant.
+\code{FeatureMatchAnalyzer} is designed to be used with \code{FeatureSuite}.  It is set up to calculate the values discussed in sec. 4 of Davis et al. (2006) for a single verification set (i.e., mean and standard deviation are not computed because it is only a single case).  If criteria is 1, then features separated by a distance D < the sum of the sizes of the two features (size of a feature is defined as the square root of its area) are considered a match.  If criteria is 2, then a match is made if D < the average of the sizes of the two features.  Finally, criteria 3 decides a match as being anything less than a pre-determined constant.
 
-FeatureComps is the primary function called by FeatureMatchAnalyzer, and is designed as a more stand-alone type of function.  Several of the measures that can be calculated are simply the binary image measures/metrics available via, e.g., locperf.  It calculates comparisons between two matched features (i.e., between the verification and forecast fields).
+\code{FeatureComps} is the primary function called by \code{FeatureMatchAnalyzer}, and is designed as a more stand-alone type of function.  Several of the measures that can be calculated are simply the binary image measures/metrics available via, e.g., \code{locperf}.  It calculates comparisons between two matched features (i.e., between the verification and forecast fields).
 
-The summary method function for FeatureMatchAnalyzer allows for passing a function, con, to determine confidence for each interest value.  The idea being to set the interest to zero when the particular interest value does not make sense.  For example, angle difference makes no sense if both objects are circles.  Currently, no functions are included in this package for actually doing this, and so the functionality itself has not been tested. 
+The \code{summary} method function for \code{FeatureMatchAnalyzer} allows for passing a function, con, to determine confidence for each interest value.  The idea being to set the interest to zero when the particular interest value does not make sense.  For example, angle difference makes no sense if both objects are circles.  Currently, no functions are included in this package for actually doing this, and so the functionality itself has not been tested. 
 
 }
 \value{
@@ -78,7 +82,7 @@ The summary method for FeatureMatchAnalyzer invisibly returns a matrix with the 
 \item{interest.values}{numeric vector giving the interest values used (i.e., as passed through argument interest.}
 }
 \references{
-Davis C. A., B. G. Brown, and R. G. Bullock, 2006. Object-based verification of precipitation forecasts, Part I: Methodology and application to mesoscale rain areas. \emph{Mon. Wea. Rev.}, \bold{134}, 1772--1784.
+Davis, C. A., Brown, B. G. and Bullock, R. G. (2006) Object-based verification of precipitation forecasts, Part I: Methodology and application to mesoscale rain areas. \emph{Mon. Wea. Rev.}, \bold{134}, 1772--1784.
 }
 \author{
 Eric Gilleland
@@ -87,25 +91,28 @@ Eric Gilleland
 \code{\link{locperf}}, \code{\link{FeatureSuite}}, \code{\link{convthresh}}, \code{\link{deltamm}}, \code{\link{deltametric}}, \code{\link{bearing}}
 }
 \examples{
-x <- y <- matrix(0, 10, 12)
-x[2:3,c(3:6, 8:10)] <- 1
-y[c(1:2, 9:10),c(3:6)] <- 1
+data(ExampleSpatialVxSet)
 
-hold <- FeatureSuitePrep("y", "x")
+x <- ExampleSpatialVxSet$vx
+xhat <- ExampleSpatialVxSet$fcst
+
+hold <- FeatureSuitePrep("x", "xhat")
 look <- convthresh( hold, smoothpar=1.5)
 look2 <- centmatch(look, object=hold)
-FeatureMatchAnalyzer(matches=look2)
+tmp <- FeatureMatchAnalyzer(matches=look2)
+summary(tmp)
+plot(tmp)
 
 \dontrun{
 data(pert000)
 data(pert004)
-hold <- FeatureSuitePrep("pert004", "pert000")
+hold <- FeatureSuitePrep("pert000", "pert004")
 look <- convthresh( hold, smoothpar=10.5)
 look2 <- centmatch(look, object=hold)
-FeatureMatchAnalyzer(matches=look2)
+tmp <- FeatureMatchAnalyzer(matches=look2)
+summary(tmp)
+plot(tmp)
    }
 
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ math }

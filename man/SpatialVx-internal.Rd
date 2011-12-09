@@ -17,7 +17,6 @@
 \alias{KernelGradFUN}
 \alias{grads1}
 \alias{grads2}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Internal functions for the SpatialVx package
 }

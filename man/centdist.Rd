@@ -1,17 +1,16 @@
 \name{centdist}
 \alias{centdist}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Find the centroid distance between two owin objects
+Centroid Distance Between Two owin Objects
 }
 \description{
-Find the centroid distance between two owin objects.
+Find the centroid distance between two \dQuote{owin} objects.
 }
 \usage{
 centdist(x, y)
 }
 \arguments{
-  \item{x,y}{objects of class "owin" (package \pkg{spatstat}) containing binary images of features of interest.
+  \item{x,y}{objects of class \dQuote{owin} (package \pkg{spatstat}) containing binary images of features of interest.
 }
 }
 \details{

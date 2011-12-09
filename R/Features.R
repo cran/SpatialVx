@@ -1,7 +1,7 @@
 FeatureSuite <- function(prep.object, fun.object, verbose=FALSE) {
    if( verbose) begin.time <- Sys.time()
-   Y <- get( prep.object$Fcst.name)
-   X  <- get( prep.object$Vx.name)
+   X  <- get( prep.object$data.name[1]) # verification field.
+   Y <- get( prep.object$data.name[2]) # forecast field.
    xdim <- prep.object$xdim
    Yim <- im( Y)
    Xim <- im( X)
@@ -38,13 +38,13 @@ summary.FeatureSuite <- function(object,...) {
    PREP <- get(object$prep.obj)
    if(!silent) {
    cat("\n", "Features identified by function: ", FUN$identify$fun, "\n")
-   cat("\n", "Number of Features identified in ", PREP$Vx.name, " = ", length(object$features$X.feats), "\n")
-   cat("\n", "Number of Features identified in ", PREP$Fcst.name, " = ", length(object$features$Y.feats), "\n")
+   cat("\n", "Number of Features identified in ", PREP$data.name[1], " = ", length(object$features$X.feats), "\n")
+   cat("\n", "Number of Features identified in ", PREP$data.name[2], " = ", length(object$features$Y.feats), "\n")
    cat("\n", "\n")
    if(!is.null(object$merges)) {
 	cat("Objects merged using function: ", FUN$merge$fun, "\n")
-	cat("\n", "Number of Features identified in ", PREP$Vx.name, " after merging = ", length(object$merges$X.feats), "\n")
-	cat("\n", "Number of Features identified in ", PREP$Fcst.name, " after merging = ", length(object$merges$Y.feats), "\n")
+	cat("\n", "Number of Features identified in ", PREP$data.name[1], " after merging = ", length(object$merges$X.feats), "\n")
+	cat("\n", "Number of Features identified in ", PREP$data.name[2], " after merging = ", length(object$merges$Y.feats), "\n")
    }
    if(!is.null(object$matches)) {
 	cat("\n", "Objects matched via function: ", FUN$match$fun, "\n")
@@ -52,7 +52,7 @@ summary.FeatureSuite <- function(object,...) {
    }
    }
    out <- list()
-   out$feature.summary <- summary(object$features, silent=silent, Im.names=c(PREP$Vx.name, PREP$Fcst.name))
+   out$feature.summary <- summary(object$features, silent=silent)
    out$analysis.summary <- summary(object$results, silent=silent, interest=interest, con=con)
    invisible(out)
 } # end of 'summary.FeatureSuite' function.
@@ -60,12 +60,12 @@ summary.FeatureSuite <- function(object,...) {
 plot.FeatureSuite <- function(x, ...) {
    FUN <- get(x$fun.obj)
    PREP <- get(x$prep.obj)
-   X <- get(PREP$Vx.name)
-   Y <- get(PREP$Fcst.name)
+   X <- get(PREP$data.name[1])
+   Y <- get(PREP$data.name[2])
    par(mfrow=c(2,2))
    zl <- range(c(c(X),c(Y)),finite=TRUE)
-   image(X, main=PREP$Vx.name, col=c("grey",tim.colors(64)), zlim=zl, axes=FALSE)
-   image(Y, main=PREP$Fcst.name, col=c("grey",tim.colors(64)), zlim=zl, axes=FALSE)
+   image(X, main=PREP$data.name[1], col=c("grey",tim.colors(64)), zlim=zl, axes=FALSE)
+   image(Y, main=PREP$data.name[2], col=c("grey",tim.colors(64)), zlim=zl, axes=FALSE)
    image.plot(X, col=c("grey",tim.colors(64)), zlim=zl, legend.only=TRUE)
    if(!is.null(x$matches)) plot(x$matches, no.label=TRUE, plot.set=TRUE)
    else if(!is.null(x$merges)) plot(x$merges)
@@ -85,10 +85,11 @@ FeatureFunPrep <- function(identfun=NULL, identfun.args=NULL,
    return( out)
 } # end of 'FeatureFunPrep' function.
 
-FeatureSuitePrep <- function(Fcst.name, Vx.name, loc=NULL, units=NULL) {
+FeatureSuitePrep <- function(Vx.name, Fcst.name, loc=NULL, units=NULL) {
    out <- list()
-   out$Fcst.name <- Fcst.name
-   out$Vx.name <- Vx.name
+   data.name <- c(Vx.name, Fcst.name)
+   names(data.name) <- c("verification","forecast")
+   out$data.name <- data.name
    Y <- get( Fcst.name)
    X <- get( Vx.name)
    xdim <- dim( X)
@@ -100,8 +101,8 @@ FeatureSuitePrep <- function(Fcst.name, Vx.name, loc=NULL, units=NULL) {
 } # end of 'FeatureSuitePrep' function.
 
 convthresh <- function(object, smoothfun="disk2dsmooth", smoothpar=1, smoothfunargs=NULL, thresh=1e-8, idfun="disjointer", zero.down=FALSE, ...) {
-   X <- get(object$Vx.name)
-   Y <- get(object$Fcst.name)
+   X <- get(object$data.name[1])
+   Y <- get(object$data.name[2])
    xdim <- dim(X)
    Xsm <- do.call(smoothfun, c(list( x=X, lambda=smoothpar), smoothfunargs))
    Ysm <- do.call(smoothfun, c(list( x=Y, lambda=smoothpar), smoothfunargs))
@@ -125,7 +126,8 @@ convthresh <- function(object, smoothfun="disk2dsmooth", smoothpar=1, smoothfuna
    else Y.feats <- NULL
    if(is.null(X.feats)) warning("convthresh: No values above threshold in verification field.")
    if(is.null(Y.feats)) warning("convthresh: No values above threshold in forecast field.")
-   out <- list( X.feats=X.feats, Y.feats=Y.feats, X.labeled=Xlab, Y.labeled=Ylab, identifier.function="convthresh", identifier.label="Convolution Threshold")
+   out <- list( data.name=object$data.name, X.feats=X.feats, Y.feats=Y.feats, X.labeled=Xlab, Y.labeled=Ylab,
+		identifier.function="convthresh", identifier.label="Convolution Threshold")
    class(out) <- "features"
    return(out)
 } # end of 'convthresh' function.
@@ -139,37 +141,29 @@ summary.features <- function(object,...) {
    out <- list()
    n <- length(X)
    m <- length(Y)
-   if(is.null(args$Im.names)) {
-      holdX <- matrix(NA, n, 5)
-      holdY <- matrix(NA, m, 5)
-      colnames(holdX) <- colnames(holdY) <- c("centroidX", "centroidY", "area", "OrientationAngle", "AspectRatio")
-   } else {
-      holdX <- matrix(NA, n, 7)
-      holdY <- matrix(NA, m, 7)
-      colnames(holdX) <- colnames(holdY) <- c("centroidX", "centroidY", "area", "OrientationAngle", "AspectRatio", "Intensity0.25", "Intensity0.9")
-   }
+   holdX <- matrix(NA, n, 7)
+   holdY <- matrix(NA, m, 7)
+   colnames(holdX) <- colnames(holdY) <- c("centroidX", "centroidY", "area", "OrientationAngle", "AspectRatio", "Intensity0.25", "Intensity0.9")
    for(i in 1:n) {
-      if(!is.null(args$Im.names)) tmp <- FeatureProps(X[[i]], Im=get(args$Im.names[1]))
-      else tmp <- FeatureProps(X[[i]], which.props=c("centroid", "area", "axis"))
+      tmp <- FeatureProps(X[[i]], Im=get(object$data.name[1]))
       holdX[i,1:2] <- c(tmp$centroid$x, tmp$centroid$y)
       holdX[i,3] <- tmp$area
       if(!is.null(c(tmp$axis$OrientationAngle$MajorAxis))) holdX[i,4] <- c(tmp$axis$OrientationAngle$MajorAxis)
       if(!is.null(tmp$axis$aspect.ratio)) holdX[i,5] <- tmp$axis$aspect.ratio
-      if(!is.null(args$Im.names)) holdX[i,6:7] <- c(tmp$intensity)
+      holdX[i,6:7] <- c(tmp$intensity)
    }
    for(i in 1:m) {
-      if(!is.null(args$Im.names)) tmp <- FeatureProps(Y[[i]], Im=get(args$Im.names[2]))
-      else tmp <- FeatureProps(Y[[i]], which.props=c("centroid", "area", "axis"))
+      tmp <- FeatureProps(Y[[i]], Im=get(object$data.name[2]))
       holdY[i,1:2] <- c(tmp$centroid$x, tmp$centroid$y)
       holdY[i,3] <- tmp$area
       if(!is.null(c(tmp$axis$OrientationAngle$MajorAxis))) holdY[i,4] <- c(tmp$axis$OrientationAngle$MajorAxis)
       if(!is.null(tmp$axis$aspect.ratio)) holdY[i,5] <- tmp$axis$aspect.ratio
-      if(!is.null(args$Im.names)) holdY[i,6:7] <- c(tmp$intensity)
+      holdY[i,6:7] <- c(tmp$intensity)
    }
    if(!silent) {
-	cat("\n", "Verification field feature properties:\n")
+	cat("\n", "Verification field (", object$data.name[1], ") feature properties:\n")
 	print(holdX)
-	cat("\n", "Forecast field feature properties:\n")
+	cat("\n", "Forecast field (", object$data.name[2], ") feature properties:\n")
 	print(holdY)
    }
    out$X <- holdX
@@ -232,8 +226,8 @@ disjointer <- function(x, method="C") {
 } # end of 'disjointer' function.
 
 salIDfun <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL, idfun="disjointer", ...) {
-   X <- get(object$Vx.name)
-   Y <- get(object$Fcst.name)
+   X <- get(object$data.name[1])
+   Y <- get(object$data.name[2])
    xdim <- object$xdim
    Ix <- Iy <- matrix(0, xdim[1], xdim[2])
    if(is.null(thresh)) {
@@ -257,7 +251,7 @@ salIDfun <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL,
    else Y.feats <- NULL
    if(is.null(X.feats)) warning("salIDfun: No values above threshold in verification field.")
    if(is.null(Y.feats)) warning("salIDfun: No values above threshold in forecast field.")
-   out <- list( X.feats=X.feats, Y.feats=Y.feats, X.labeled=Xlab, Y.labeled=Ylab, identifier.function="salIDfun", identifier.label="Threshold")
+   out <- list( data.name=object$data.name, X.feats=X.feats, Y.feats=Y.feats, X.labeled=Xlab, Y.labeled=Ylab, identifier.function="salIDfun", identifier.label="Threshold")
    class(out) <- "features"
    return(out)
 } # end of 'salIDfun' function.
@@ -274,8 +268,8 @@ saller <- function(x, object, y=NULL, matches=NULL, d=NULL) {
    binY <- solutionset(binY > 0)
 
    # Amplitude
-   X <- get(object$Vx.name, pos=".GlobalEnv")
-   Y <- get(object$Fcst.name, pos=".GlobalEnv")
+   X <- get(object$data.name[1], pos=".GlobalEnv")
+   Y <- get(object$data.name[2], pos=".GlobalEnv")
    DomRmod <- mean(Y,na.rm=TRUE)
    DomRobs <- mean(X,na.rm=TRUE)
    A <- 2*(DomRmod - DomRobs)/(DomRmod + DomRobs)
@@ -329,9 +323,13 @@ deltamm <- function(x, y = NULL, object=NULL, max.delta=Inf, verbose=FALSE, ...)
    out <- list() 
 
    if(is.null(y)) {
+      # No merging has been performed already.
       Y <- x$Y.feats
       X <- x$X.feats
    } else {
+      # For 'FeatureSuite' wrapper function, this is if merging is first performed.
+      # Included here in case it is desired to run through this method twice to get
+      # better results.
       Y <- y$Y.feats
       X <- y$X.feats
    }
@@ -499,9 +497,10 @@ deltamm <- function(x, y = NULL, object=NULL, max.delta=Inf, verbose=FALSE, ...)
    out$X.labeled <- Xlab
    out$Y.labeled <- Ylab
    if(!is.null(object)) {
-	out$names <- list(Fcst=object$Fcst.name, Vx=object$Vx.name)
+	out$data.name <- object$data.name
 	out$prep <- as.character(substitute(object))
    }
+   if(!is.null(object)) out$data.name <- object$data.name
    class(out) <- "matched"
 
    if( verbose) print( Sys.time() - begin.time)
@@ -516,9 +515,9 @@ plot.matched <- function(x,...) {
    else no.label <- FALSE
    if(no.label) z1.name <- z2.name <- ""
    else {
-     if(!is.null(x$names)) {
-	z1.name <- paste(x$names$Vx, " Feature Field", sep="")
-	z2.name <- paste(x$names$Fcst, " Feature Field", sep="")
+     if(!is.null(x$data.name)) {
+	z1.name <- paste(x$data.name[1], " Feature Field", sep="")
+	z2.name <- paste(x$data.name[2], " Feature Field", sep="")
      } else {
 	z1.name <- "Verification Feature Field"
 	z2.name <- "Forecast Feature Field"
@@ -539,6 +538,55 @@ plot.matched <- function(x,...) {
    # plot(z2,col=colourmap(c(0,2:(numMatched+2)), range=c(0,numMatched+1)), zlim=c(0,numMatched+1),main=z2.name, ...)
    invisible()
 } # end of 'plot.matched' function.
+
+# interester <- function(object, which.comps=c("cent.dist","angle.diff","area.ratio","int.area","bdelta","haus","ph","mhd","med","msd","fom","minsep"),
+# 			interest=1, sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", angle.thresh=0.8, verbose=FALSE, ...) {
+#    out <- list()
+#    if(length(interest)==1) interest <- rep(interest, length(which.comps))
+#    if(is.null(names(interest))) names(interest) <- which.comps
+#    if(verbose) begin.tiid <- Sys.time()
+#    if(is.null(object$Y.feats)) {
+# 	y <- object$X.feats
+# 	out$comparison.type <- "within"
+#    } else {
+# 	y <- object$Y.feats
+# 	out$comparison.type <- "between"
+#    }
+#    x <- object$X.feats
+#    m <- length(y)
+#    n <- length(x)
+#    res <- matrix(NA, n, m)
+#    if(verbose) cat("\n", "Finding interest for ", m*n, " pairs of features.\n")
+#    if(is.element("bearing",which.comps)) {
+# 	which.comps <- which.comps[which.comps != "bearing"]
+# 	warning("interester: bearing is not computed for interest calculations.")
+#    }
+#    if(is.element("angle.diff",which.comps)) {
+# 	angle.conf.x <- numeric(n)
+# 	angle.conf.y <- numeric(m)
+# 	for( i in 1:n) {
+# 	   ar <- FeatureAxis(x[[i]])$aspect.ratio
+# 	   if(ar > angle.thresh) angle.conf.x[i] <- 1
+# 	} # end of for 'i' loop.
+# 	for( j in 1:m) {
+# 	   ar <- FeatureAxis(x[[j]])$aspect.ratio
+#            if(ar > angle.thresh) angle.conf.y[j] <- 1
+# 	} # end of for 'j' loop.
+#    }
+#    for(i in 1:n) {
+# 	if(verbose) cat(i, "\n")
+# 	for(j in 1:m) {
+# 	   if(verbose) cat(j, " ")
+# 	   int <- interest
+# 	   if(is.element("angle.diff",which.comps)) int["angle.diff"] <- int["angle.diff"]*angle.conf.x[i]*angle.conf.y[j]
+# 	   tmp <- FeatureComps(X=x[[i]], Y=y[[j]], which.comps=which.comps, sizefac=sizefac, alpha = alpha, k = k, p = p, c = c, distfun = distfun, ...)
+# 	   res[i,j] <- unlist(tmp)[which.comps]*int[which.comps]
+# 	} # end of for 'j' loop.
+#    } # end of for 'i' loop.
+#    if(verbose) cat("\n")
+#    if(verbose) print(Sys.time() - begin.tiid)
+#    return(res)
+# } # end of 'interester' function.
 
 centmatch <- function(x,y=NULL,object=NULL, criteria=1, const=14, verbose=FALSE) {
    if(is.null(y)) {
@@ -633,6 +681,10 @@ centmatch <- function(x,y=NULL,object=NULL, criteria=1, const=14, verbose=FALSE)
 	funmatched <- 1:m
 	vxunmatched <- 1:n
    }
+   if(!is.null(object)) {
+	out$data.name <- object$data.name
+        out$prep <- as.character(substitute(object))
+   }
    out$mm.new.labels$unmatched <- list(fcst=funmatched, vx=vxunmatched)
    out$X.feats <- X.feats
    out$Y.feats <- Y.feats
@@ -641,6 +693,7 @@ centmatch <- function(x,y=NULL,object=NULL, criteria=1, const=14, verbose=FALSE)
    for(i in 1:length(Y.feats)) Ylab[Y.feats[[i]][["m"]]] <- i
    out$X.labeled <- Xlab
    out$Y.labeled <- Ylab
+   if(!is.null(object)) out$data.name <- object$data.name
    class(out) <- "matched"
    return(out)
 } # end of 'centmatch' function.
@@ -727,7 +780,6 @@ FeatureAxis <- function(x, fac=1, flipit=FALSE, twixt=FALSE) {
    pts <- unname(cbind(ch$bdry[[1]][["x"]], ch$bdry[[1]][["y"]]))
    out$pts <- pts
    axfit <- sma(y~x, data.frame(x=pts[,1],y=pts[,2]))
-   out$axfit <- axfit
    axis.x <- c(axfit$from[[1]], axfit$to[[1]])
    a <- axfit$coef[[1]][1,1]
    b <- axfit$coef[[1]][2,1]
@@ -781,6 +833,19 @@ plot.FeatureAxis <- function(x, ...) {
    plot( x$MidPoint, add=TRUE, col="darkorange")
    invisible()
 } # end of 'plot.FeatureAxis' function.
+
+summary.FeatureAxis <- function(object, ...) {
+   cat("\n", "Mid-point of Axis is at:\n")
+   print(paste("(", object$MidPoint$x, ", ", object$MidPoint$y, ")", sep=""))
+   cat("\n", "Major Axis length = ", object$lengths$MajorAxis, "\n")
+   cat("\n", "Major Axis Angle = ", object$OrientationAngle$MajorAxis, " degrees\n")
+   cat("\n", "Minor Axis length = ", object$lengths$MinorAxis, "\n")
+   cat("\n", "Minor Axis Angle = ", object$OrientationAngle$MinorAxis, " degrees\n")
+   cat("\n", "Aspect ratio = ", object$aspect.ratio, "\n")
+   cat("\n\n", "sma fit summary (see help file for function sma from package smatr)\n\n")
+   print(summary(object$sma.fit))
+   invisible()
+} # end of 'summary.FeatureAxis' function.
 
 FeatureMatchAnalyzer <- function(x, y=NULL, matches=NULL, object=NULL,
 		which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area", "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
@@ -877,7 +942,7 @@ plot.FeatureMatchAnalyzer <- function(x, ...) {
 	   else if(colnames(y)[i] == "int.area") t1 <- "Intersection Area"
 	   else if(colnames(y)[i] == "bdelta") t1 <- "Baddeley\'s Delta Metric"
 	   else if(colnames(y)[i] == "haus") t1 <- "Hausdorff Distance"
-	   plot(1:nrow(y),y[,i], type="l", main=t1, ...)
+	   barplot(y[,i], main=t1, ...)
 	}
    } # end of for 'i' loop.
    invisible()
