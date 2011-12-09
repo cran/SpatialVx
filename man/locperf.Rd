@@ -74,7 +74,7 @@ Peli, T. and D. Malah, 1982: A study on edge detection algorithms.  \emph{Comput
 
 Pratt, W. K., 1977: \emph{Digital Image Processing}.  John Wiley and Sons, New York.
 
-Schwedler, B. R. J. and M. E. Baldwin, 2011.  Diagnosing the sensitivity of binary image measures to bias, location, and event frequency within a forecast verification framework.  Accepted to \emph{Wea. Forecasting}, doi: 10.1175/WAF-D-11-00032.1.
+Schwedler, B. R. J. and M. E. Baldwin, 2011.  Diagnosing the sensitivity of binary image measures to bias, location, and event frequency within a forecast verification framework.  \emph{Wea. Forecasting}, \bold{26}, 1032--1044, doi: 10.1175/WAF-D-11-00032.1.
 
 Zhu, M., V. Lakshmanan, P. Zhang, Y. Hong, K. Cheng, and S. Chen, 2011: Spatial verification using a true metric.  \emph{Atmos. Res.}, \bold{102}, 408--419, doi:10.1016/j.atmosres.2011.09.004.
 }

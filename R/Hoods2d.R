@@ -279,7 +279,7 @@ function(x, bigdim=NULL, kdim=NULL) {
 } # end of 'Fourier2d' function.
 
 vxstats <-
-function(Fcst, Obs, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", "mse"), subset=NULL) {
+function(Fcst, Obs, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", "bcts", "bcets", "mse"), subset=NULL) {
    ##
    ## Function to calculate various traditional verification statistics for a gridded
    ## verification set.
@@ -323,7 +323,7 @@ function(Fcst, Obs, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", 
            out$mse <- mean( (c(Fcst)[ subset] - c(Obs)[subset])^2, na.rm=TRUE)
         }
    } # end of if do MSE.
-   if( any( c("bias", "ts", "ets", "pod", "far", "f", "hk") %in% which.stats)) {
+   if( any( is.element(c("bias", "ts", "ets", "pod", "far", "f", "hk", "bcts", "bcets"), which.stats))) {
 	if( !is.logical( Fcst)) Fcst <- as.logical( Fcst)
 	if( !is.logical( Obs)) Obs <- as.logical( Obs)
 	if( is.null( subset)) {
@@ -366,6 +366,14 @@ function(Fcst, Obs, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", 
 	   else f <- fa/(cn + fa)
 	   if( "f" %in% which.stats) out$f <- f
 	   if( "hk" %in% which.stats) out$hk <- pod - f
+	}
+	if(any(is.element(c("bcts", "bcets"),which.stats))) {
+	   nF <- hits + fa
+	   nO <- hits + miss
+	   lf <- log(nO/miss)
+	   Ha <- nO - (fa/lf)*W((nO/fa)*lf)
+	   if(is.element("bcts",which.stats)) out$bcts <- Ha/(2*nO-hits)
+	   if(is.element("bcets",which.stats)) out$bcets <- (Ha - (nO^2)/(hits+miss+fa+cn))/(2*nO-Ha-(nO^2)/(hits+miss+fa+cn))
 	}
     } # end of if any contingency table scores stmts.
    class( out) <- "vxstats"

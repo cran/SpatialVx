@@ -1,5 +1,6 @@
 LocSig <- function(Z, numrep=1000, block.length=NULL, bootfun="mean", alpha=0.05, bca=FALSE, ...) {
    if(bootfun=="mean") bootfun <- function(data) return(colMeans(data, na.rm=TRUE))
+   else if(is.character(bootfun)) bootfun <- get(bootfun)
    zdim <- dim(Z)
    n <- zdim[1]
    m <- zdim[2]
@@ -221,13 +222,13 @@ summary.spatbiasFS <- function(object, ...) {
    print(msg)
    cat("\n", "\n")
    cat("Field significance level: ", object$field.significance, "\n")
-   cat("Actual coverage: ", object$sig.results$actual, "\n")
-   cat("Minimum significant coverage: ", object$sig.results$required, "\n")
+   cat("Observed coverage of significant difference: ", object$sig.results$actual, "\n")
+   cat("Required coverage for field significance: ", object$sig.results$required, "\n")
    invisible()
 } # end of 'summary.spatbiasFS' function.
 
 plot.spatbiasFS <- function(x, ...) {
-   msg <- paste("Mean ", x$Fcst.name, " - ", x$Vx.name, sep="")
+   msg <- paste("Mean Error: ", x$Fcst.name, " vs ", x$Vx.name, sep="")
    X <- get(x$Vx.name)
    Y <- get(x$Fcst.name)
    if(!is.null(x$loc.name)) loc <- get(x$loc.name)
@@ -238,7 +239,7 @@ plot.spatbiasFS <- function(x, ...) {
    image.plot(est.i, col=tim.colors(64), axes=FALSE, main=msg)
    # map(add=TRUE)
    # map(add=TRUE,database="state")
-   image.plot(CIrange, col=tim.colors(64), axes=FALSE, xlab=paste("alpha.f: ", round(x$sig.results$required,digits=2), " vs actual ",
+   image.plot(CIrange, col=tim.colors(64), axes=FALSE, xlab=paste("Req. Coverage: ", round(x$sig.results$required,digits=2), " vs Obs. coverage: ",
 			round(x$sig.results$actual,digits=2),  sep=""),
 			main=paste((1-x$alpha.boot)*100, "% CI range", sep=""))
    invisible()
