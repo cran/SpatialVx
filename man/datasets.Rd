@@ -52,7 +52,7 @@
 \alias{ICPg240Locs}
 \docType{data}
 \title{
-Spatial Forecast Verification Methods Inter-Comparison Project (ICP) Test Cases
+Spatial Forecast Verification Methods Inter-Comparison Project (ICP) Test Cases and other example verification sets
 }
 \description{
 Test cases used for the ICP.  In particular, those actually analyzed in the special collection of the journal, Weather and Forecasting.  Includes the nine "real" cases, five simple geometric cases, and the seven perturbed "real" cases.
@@ -69,6 +69,7 @@ num [1:301101, 1:2] -110 -110 -110 -110 -110 ...
  - attr(*, "dimnames")=List of 2
   ..$ : NULL
   ..$ : chr [1:2] "lon" "lat"
+
 }
 
 \details{
@@ -81,6 +82,7 @@ The seven perturbed cases (dented here by pert00X) are perturbations of pert000,
 The longitude and latitude information for each grid (the NCEP g240 grid) is contained in the ICPg240Locs dataset.
 
 These constitute all of the official data test cases used for the first round of the ICP, and in the special collection of papers for \emph{Wea. Forecasting}.  Other data sets for the ICP can be obtained from the ICP web site (http://www.ral.ucar.edu/projects/icp).  Future data sets for the next round of the ICP will also be available there, and may potentially also be made available here.
+
 }
 \source{
 http://www.ral.ucar.edu/projects/icp/datacases.html
@@ -126,6 +128,7 @@ par( usr=locr)
 if( map.available) map( add=TRUE, database="state")
 image.plot( obs0426, legend.only=TRUE, horizontal=TRUE, 
 		col=c("grey", tim.colors(256)), zlim=zl)}
+
 }
 
 \keyword{datasets}
