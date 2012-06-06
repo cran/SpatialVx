@@ -66,7 +66,7 @@ Gilleland, E., 2011.  Spatial forecast verification: Baddeley's delta metric app
 
 Peli, T. and D. Malah, 1982: A study on edge detection algorithms.  \emph{Computer Graphics and Image Processing}, \bold{20}, 1--21.
 
-Schwedler, B. R. J. and M. E. Baldwin, 2011.  Diagnosing the sensitivity of binary image measures to bias, location, and event frequency within a forecast verification framework.  Accepted to \emph{Wea. Forecasting}, doi: 10.1175/WAF-D-11-00032.1.
+Schwedler, B. R. J. and M. E. Baldwin, 2011.  Diagnosing the sensitivity of binary image measures to bias, location, and event frequency within a forecast verification framework.  \emph{Wea. Forecasting}, \bold{26}, 1032--1044, doi: 10.1175/WAF-D-11-00032.1.
 
 Venugopal, V., S. Basu, and E. Foufoula-Georgiou, 2005: A new metric for comparing precipitation patterns with an application to ensemble forecasts.  \emph{J. Geophys. Res.}, \bold{110}, D08111, doi:10.1029/2004JD005395, 11pp.
 }

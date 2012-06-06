@@ -28,6 +28,8 @@ There is functionality to do the wavelet methods proposed in Briggs and Levine (
 
 The intensity-scale technique introduced in Casati et al. (2004) and the new developments of the technique proposed in Casati (2010) can be performed with \code{waveIS}.
 
+Although not strictly a "scale separation" method, the structure function (for which the variogram is a special case) is in the same spirit in the sense that it analyzes the field for different separation distances, and these "scales" are separate from each other (i.e., the score does not necessarily improve or decline as the scale increases).  This package contains essentially wrapper functions to the \code{vgram.matrix} and \code{plot.vgram.matrix} functions from teh fields package.  It also has a function (\code{variogram.matrix}) that is a modification of \code{vgram.matrix} that allows for missing values.  The primary function for this is called \code{griddedVgram}, and it has a \code{plot} method function.
+
 2. Displacement Methods:  
 
 In Gilleland et al (2009), this category was broken into two main types as field deformation and features-based.  The former lumped together binary image measures/metrics with field deformation techniques because the binary image measures inform about the "similarity" (or dissimilarity) between the spatial extent of two fields (across the entire field).  Here, they are broken down further into those that yield a only a single (or small vector of) metric(s) or measure(s) (location measures), and those that have mechanisms for moving grid-point locations to match the fields better spatially (field deformation).
@@ -48,13 +50,21 @@ Currently, there is some functionality for performing the analyses introduced in
 
 \code{FeatureSuitePrep}, \code{FeatureFunPrep}, \code{FeatureSuite}, \code{saller}, \code{deltamm}, \code{convthresh}, \code{FeatureMatchAnalyzer}
 
-3. Spatio-temporal inferences:
+2d. Geometrical characterization measures:
+
+Perhaps the measures in this sub-heading are best described as part-and-parcel of 2c.  They are certainly useful in that domain, but have been proposed also for entire fields by AghaKouchak et al. (2011); though similar measures have been applied in, e.g., MODE.  The measures introduced in AghaKouchak et al. (2011) available here are: connectivity index (Cindex), shape index (Sindex), and area index (Aindex).  See the help files for each to learn more.
+
+3. Statistical inferences for spatial (and/or spatiotemporal) fields:
 
 In addition to the methods categorized in Gilleland et al. (2009), there are also functions for making comparisons between two spatial fields.  Currently, this entails only one such method (more to come), whcih requires temporal information as well.  It is the field significance approach detailed in Elmore et al. (2006).  It involves using a circular block bootstrap (CBB) algorithm (usually for the mean error) at each grid point (or location) individually to determine grid-point significance (null hypothesis that the mean error is zero), and then a semi-parametric Monte Carlo method viz. Livezey and Chen (1983) to determine field significance.
 
 \code{spatbiasFS}, \code{LocSig}, \code{MCdof}
 
+In addition, the mean loss differential approach of Hering and Genton (2011) is included via the function, \code{spatMLD}, including the loss functions: absolute error (\code{abserrloss}), square error (\code{sqerrloss}) and correlation skill (\code{corrskill}), as well as the distance map loss function (\code{distmaploss}) introduced in Gilleland (2012).
+
 4. Other:
+
+The bias corrected TS and ETS (or TS dHdA and ETS dHdA) introduced in Mesinger (2008) are now included within the \code{vxstats} function.
 
 Also included is a function to do the geographic box-plot of Willmott et al. (2007).  See the help file for \code{GeoBoxPlot}.
 
@@ -73,6 +83,8 @@ A spatio-temporal verification dataset is also included for testing the method o
 Eric Gilleland
 }
 \references{
+AghaKouchak, A., N. Nasrollahi, J. Li, B. Imam, and S. Sorooshian, 2011: Geometrical characterization of precipitation patterns.  \emph{J. Hydrometeorology}, \bold{12}, 274--285, DOI: 10.1175/2010JHM1298.1
+
 Ahijevych, D., E. Gilleland, B.G. Brown, and E.E. Ebert, 2009. Application of spatial verification methods to idealized and NWP gridded precipitation forecasts. \emph{Wea. Forecasting}, \bold{24} (6), 1485--1497.
 
 Baddeley, A. J., 1992: An error metric for binary images.  In \emph{Robust Computer Vision Algorithms}, W. Forstner and S. Ruwiedel, Eds., Wichmann, 59--78.  Available at: http://www.google.com/url?sa=t&rct=j&q=an%20error%20metric%20for%20binary%20images&source=web&cd=1&ved=0CB4QFjAA&url=http%3A%2F%2Fciteseerx.ist.psu.edu%2Fviewdoc%2Fdownload%3Fdoi%3D10.1.1.52.3879%26rep%3Drep1%26type%3Dpdf&ei=GdXoTrSRJaSIsQLh1tiYCQ&usg=AFQjCNE2Ngehh_J2dXIsonPCMAvAL-fz_g&cad=rja
@@ -93,6 +105,8 @@ Ebert, E. E., 2009: Neighborhood verification: A strategy for rewarding close fo
 
 Elmore, K. L., M. E. Baldwin, and D. M. Schultz, 2006: Field significance revisited: Spatial bias errors in forecasts as applied to the Eta model.  \emph{Mon. Wea. Rev.}, \bold{134}, 519--531.
 
+Gilleland, E., 2012: Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  Submitted to \emph{Mon. Wea. Rev.}
+
 Gilleland, E., 2011.  Spatial forecast verification: Baddeley's delta metric applied to the ICP test cases.  \emph{Wea. Forecasting}, \bold{26}, 409--415, DOI: 10.1175/WAF-D-10-05061.1.
 
 Gilleland, E., T. C. M. Lee, J. Halley Gotway, R. G. Bullock, and B. G. Brown, 2008: Computationally efficient spatial forecast verification using Baddeley's delta image metric.  \emph{Mon. Wea. Rev.}, \bold{136}, 1747--1757.
@@ -101,11 +115,17 @@ Gilleland, E., D. Ahijevych, B.G. Brown, B. Casati, and E.E. Ebert, 2009. Interc
 
 Gilleland, E., D.A. Ahijevych, B.G. Brown and E.E. Ebert, 2010: Verifying Forecasts Spatially. \emph{Bull. Amer. Meteor. Soc.}, October, 1365--1373.
 
+Hering, A. S. and M. G. Genton, 2011: Comparing spatial predictions.  \emph{Technometrics} \bold{53}, (4), 414 - 425.
+
 Livezey, R. E. and W. Y. Chen, 1983: Statistical field significance and its determination by Monte Carlo techniques.  \emph{Mon. Wea. Rev.}, \bold{111}, 46--59.
+
+Marzban, C. and S. Sandgathe, 2009: Verification with variograms.  \emph{Wea. Forecasting}, \bold{24} (4), 1102--1120, doi: 10.1175/2009WAF2222122.1
+
+Mesinger, F., 2008: Bias adjusted precipitation threat scores.  \emph{Adv. Geosci.}, \bold{16}, 137--142.
 
 Roberts, N. M. and H. W. Lean, 2008: Scale-selective verification of rainfall accumulations from high-resolution forecasts of convective events.  \emph{Mon. Wea. Rev.}, \bold{136}, 78--97. DOI: 10.1175/2007MWR2123.1.
 
-Schwedler, B. R. J. and M. E. Baldwin, 2011.  Diagnosing the sensitivity of binary image measures to bias, location, and event frequency within a forecast verification framework.  Accepted to \emph{Wea. Forecasting}, doi: 10.1175/WAF-D-11-00032.1.
+Schwedler, B. R. J. and M. E. Baldwin, 2011.  Diagnosing the sensitivity of binary image measures to bias, location, and event frequency within a forecast verification framework.  \emph{Wea. Forecasting}, \bold{26}, 1032--1044, doi: 10.1175/WAF-D-11-00032.1.
 
 Venugopal, V., S. Basu, and E. Foufoula-Georgiou, 2005: A new metric for comparing precipitation patterns with an application to ensemble forecasts.  \emph{J. Geophys. Res.}, \bold{110}, D08111, doi:10.1029/2004JD005395, 11pp.
 

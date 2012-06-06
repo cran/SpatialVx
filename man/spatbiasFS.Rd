@@ -68,7 +68,9 @@ data(GFSNAMobsEx)
 data(GFSNAMlocEx)
 id <- GFSNAMlocEx[,"Lon"] >=-100 & GFSNAMlocEx[,"Lon"] <= -75 & GFSNAMlocEx[,"Lat"] <= 36
 loc <- GFSNAMlocEx[id,]
-look <- spatbiasFS(GFSNAMobsEx[,id], GFSNAMfcstEx[,id], loc=loc, bootR=500, ntrials=500)
+GFSobsSub <- GFSNAMobsEx[,id]
+GFSfcstSub <- GFSNAMfcstEx[,id]
+look <- spatbiasFS(GFSobsSub, GFSfcstSub, loc=loc, bootR=500, ntrials=500)
 plot(look)
 summary(look)
 }
