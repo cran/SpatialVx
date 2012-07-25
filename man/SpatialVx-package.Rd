@@ -66,6 +66,10 @@ In addition, the mean loss differential approach of Hering and Genton (2011) is 
 
 The bias corrected TS and ETS (or TS dHdA and ETS dHdA) introduced in Mesinger (2008) are now included within the \code{vxstats} function.
 
+The 2-d Gaussian Mixture Model (GMM) approach introduced in Lakshmanan and Kain (2010) can be carried out using the \code{gmm2d} function (to estimate the GMM) and the associated \code{summary} function calculates the parameter comparisons.  Also available is a \code{plot} and \code{predict} function, but it can be very slow to run.  The \code{gmm2d} employs an initialization function that takes the K largest object areas (connected components) and uses their centroids as initial estimates for the means, and uses the axes as initial guesses for the standard deviations.  The user may supply their own initial estimate function.
+
+The S1 score and anomaly correlation (ACC) are available through the functions \code{S1} and \code{ACC}.  See Brown et al. (2012) and Thompson and Carter (1972) for more on these statistics.
+
 Also included is a function to do the geographic box-plot of Willmott et al. (2007).  See the help file for \code{GeoBoxPlot}.
 
 Datasets:
@@ -93,6 +97,8 @@ Blaschke, T., S. Lang, and  G. Hay (Eds.), 2008.  Object-Based Image Analysis.  
 
 Briggs, W. M. and R. A. Levine, 1997. Wavelets and field forecast verification. \emph{Mon. Wea. Rev.}, \bold{125}, 1329--1341.
 
+Brown, B.G., Gilleland, E. and Ebert, E.E., 2012. Chapter 6: Forecasts of spatial fields. pp. 95 - 117, In \emph{Forecast Verification: A Practitioner's Guide in Atmospheric Science}, 2nd edition. Edts. IT Jolliffee and DB Stephenson, Wiley, Chichester, West Sussex, UK, 274 pp.
+
 Casati, B., 2010: New Developments of the Intensity-Scale Technique within the Spatial Verification Methods Inter-Comparison Project. \emph{Wea. Forecasting} \bold{25}, (1), 113--143, DOI: 10.1175/2009WAF2222257.1.
 
 Casati B, G Ross, and DB Stephenson, 2004. A new intensity-scale approach for the verification of spatial precipitation forecasts. \emph{Meteorol. Appl.} \bold{11}, 141--154.
@@ -117,6 +123,8 @@ Gilleland, E., D.A. Ahijevych, B.G. Brown and E.E. Ebert, 2010: Verifying Foreca
 
 Hering, A. S. and M. G. Genton, 2011: Comparing spatial predictions.  \emph{Technometrics} \bold{53}, (4), 414 - 425.
 
+Lakshmanan, V. and J.S. Kain, 2010: A Gaussian Mixture Model Approach to Forecast Verification. \emph{Wea. Forecasting}, \bold{25} (3), 908 - 920.
+
 Livezey, R. E. and W. Y. Chen, 1983: Statistical field significance and its determination by Monte Carlo techniques.  \emph{Mon. Wea. Rev.}, \bold{111}, 46--59.
 
 Marzban, C. and S. Sandgathe, 2009: Verification with variograms.  \emph{Wea. Forecasting}, \bold{24} (4), 1102--1120, doi: 10.1175/2009WAF2222122.1
@@ -126,6 +134,8 @@ Mesinger, F., 2008: Bias adjusted precipitation threat scores.  \emph{Adv. Geosc
 Roberts, N. M. and H. W. Lean, 2008: Scale-selective verification of rainfall accumulations from high-resolution forecasts of convective events.  \emph{Mon. Wea. Rev.}, \bold{136}, 78--97. DOI: 10.1175/2007MWR2123.1.
 
 Schwedler, B. R. J. and M. E. Baldwin, 2011.  Diagnosing the sensitivity of binary image measures to bias, location, and event frequency within a forecast verification framework.  \emph{Wea. Forecasting}, \bold{26}, 1032--1044, doi: 10.1175/WAF-D-11-00032.1.
+
+Thompson, J. C. and G. M. Carter, 1972. On some characteristics of the S1 score.  \emph{J. Appl. Meteorol.}, \bold{11}, 1384 - 1385.
 
 Venugopal, V., S. Basu, and E. Foufoula-Georgiou, 2005: A new metric for comparing precipitation patterns with an application to ensemble forecasts.  \emph{J. Geophys. Res.}, \bold{110}, D08111, doi:10.1029/2004JD005395, 11pp.
 

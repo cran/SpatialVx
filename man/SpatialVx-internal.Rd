@@ -10,6 +10,10 @@
 \alias{detailer}
 \alias{energizer}
 \alias{variogram.matrix}
+\alias{initGMM}
+\alias{gmmEMstep}
+\alias{gmmNegLogLik}
+\alias{KernelGradFUN}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Internal functions for the SpatialVx package
