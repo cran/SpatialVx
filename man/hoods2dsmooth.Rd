@@ -35,7 +35,7 @@ optional arguments to the specific kernel type in the call to \code{kernel2dsmoo
 }
 }
 \details{
-This is a wrapper function to kernel2dsmooth.  See its help file for more details.  These functions were set up to make the hoods2d function more flexible (i.e., to allow other types of smoothing besides the default nearest neighbors smoothing).  Makes use of the convolution theorem with the fast Fourier transform for computational efficiency (Ritter and Wilson, 2001; Barrett and Myers, 2004).  Missing values are set to zero, and borders are zero-padded to an optimal amount.  See Hastie and Tibshirani (1990) for smoothing functions in teh context fo statistical analysis.
+This is a wrapper function to kernel2dsmooth.  See its help file for more details.  These functions were set up to make the hoods2d function more flexible (i.e., to allow other types of smoothing besides the default nearest neighbors smoothing).  Makes use of the convolution theorem with the fast Fourier transform for computational efficiency (Ritter and Wilson, 2001; Barrett and Myers, 2004).  Missing values are set to zero, and borders are zero-padded to an optimal amount.  See Hastie and Tibshirani (1990) for smoothing functions in the context fo statistical analysis.
 
 hoods2dsmooth is a wrapper to kernel2dsmooth that employs the boxcar kernel with neighborhood length n as the smoothing parameter.  This is the type of kernel smoothing proposed by Roberts and Lean (2008) and used in Ebert (2008).  The smoothing parameter lambda should be an odd positive integer (though it need not be an actual integer recognized by R).  If it is not, then one of several things will happen depending on its value, and a warning is generated.  If it is not an integer (i.e., if floor(lambda) != lambda), the floor of lambda is taken. If it is even (possibly after flooring), one is subtracted from it.  If it is less than one (possibly after flooring and/or subtracting one), it is set to one (note that if lambda = 1, the field x is returned untouched).
 
@@ -55,7 +55,7 @@ Davis CA, BG Brown, and RG Bullock, 2006a. Object-based verification of precipit
 
 Davis CA, BG Brown, and RG Bullock, 2006b. Object-based verification of precipitation forecasts, Part II: Application to convective rain systems. \emph{Mon. Wea. Rev.}, \bold{134}, 1785--1795.
 
-Ebert E. E., 2008. Fuzzy verification of high resolution gridded forecasts: A review and proposed framework. \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25.  Available at http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf
+Ebert E. E., 2008. Fuzzy verification of high resolution gridded forecasts: A review and proposed framework. \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25.  Available at \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
 
 Hastie, T. J. and Tibshirani, R. J., 1990: \emph{Generalized Additive Models}. Chapman \& Hall/CRC Monographs on Statistics and Applied Probability 43, 335pp.
 
@@ -80,15 +80,19 @@ par( mfrow=c(1,2))
 image.plot( x, col=tim.colors(256))
 image.plot( y, col=tim.colors(256))
 
-hold <- hoods2dPrep("y", "x", thresholds=c(0.1, 0.5), levels=c(1, 3, 20), smooth.fun="gauss2dsmooth", smooth.params=list(nx=601, ny=501))
+hold <- hoods2dPrep("y", "x", thresholds=c(0.1, 0.5), levels=c(1, 3, 20),
+	smooth.fun="gauss2dsmooth", smooth.params=list(nx=601, ny=501))
 look <- hoods2d( hold, which.methods=c("fss"))
 plot( look)
 
 data( pert000)
 data(pert004)
-# Do the neighborhood methods with averaging performed over a radius instead of the lambda^2 nearest neighbors.
-# The smoothing parameters are determined by the levels argument, and the others are passed via smooth.params.
-hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,2,5,10,20,50), levels=c(1, 3, 9, 17, 33, 65, 129, 257),
+# Do the neighborhood methods with averaging performed over
+# a radius instead of the lambda^2 nearest neighbors.
+# The smoothing parameters are determined by the levels argument,
+# and the others are passed via smooth.params.
+hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,2,5,10,20,50),
+			levels=c(1, 3, 9, 17, 33, 65, 129, 257),
 			smooth.fun="disk2dsmooth")
 look <- hoods2d(hold, verbose=TRUE)
 look

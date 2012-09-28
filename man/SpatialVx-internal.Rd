@@ -1,6 +1,7 @@
 \name{SpatialVx-internal}
 \alias{hoods2dSetUpLists}
 \alias{LocListSetup}
+\alias{MakeClusterList}
 \alias{makeEmptyWave}
 \alias{makeWaveNames}
 \alias{inside}
@@ -14,6 +15,8 @@
 \alias{gmmEMstep}
 \alias{gmmNegLogLik}
 \alias{KernelGradFUN}
+\alias{grads1}
+\alias{grads2}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Internal functions for the SpatialVx package

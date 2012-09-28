@@ -73,7 +73,7 @@ Eric Gilleland
 }
 \examples{
 # Simulate a precip-like field.
-grid<- list( x= seq( 0,5,,100), y= seq(0,5,,100))
+grid<- list( x= seq( 0,5,,75), y= seq(0,5,,75))
 obj<-Exp.image.cov( grid=grid, theta=.5, setup=TRUE)
 look<- sim.rf( obj)
 look[ look < 0] <- 0

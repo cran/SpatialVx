@@ -10,9 +10,13 @@ High-Resolution Gridded Forecast Verification Using Discrete Wavelet Decompositi
 High-resolution gridded forecast verification using discrete wavelet decomposition.
 }
 \usage{
-waverify2d(X, Y, Clim = NULL, wavelet.type = "haar", J = NULL, useLL = FALSE, compute.shannon = FALSE, which.space = "field", verbose = FALSE)
-mowaverify2d(X, Y, Clim = NULL, wavelet.type = "haar", J = 4, useLL = FALSE, compute.shannon = FALSE, which.space = "field", verbose = FALSE)
-\method{plot}{waverify2d}(x, main1 = "X", main2 = "Y", main3 = "Climate", which.plots = c("all", "dwt2d", "details", "energy", "mse", "rmse", "acc"), separate = FALSE, ...)
+waverify2d(X, Y, Clim = NULL, wavelet.type = "haar", J = NULL, useLL = FALSE,
+	compute.shannon = FALSE, which.space = "field", verbose = FALSE)
+mowaverify2d(X, Y, Clim = NULL, wavelet.type = "haar", J = 4, useLL = FALSE,
+	compute.shannon = FALSE, which.space = "field", verbose = FALSE)
+\method{plot}{waverify2d}(x, main1 = "X", main2 = "Y", main3 = "Climate",
+	which.plots = c("all", "dwt2d", "details", "energy", "mse", "rmse", "acc"),
+	separate = FALSE, ...)
 }
 \arguments{
   \item{X,Y,Clim}{
@@ -22,7 +26,7 @@ mowaverify2d(X, Y, Clim = NULL, wavelet.type = "haar", J = 4, useLL = FALSE, com
 list object of class "waverify2d" as returned by \code{waverify2d}.
 }
   \item{wavelet.type}{
-character naming the type of wavelet to be used.  This is given as teh \code{wf} argument to the \code{dwt.2d} function of package \pkg{waveslim}.
+character naming the type of wavelet to be used.  This is given as the \code{wf} argument to the \code{dwt.2d} function of package \pkg{waveslim}.
 }
   \item{J}{
 (optional) numeric integer giving the pre-determined number of levels to use.  If NULL, J is set to be log2(m) = M in \code{waverify2d} only.
@@ -82,6 +86,21 @@ Eric Gilleland
 \code{\link{dwt.2d}}, \code{\link{idwt.2d}}, \code{\link{hoods2d}}, \code{\link{hoods2dPrep}}
 }
 \examples{
+grid<- list( x= seq( 0,5,,64), y= seq(0,5,,64))
+obj<-Exp.image.cov( grid=grid, theta=.5, setup=TRUE)
+look<- sim.rf( obj) 
+look[ look < 0] <- 0
+look <- zapsmall( look)
+
+look2 <- sim.rf( obj) 
+look2[ look2 < 0] <- 0 
+look2 <- zapsmall( look2)
+
+res <- waverify2d(look, look2)
+plot(res)
+summary(res)
+
+\dontrun{
 data(UKobs6)
 data(UKfcst6)
 look <- waverify2d(UKobs6, UKfcst6)
@@ -89,7 +108,6 @@ plot(look, which.plots="energy")
 look2 <- mowaverify2d(UKobs6, UKfcst6, J=8)
 plot(look2, which.plots="energy")
 
-\dontrun{
 pdf("dyadicDWTex.pdf")
 plot(look, main1="NIMROD Analysis", main2="NIMROD Forecast")
 dev.off()
@@ -101,7 +119,8 @@ dev.off()
 data(pert000)
 data(pert004)
 look <- mowaverify(pert000, pert004, J=8, verbose=TRUE) # Slow, but does not require fields to be dyadic.
-plot(look, which.plots="energy") # Also can just do plot(look), but should print to a pdf file (e.g., using pdf()).
+# Also can just do plot(look), but should print to a pdf file (e.g., using pdf()).
+plot(look, which.plots="energy")
 
 # Try one with some kind of climatology field.  Here using surrogater2d function.
 data(UKloc)

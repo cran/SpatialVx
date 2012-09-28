@@ -11,7 +11,8 @@ Intensity Scale (IS) verification based on Casat et al (2004) and Casati (2010).
 }
 \usage{
 waveIS(obj, J = NULL, wavelet.type = "haar", verbose = FALSE)
-\method{plot}{waveIS}(x, main1 = "X", main2 = "Y", which.plots = c("all", "mse", "ss", "energy"), level.label = NULL, ...)
+\method{plot}{waveIS}(x, main1 = "X", main2 = "Y",
+	which.plots = c("all", "mse", "ss", "energy"), level.label = NULL, ...)
 \method{summary}{waveIS}(object, ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -24,7 +25,7 @@ A list object as returned by \code{hoods2dPrep}.
   \item{which.plots}{character vector naming one or more specific plots to do.}
   \item{level.label}{optional character vector to use for level names on the plot(s).}
   \item{J}{
-numeric integer giving the number of levels to use.  If NULL and the field is dyadic, this will be log2(min(dim(X))), where X is a field from teh verification set.  If NULL and the field is not dyadic, then \code{J} is set equal to 4.  Note that if the fields are not dyadic, the function will be much slower.
+numeric integer giving the number of levels to use.  If NULL and the field is dyadic, this will be log2(min(dim(X))), where X is a field from the verification set.  If NULL and the field is not dyadic, then \code{J} is set equal to 4.  Note that if the fields are not dyadic, the function will be much slower.
 }
   \item{wavelet.type}{
 character giving the name of the wavelet type to use as accepted by \code{dwt.2d} and \code{modwt.2d}.
@@ -74,7 +75,8 @@ Eric Gilleland
 data(UKobs6)
 data(UKfcst6)
 data(UKloc)
-hold <- hoods2dPrep( "UKfcst6", "UKobs6", thresholds=c(0.1,0.2,0.5,1,2,5,10,20,50), levels=2^(8-1:8), loc=UKloc, units="mm/h")
+hold <- hoods2dPrep( "UKfcst6", "UKobs6", thresholds=c(0.1,0.2,0.5,1,2,5,10,20,50),
+	levels=2^(8-1:8), loc=UKloc, units="mm/h")
 look <- waveIS(hold, J=8, verbose=TRUE)
 plot(look, which.plots="mse") 
 plot(look, which.plots="ss")

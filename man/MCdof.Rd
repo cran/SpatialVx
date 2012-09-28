@@ -11,7 +11,8 @@ Estimate the distribution of the proportion of spatial locations that contain si
 Estimate the distribution of the proportion of spatial locations that contain significant correlations with randomly generated data along the lines of Livezey and Chen (1983).
 }
 \usage{
-MCdof(x, ntrials = 5000, field.sig = 0.05, zfun = "rnorm", zfun.args = NULL, which.test = c("t", "Z", "cor.test"), verbose = FALSE, ...)
+MCdof(x, ntrials = 5000, field.sig = 0.05, zfun = "rnorm", zfun.args = NULL,
+	which.test = c("t", "Z", "cor.test"), verbose = FALSE, ...)
 sig.cor.t(r, len = 40, ...)
 sig.cor.Z(r, len = 40, H0 = 0)
 fisherz(r)
@@ -72,7 +73,7 @@ Kimberly L. Elmore and Eric Gilleland
 data(GFSNAMfcstEx)
 data(GFSNAMobsEx)
 data(GFSNAMlocEx)
-id <- GFSNAMlocEx[,"Lon"] >=-100 & GFSNAMlocEx[,"Lon"] <= -75 & GFSNAMlocEx[,"Lat"] <= 36
+id <- GFSNAMlocEx[,"Lon"] >=-90 & GFSNAMlocEx[,"Lon"] <= -75 & GFSNAMlocEx[,"Lat"] <= 40
 look <- MCdof(GFSNAMfcstEx[,id] - GFSNAMobsEx[,id], ntrials=500)
 stats(look$MCprops)
 look$minsigcov

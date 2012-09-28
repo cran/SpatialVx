@@ -143,13 +143,14 @@ spatMLD <- function(x,y1,y2,lossfun="corrskill", trend="ols", loc=NULL, maxrad=2
    return(out)
 } # end of 'spatMLD' function.
 
-fit.spatMLD <- function(object) {
+fit.spatMLD <- function(object, start.list=NULL) {
    out <- object
    maxrad <- out$vgram.args$maxrad
    vgdat <- data.frame(h=out$lossdiff.vgram$d, v=out$lossdiff.vgram$vgram)
    v1 <- sqrt(vgdat$v[1])
    Exp.vgram <- function(h, sigma2=1, theta=1) return(sigma2*(1-exp(-h/theta)))
-   vgmodel <- nls(v~Exp.vgram(h=h,sigma2=s^2,theta=r), data=vgdat, start=list(s=v1, r=maxrad))
+   if(is.null(start.list)) vgmodel <- nls(v~Exp.vgram(h=h,sigma2=s^2,theta=r), data=vgdat, start=list(s=v1, r=maxrad))
+   else vgmodel <- nls(v~Exp.vgram(h=h,sigma2=s^2,theta=r), data=vgdat, start=start.list)
    out$vgmodel <- vgmodel
    return(out)
 } # end of 'fit.spatMLD' function.
@@ -261,3 +262,94 @@ variogram.matrix <- function (dat, R = 5, dx = 1, dy = 1, zero.out=FALSE)
     class(out) <- "vgram.matrix"
     return(out)
 } # end of 'variogram.matrix' function.
+
+structurogram.matrix <- function(dat, q=2, R=5, dx=1, dy=1, zero.out=FALSE) {
+   SI <- function(ntemp, delta) {
+        n1 <- 1:ntemp
+        n2 <- n1 + delta
+        good <- (n2 >= 1) & (n2 <= ntemp)
+        cbind(n1[good], n2[good])
+    }
+    if(zero.out) dat[dat==0] <- NA
+    N <- ncol(dat)
+    M <- nrow(dat)
+    m <- min(c(round(R/dx), M))
+    n <- min(c(round(R/dy), N))
+    ind <- rbind(as.matrix(expand.grid(0, 1:n)), as.matrix(expand.grid(1:m,
+        0)), as.matrix(expand.grid(c(-(m:1), 1:m), 1:n)))
+    d <- sqrt((dx * ind[, 1])^2 + (dy * ind[, 2])^2)
+    good <- (d > 0) & (d <= R)
+    ind <- ind[good, ]
+    d <- d[good]
+    ind <- ind[order(d), ]
+    d <- sort(d)
+    nbin <- nrow(ind)
+    holdVG <- rep(NA, nbin)
+    holdN <- rep(NA, nbin)
+    for (k in 1:nbin) {
+        MM <- SI(M, ind[k, 1])
+        NN <- SI(N, ind[k, 2])
+        numNA <- sum(is.na(dat[MM[,1],NN[,1]]) | is.na(dat[MM[,2],NN[,2]]),na.rm=TRUE)
+        holdN[k] <- length(MM) * length(NN) - numNA
+        BigDiff <- (dat[MM[, 1], NN[, 1]] - dat[MM[, 2], NN[,2]])
+        holdVG[k] <- mean(0.5 * (BigDiff)^q, na.rm=TRUE)
+    }
+    top <- tapply(holdVG * holdN, d, FUN = "sum")
+    bottom <- tapply(holdN, d, FUN = "sum")
+    dcollapsed <- as.numeric(names(bottom))
+    vgram <- top/bottom
+    dimnames(vgram) <- NULL
+    out <- list(vgram = vgram, d = dcollapsed, ind = ind, d.full = d,
+        vgram.full = holdVG, N = holdN, dx = dx, dy = dy, q=q)
+    class(out) <- "structurogram.matrix"
+    return(out)
+} # end of 'structurogram.matrix' function.
+
+plot.structurogram.matrix <- function(x,...) {
+   par(mfrow=c(1,2), bg="beige")
+   plot( x$d, x$vgram, xlab="separation distance", ylab=paste("structure (q=", x$q, ")", sep=""), ...)
+   points( x$d.full, x$vgram.full, pch=".")
+   plot.vgram.matrix(x, main="Structure by direction")
+   invisible()
+} # end of 'plot.structurogram.matrix' function.
+
+structurogram <- function(loc, y, q=2, id = NULL, d = NULL, lon.lat = FALSE, dmax = NULL, N = NULL, breaks = NULL) 
+{
+    y <- cbind(y)
+    if (is.null(id)) {
+        n <- nrow(loc)
+        ind <- rep(1:n, n) > rep(1:n, rep(n, n))
+        id <- cbind(rep(1:n, n), rep(1:n, rep(n, n)))[ind, ]
+    }
+    if (is.null(d)) {
+        loc <- as.matrix(loc)
+        if (lon.lat) {
+            d <- rdist.earth(loc)[id]
+        }
+        else {
+            d <- rdist(loc, loc)[id]
+        }
+    }
+    vg <- 0.5 * rowMeans(cbind((y[id[, 1], ] - y[id[, 2], ])^q), 
+        na.rm = TRUE)
+    call <- match.call()
+    if (is.null(dmax)) {
+        dmax <- max(d)
+    }
+    od <- order(d)
+    d <- d[od]
+    vg <- vg[od]
+    ind <- d <= dmax & !is.na(vg)
+    out <- list(d = d[ind], val = vg[ind], call = call, q=q)
+    if (!is.null(breaks) | !is.null(N)) {
+        out <- c(out, stats.bin(d[ind], vg[ind], N = N, breaks = breaks))
+    }
+    class(out) <- "structurogram"
+    return(out)
+} # end of 'structurogram' function.
+
+plot.structurogram <- function(x,...) {
+   plot(x$d, x$val, xlab="separation distance", ylab=paste("structure (q=",x$q,")", sep=""), ...)
+   lines(x$centers, x$stats["mean",], col="darkblue")
+   invisible()
+} # end of 'plot.structurogram' function.

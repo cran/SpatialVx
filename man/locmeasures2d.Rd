@@ -8,7 +8,8 @@ Binary Image Measures
 Calculate some binary image measures between two fields.
 }
 \usage{
-locmeasures2d(object, which.stats = c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, ...)
+locmeasures2d(object, which.stats = c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom"),
+	distfun = "distmapfun", distfun.params = NULL, ...)
 \method{summary}{locmeasures2d}(object, ...)
 }
 \arguments{
@@ -18,7 +19,7 @@ list object returned from \code{locmeasures2dPrep} for \code{locmeasures2d} func
   \item{which.stats}{
 character vector telling which measures should be calculated.
 }
-  \item{distfun}{character naming a function to calculate the shortest distances between each point x in teh grid and the set of events.  Default is the Euclidean distance metric. Must take x as an argument, which is the event field for which the distances are to be calculated.  Must return a matrix of the same dimension as x.}
+  \item{distfun}{character naming a function to calculate the shortest distances between each point x in the grid and the set of events.  Default is the Euclidean distance metric. Must take x as an argument, which is the event field for which the distances are to be calculated.  Must return a matrix of the same dimension as x.}
    \item{distfun.params}{list with named components giving any additional arguments to the \code{distfun} function.}
   \item{\dots}{
 optional arguments to \code{deltametric} and \code{distmap} from package spatstat.  Not used by the summary method here.
@@ -27,7 +28,7 @@ optional arguments to \code{deltametric} and \code{distmap} from package spatsta
 \details{
 It is useful to introduce some notation.  Let d(x,A) be the shortest distance from a point x, from the entire grid, to a set A contained in the grid.  Here, Euclidean distance is used for d(x,A), but note that some papers (e.g., Venugopal et al., 2005) use other distances, such as the taxi-cab distance.
 
-The Hausdorff distance between two sets A and B contained in the finite grid is given by max( max( d(x,A), x in B), max( d(x,B), x in A)), and can be re-written as H(A,B) = max( abs( d(x,A) - d(x,B))), where x is taken over all points in teh grid.  Several of the distances here are modifications of the Hausdorff distance.  The Baddeley metric, for example, is the Lp norm of abs( w(d(x,A)) - w(d(x,B))), where again x is taken from over the entire grid, and w is any concave continuous function that is strictly increasing at zero.  Here, w(t) = min( t, c), where c is some constant given by the \code{bdconst} argument.
+The Hausdorff distance between two sets A and B contained in the finite grid is given by max( max( d(x,A), x in B), max( d(x,B), x in A)), and can be re-written as H(A,B) = max( abs( d(x,A) - d(x,B))), where x is taken over all points in the grid.  Several of the distances here are modifications of the Hausdorff distance.  The Baddeley metric, for example, is the Lp norm of abs( w(d(x,A)) - w(d(x,B))), where again x is taken from over the entire grid, and w is any concave continuous function that is strictly increasing at zero.  Here, w(t) = min( t, c), where c is some constant given by the \code{bdconst} argument.
 
 Calculates one or more of the following binary image measures:
 
@@ -91,7 +92,8 @@ locmeasures2d( hold)
 \dontrun{
 data( geom000)
 data(geom001)
-hold <- locmeasures2dPrep("geom001", "geom000", thresholds=c(0.1,50.1), k=c(4,0.975), alpha=c(0.1,0.9), units="in/100")
+hold <- locmeasures2dPrep("geom001", "geom000", thresholds=c(0.1,50.1), k=c(4,0.975),
+	alpha=c(0.1,0.9), units="in/100")
 hold2 <- locmeasures2d( hold)
 summary( hold2)
 }

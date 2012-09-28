@@ -9,7 +9,9 @@ Apply traditional forecast verification after wavelet denoising
 Apply traditional forecast verification after wavelet denoising ala Briggs and Levine (1997).
 }
 \usage{
-wavePurifyVx(x, y, object = NULL, climate=NULL, which.stats = c("bias", "ts", "ets", "pod", "far", "f", "hk", "mse"), thresholds = NULL, return.fields = FALSE, verbose = FALSE, ...)
+wavePurifyVx(x, y, object = NULL, climate=NULL, which.stats = c("bias", "ts", "ets", "pod",
+	"far", "f", "hk", "mse"), thresholds = NULL, return.fields = FALSE,
+	verbose = FALSE, ...)
 \method{plot}{wavePurifyVx}(x, ...)
 \method{summary}{wavePurifyVx}(object, ...)
 }
@@ -61,6 +63,26 @@ Eric Gilleland
 \code{\link{denoise.dwt.2d}}, \code{\link{denoise.modwt.2d}}, \code{\link{waverify2d}}, \code{\link{mowaverify2d}}, \code{\link{waveIS}}, \code{\link{hoods2dPrep}}, \code{\link{vxstats}}
 }
 \examples{
+grid<- list( x= seq( 0,5,,100), y= seq(0,5,,100))
+obj<-Exp.image.cov( grid=grid, theta=.5, setup=TRUE)
+look<- sim.rf( obj)
+look[ look < 0] <- 0
+look <- zapsmall( look)
+     
+look2 <- sim.rf( obj)
+look2[ look2 < 0] <- 0
+look2 <- zapsmall( look2)
+
+look3 <- sim.rf( obj) 
+look3[ look3 < 0] <- 0 
+look3 <- zapsmall( look3)
+
+hold <- hoods2dPrep("look2", "look", thresholds=c(0.1,1), units="z")
+res <- wavePurifyVx(object=hold, climate=look3, return.fields=TRUE)
+plot(res)
+summary(res)
+
+\dontrun{
 data(UKobs6)
 data(UKfcst6)
 data(UKloc)
@@ -71,7 +93,6 @@ look <- wavePurifyVx(object=UKobj, climate=hold, return.fields=TRUE, verbose=TRU
 plot(look)
 summary(look)
 
-\dontrun{
 data(pert004)
 data(pert000)
 hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,10,50), loc=ICPg240Locs, units="mm/h")

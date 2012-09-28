@@ -2,6 +2,9 @@
 \alias{convthresh}
 \alias{salIDfun}
 \alias{disjointer}
+\alias{plot.features}
+\alias{summary.features}
+\alias{plot.summary.features}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Convolution threshold feature identification
@@ -10,15 +13,20 @@ Convolution threshold feature identification
 Identify features within a field via thresholding a convolution-smoothed version of the field.
 }
 \usage{
-convthresh(object, smoothfun = "disk2dsmooth", smoothpar = 1, smoothfunargs = NULL, thresh = 1e-08, idfun = "disjointer", zero.down = FALSE, ...)
-salIDfun(object, fac = 0.06666667, q = 0.95, wash.out = NULL, thresh = NULL, idfun = "disjointer", ...)
+convthresh(object, smoothfun = "disk2dsmooth", smoothpar = 1, smoothfunargs = NULL,
+	thresh = 1e-08, idfun = "disjointer", zero.down = FALSE, ...)
+salIDfun(object, fac = 0.06666667, q = 0.95, wash.out = NULL, thresh = NULL,
+	idfun = "disjointer", ...)
 disjointer(x, method = "C")
+\method{plot}{features}(x, ...)
+\method{summary}{features}(object, ...)
+\method{plot}{summary.features}(x, ...)
 }
 \arguments{
   \item{object}{
-list object of class "FeatureSuitePrep" as returned by \code{FeatureSuitePrep}.  Not used by \code{disjointer} (there for compatibility).
+list object of class "FeatureSuitePrep" as returned by \code{FeatureSuitePrep}.  Not used by \code{disjointer} (there for compatibility).  In the case of \code{summary.features}, this is an object returned by \code{convthresh}, \code{salIDfun} (or other similar function that returns an object of class "features").
 }
-   \item{x}{binary matrix identifying event points.}
+   \item{x}{binary matrix identifying event points.  For \code{plot} method functions, this is the output object returned from either \code{convthresh} or \code{salIDfun} (or other feature identifying function that returns objects of class "features") or by their \code{summary} method function.}
   \item{smoothfun}{
 character naming a convolution smoothing function that takes argument \code{x} (the field to be smoothed, not the same as the argument to \code{disjointer}) and a smoothing parameter as the first two arguments.  Other arguments are allowed, and are included through \code{smoothfunargs}.  Default is a disk kernel smoothing function.
 }
@@ -42,7 +50,7 @@ logical, should negative values and relatively very small values be set to zero 
 }
   \item{method}{ character giving the connected components algorithm to be used in function \code{connected} from \pkg{spatstat}.}
   \item{\dots}{
-additional arguments to \code{idfun}.
+additional arguments to \code{idfun}.  Not used by the \code{plot} method functions.  The summary method function can take the arguments silent (logical, should information be printed to the screen (FALSE) or not (TRUE)), Im.names (character vector of length two naming the verification set (verification, forecast) if intensity information for features is desired).
 }
 }
 \details{
@@ -51,9 +59,13 @@ The convolution threshold technique is a simple way of identifying features (ref
 This is the method used by Davis et al. (2006a,b).
 }
 \value{
-convthresh and salIDfun return a list object with comopnents:
+convthresh and salIDfun return a list object of class "features" with comopnents:
   \item{X.feats,Y.feats}{The identified features for the verification and forecast fields as returned by the idfun function.}
   \item{X.labeled,Y.labeled}{matrices of same dimension as the forecast and verification fields giving the images of the convolved and thresholded verification and forecast fields, but with each individually identified object labeled 1 to the number of objects in each field.}
+  \item{identifier.function,identifier.label}{character strings naming the function and giving the long name (for use with plot method function).}
+
+The plot method functions do not return anything.  The summary method frunction for objects of class "features" returns a list with components
+\item{X,Y}{matrices whose rows are objects and columns are properties: centroidX and centroidY (the x- and y- coordinates for the feature centroids), area (the area of each feature in squared grid points), the orientation angle for the fitted major axis, and the aspect ratio.  If Im.names is specified, then Intensity0.25 and Intensity0.9 are also included, which give the lower quartile and 0.9 quartile of intensity values for each feature.}
 }
 \references{
 Davis CA, BG Brown, and RG Bullock, 2006a. Object-based verification of precipitation forecasts, Part I: Methodology and application to mesoscale rain areas. \emph{Mon. Wea. Rev.}, \bold{134}, 1772--1784.
@@ -81,6 +93,10 @@ length( look$X.feats) # two objects in x.
 length( look$Y.feats) # four ovjects in y.
 plot( look$X.feats)
 plot( look$Y.feats)
+par(mfrow=c(1,2))
+plot(look) 
+look2 <- summary(look)
+plot(look2)
 
 \dontrun{
 data(pert000)
@@ -91,6 +107,10 @@ length(look$X.feats)
 length(look$Y.feats)
 image.plot(look$sIx)
 image.plot(look$sIy)
+par(mfrow=c(1,2))
+plot(look)
+look2 <- summary(look, silent=TRUE, Im.names=c("pert000", "pert004"))
+plot(look2)
    }
 }
 \keyword{ math }

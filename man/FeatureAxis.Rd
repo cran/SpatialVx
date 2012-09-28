@@ -11,13 +11,14 @@ Calculate the major and minor axes of a feature and various other properties suc
 \usage{
 FeatureAxis(x, fac = 1, flipit = FALSE, twixt = FALSE)
 \method{plot}{FeatureAxis}(x, ...)
-FeatureProps(x, Im = NULL, which.props=c("centroid", "area", "axis", "intensity"), areafac=1, q = c(0.25, 0.9), ...)
+FeatureProps(x, Im = NULL, which.props=c("centroid", "area", "axis", "intensity"),
+	areafac=1, q = c(0.25, 0.9), ...)
 }
 \arguments{
   \item{x}{
 For \code{FeatureAxis} this is an object of class "owin" containing a binary image matrix defining the feature.  In the case of \code{plot.FeatureAxis}, this is the value returned from \code{FeatureAxis}.
 }
-   \item{Im}{Matrix giving teh original values of the field from which the feature was extracted.  Only needed if the feature intensity is desired.}
+   \item{Im}{Matrix giving the original values of the field from which the feature was extracted.  Only needed if the feature intensity is desired.}
   \item{fac,areafac}{
 numeric, in determining the lengths of the axes, they are multiplied by a factor of \code{fac} (e.g., if the grid points are k X k km each, then one could set this to k so that the resulting lengths are in terms of km rather than grid points.
 }
@@ -42,7 +43,7 @@ FeatureAxis: A list object of class "FeatureAxis" is returned with components:
    \item{z }{same as the argument x passed in.}
    \item{MajorAxis,MinorAxis }{a psp object with one segment that is the major (minor) axis.}
    \item{OrientationAngle}{list with two components: MajorAxis (the angle in degrees of the major axis wrt the abscissa), MinorAxis (the angle in degrees wrt the abscissa).}
-   \item{aspect.ratio}{numeric giving teh ratio of teh length of the minor axis to that of the major axis (always between 0 and 1).}
+   \item{aspect.ratio}{numeric giving the ratio of the length of the minor axis to that of the major axis (always between 0 and 1).}
    \item{MidPoint}{an object of class "ppp" giving the mid point of the major (minor) axis.}
    \item{lengths}{list object with components: MajorAxis giving the length (possibly multiplied by a factor) of the major axis, and MinorAxis same as MajorAxis but for the minor axis.}
    \item{sma.fit}{The fitted object returned by the sma function.  This is useful, e.g., if confidence intervals for the axis are desired.  See the sma help file for more details.}

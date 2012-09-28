@@ -45,10 +45,24 @@ Eric Gilleland
 \code{\link{vgram.matrix}}, \code{\link{FeatureSuitePrep}}, \code{\link{hoods2dPrep}}, \code{\link{locmeasures2dPrep}}
 }
 \examples{
+grid<- list( x= seq( 0,5,,30), y= seq(0,5,,30))
+obj<-Exp.image.cov( grid=grid, theta=.5, setup=TRUE)
+look <- sim.rf( obj)
+look[ look < 0] <- 0
+look <- zapsmall( look)
+look2 <- sim.rf( obj)
+look2[look2<0] <- 0
+
+hold <- FeatureSuitePrep("look2", "look")
+res <- griddedVgram(hold,R=8)
+plot(res)
+
+\dontrun{
 data(pert004)
 data(pert000)
 hold <- FeatureSuitePrep("pert004","pert000")
-look <- griddedVgram(hold, R=8)
-plot(look)
+res <- griddedVgram(hold, R=8)
+plot(res)
+}
 }
 \keyword{ math }

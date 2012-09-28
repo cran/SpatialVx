@@ -31,7 +31,7 @@ Upscaling is performed via neighborhood smoothing.  Here, a boxcar kernel is con
    \item{bias,ts,ets }{numeric matrices giving the frequency bias, ts and ets for each neighborhood size (rows) and threshold (columns).}
 }
 \references{
-Ebert, E. E., 2008: Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25 Available at http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf
+Ebert, E. E., 2008: Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25 Available at \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
 
 Yates, E., S. Anquetin, V. Ducrocq, J.-D. Creutin, D. Ricard, and K. Chancibault, 2006: Point and areal validation of forecast precipitation fields.  \emph{Meteorol. Appl.}, \bold{13}, 1--20.
 
@@ -59,12 +59,14 @@ plot( look)
 data(geom001)
 data(geom000)
 data(ICPg240Locs)
-hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01), levels=c(1, 3, 9, 17, 33, 65, 129, 257), loc=ICPg240Locs, units="in/100")
+hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01),
+	levels=c(1, 3, 9, 17, 33, 65, 129, 257), loc=ICPg240Locs, units="in/100")
 look <- upscale2d(hold, thresholds=c(1e-8, 0.1, 0.5, 45, 50.1), verbose=TRUE)
 plot( look) # Might want to use 'pdf' to print these out so that all of them can be observed.
 data(pert004)
 data(pert000)
-hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,10,50), levels=c(1, 3, 17, 33, 65, 129, 257), loc=ICPg240Locs, units="mm/h")
+hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,10,50),
+	levels=c(1, 3, 17, 33, 65, 129, 257), loc=ICPg240Locs, units="mm/h")
 look <- upscale2d( hold, thresholds=c(1e-8, 3:5, 45, 50.1), verbose=TRUE)
 plot( look)}
 

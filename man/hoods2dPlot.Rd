@@ -30,7 +30,8 @@ hoods2dPlot( look$multi.event$hk, args=hold, main="Hanssen Kuipers Score (Multi-
 data(geom001)
 data(geom000)
 data(ICPg240Locs)
-hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01), levels=c(1, 3, 5, 17, 33, 65), loc=ICPg240Locs, units="in/100")
+hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01), levels=c(1, 3, 5, 17, 33, 65),
+		loc=ICPg240Locs, units="in/100")
 look <- hoods2d(hold, verbose=TRUE)
 hoods2dPlot(look$pragmatic$bss, args=hold)
 }

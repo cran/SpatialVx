@@ -9,7 +9,8 @@ Apply field significance method of Elmore et al. (2006)
 Apply field significance method of Elmore et al. (2006).
 }
 \usage{
-spatbiasFS(X, Y, loc = NULL, block.length = NULL, alpha.boot = 0.05, field.sig = 0.05, bootR = 1000, ntrials = 1000, verbose = FALSE)
+spatbiasFS(X, Y, loc = NULL, block.length = NULL, alpha.boot = 0.05, field.sig = 0.05,
+	bootR = 1000, ntrials = 1000, verbose = FALSE)
 \method{summary}{spatbiasFS}(object, ...)
 \method{plot}{spatbiasFS}(x, ...)
 }
@@ -66,7 +67,7 @@ Eric Gilleland and Kimberly L. Elmore
 data(GFSNAMfcstEx)
 data(GFSNAMobsEx)
 data(GFSNAMlocEx)
-id <- GFSNAMlocEx[,"Lon"] >=-100 & GFSNAMlocEx[,"Lon"] <= -75 & GFSNAMlocEx[,"Lat"] <= 36
+id <- GFSNAMlocEx[,"Lon"] >=-95 & GFSNAMlocEx[,"Lon"] <= -75 & GFSNAMlocEx[,"Lat"] <= 32
 loc <- GFSNAMlocEx[id,]
 GFSobsSub <- GFSNAMobsEx[,id]
 GFSfcstSub <- GFSNAMfcstEx[,id]

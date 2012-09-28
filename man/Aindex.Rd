@@ -49,9 +49,11 @@ data(geom000)
 Aindex(geom000)
 Aindex(geom000,dx=4,dy=4)
 
+\dontrun{
 # Two separate areas with highly structured shapes, but far away from each other.
 data(pert000)
 Aindex(pert000, thresh=20, dx=4, dy=4)
-\dontrun{image(pert000>20)}
+image(pert000>20)
+}
 }
 \keyword{ math }

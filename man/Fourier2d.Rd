@@ -14,7 +14,7 @@ Fourier2d(x, bigdim = NULL, kdim = NULL)
 \arguments{
   \item{x}{n X m matrix giving the gridded field to transform.}
   \item{bigdim}{ (optional) numeric vector of length 2.  If NULL, it will be found from kdim.  One of this argument or kdim must be given.}
-  \item{kdim}{ (optional) numeric vector of length 2 giving the dimension of the kernel to be applied.  If bigdim is NULL, then the optimal dimension for the FFT is calculated from teh dimension of x and kdim.}
+  \item{kdim}{ (optional) numeric vector of length 2 giving the dimension of the kernel to be applied.  If bigdim is NULL, then the optimal dimension for the FFT is calculated from the dimension of x and kdim.}
 }
 \details{
 The gridded field is expanded to bigdim, which is the nearest power of 2 above N=dim( x) + kdim - 1 if N <= 1024, or to the nearest multiple of 512 otherwise, if bigdim is not supplied.  \code{x} is placed in the upper left corner of a matrix of zeros that has dimension bigdim.  Missing values are replaced by zero.  The FFT is conducted on the expanded/zero-padded gridded field.  This is intended to be used more internally for the \code{kernel2dsmooth} function in order to reduce the number of FFT's that need be calculated (e.g., if performed for the same threshold over several neighborhood lengths).  It is currently not used by SpatialVx function anymore, but may still be usefull.
