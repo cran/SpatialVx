@@ -1,7 +1,7 @@
 \name{pphindcast2d}
 \alias{pphindcast2d}
 \title{
-Function to perform the practically perfect hindcast neighborhood verification method
+Practically Perfect Hindcast Neighborhood Verification Method
 }
 \description{
 Function to perform the practically perfect hindcast neighborhood verification method.  Finds the
@@ -10,7 +10,6 @@ optimal threhsold, Pthresh, and calculates the desired statistic for that thresh
 \usage{
 pphindcast2d(obj, which.score = "ets", verbose = FALSE, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{obj}{
 A list object returned by the \code{hoods2dPrep} function.
@@ -37,13 +36,11 @@ the value of Pthresh found above.  The verification statistic determined by whic
 \value{
  A list object is returned with components:
     \item{which.score }{value of which.score, same as the argument passed in.}
-    \item{Pthresh }{l X q matrix giving the value of Pthresh applied at each level (rows) and threshold (columns).}
-    \item{values}{l X q matrix giving the value of which.score found for each level (rows) and threshold (columns).}
+    \item{Pthresh }{l by q matrix giving the value of Pthresh applied at each level (rows) and threshold (columns).}
+    \item{values}{l by q matrix giving the value of which.score found for each level (rows) and threshold (columns).}
 }
 \references{
-Ebert EE, 2008. Fuzzy verification of high resolution gridded
-     forecasts: A review and proposed framework.  \emph{Meteorol. Appl.},
-     \bold{15}, 51-64. DOI: 10.1002/met.25 Available at
+Ebert, E. E. (2008) Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. doi:10.1002/met.25 Available at
      \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
 }
 \author{
@@ -67,11 +64,11 @@ data(geom001)
 data(geom000)
 data(ICPg240Locs)
 hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01), levels=c(1, 3, 65),
-	loc=ICPg240Locs, units="in/100")
+    loc=ICPg240Locs, units="in/100")
 look <- pphindcast2d( hold, verbose=TRUE)
 par( mfrow=c(1,2))
 hoods2dPlot( look$values, args=list( thresholds=hold$thresholds, units="in/100", levels=hold$levels),
-	main="Gilbert Skill Score")
+    main="Gilbert Skill Score")
 }
 }
 \keyword{ math }

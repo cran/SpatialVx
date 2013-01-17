@@ -1,24 +1,23 @@
 \name{saller}
 \alias{saller}
 \alias{summary.saller}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Functions to analyze features in a field (image)
+Analyze Features in a Field (Image)
 }
 \description{
 Functions to analyze features in a field (image) in conjunction, e.g., with the FeatureSuite function.
 }
 \usage{
 saller(x, object, y = NULL, matches = NULL, d = NULL)
+
 \method{summary}{saller}(object, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
 For \code{saller} \code{x} is a list object returned by \code{convthresh} or other feature identification function that returns a list with components \code{X.feats}, \code{Y.feats} (themselves lists with owin class objects defining separate features in the verification and forecast fields, resp.), and \code{X.labeled}, \code{Y.labeled} (fields with the numbers from 0 to the number of features also defining the separate feature locations (e.g., as returned by the \code{connected} function of package \pkg{spatstat}.
 }
   \item{object}{
-A list object of class "FeatureSuitePrep" as returned by \code{FeatureSuitePrep} providing information about the original fields.  In the case of the \code{summary} method function, this is the returned object from \code{saller}.
+A list object of class \dQuote{FeatureSuitePrep} as returned by \code{FeatureSuitePrep} providing information about the original fields.  In the case of the \code{summary} method function, this is the returned object from \code{saller}.
 }
   \item{y}{
 (optional) if not NULL, it is used instead of \code{x}, and otherwise has the same stucture thereof.  When used with \code{FeatureSuite}, one might want to merge objects in one or both fields before calling the analysis function.  If so, \code{y} is the means by which \code{FeatureSuite} can ensure that this happens.
@@ -42,7 +41,7 @@ saller returns a list with components:
 the summary method function does not return anything.
 }
 \references{
-Wernli, H., M. Paulat, M. Hagen, and C. Frei, 2008: SAL--A novel quality measure for the verification of quantitative precipitation forecasts.  \emph{Mon. Wea. Rev.}, \bold{136}, 4470--4487, doi: 10.1175/2008MWR2415.1.
+Wernli, H., Paulat, M., Hagen, M. and Frei, C. (2008) SAL--A novel quality measure for the verification of quantitative precipitation forecasts.  \emph{Mon. Wea. Rev.}, \bold{136}, 4470--4487, doi:10.1175/2008MWR2415.1.
 }
 \author{
 Eric Gilleland
@@ -57,26 +56,24 @@ The SAL method typically looks at a small domain, and it is up to the user to se
 \code{\link{FeatureSuite}}, \code{\link{centroid.owin}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{deltamm}}
 }
 \examples{
-grid<- list( x= seq( 0,5,,100), y= seq(0,5,,100))
-obj <- stationary.image.cov( grid=grid, V=cbind(c(0.25,0.15),c(0.45,0.75)), setup=TRUE)
-look<- sim.rf(obj)
-look2 <- sim.rf(obj)
-look[look<0] <- 0
-look2[look2<0] <- 0
-q <- mean( c(c(look[look>0]),c(look2[look2>0])), na.rm=TRUE)
 
-hold <- FeatureSuitePrep("look2", "look")
+data(ExampleSpatialVxSet)
+
+x <- ExampleSpatialVxSet$vx
+xhat <- ExampleSpatialVxSet$fcst
+
+q <- mean( c(c(x[x>0]),c(xhat[xhat>0])), na.rm=TRUE)
+
+hold <- FeatureSuitePrep("xhat", "x")
 hold2 <- convthresh(hold, smoothpar=5, thresh=q)
 
-if(!is.null(hold2$X.feats) & !is.null(hold2$Y.feats)) {
-   N <- max(c(length(hold2$X.feats), length(hold2$Y.feats)), na.rm=TRUE)
-   par(mfrow=c(1,2))
-   image.plot(hold2$X.labeled, col=c("grey", rainbow(N)), zlim=c(0,N))
-   image.plot(hold2$Y.labeled, col=c("grey", rainbow(N)), zlim=c(0,N))
+N <- max(c(length(hold2$X.feats), length(hold2$Y.feats)), na.rm=TRUE)
+par(mfrow=c(1,2))
+image.plot(hold2$X.labeled, col=c("grey", rainbow(N)), zlim=c(0,N))
+image.plot(hold2$Y.labeled, col=c("grey", rainbow(N)), zlim=c(0,N))
 
-   look <- saller(hold2, hold)   
-   summary(look)
-} # else try a lower threshold.
+look <- saller(hold2, hold)   
+summary(look)
 
 \dontrun{
 data(pert000)

@@ -1,21 +1,20 @@
 \name{structurogram.matrix}
 \alias{structurogram.matrix}
 \alias{plot.structurogram.matrix}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Structure function for gridded fields
+Structure Function for Gridded Fields
 }
 \description{
 Calculates the structure function to the q-th order for gridded fields.
 }
 \usage{
 structurogram.matrix(dat, q = 2, R = 5, dx = 1, dy = 1, zero.out = FALSE)
+
 \method{plot}{structurogram.matrix}(x, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{dat}{
-n X m matrix of numeric values defining a gridded spatial field (or image) such that distances can be determined from their positions in the matrix.
+n by m matrix of numeric values defining a gridded spatial field (or image) such that distances can be determined from their positions in the matrix.
 }
   \item{x}{list object output from \code{structurogram.matrix}}
   \item{q}{
@@ -34,13 +33,13 @@ logical, should zero-valued pixels be ignored?
   \item{\dots}{optional arguments to the \code{plot} function.}
 }
 \details{
-This function is basically an exact copy of variogram.matrix, which itself is a copy of vgram.matrix from package 'fields' (but allows and ignores missing values, in order to ignore zero-valued pixels and does not include Cressie's robust version of the variogram), whereby the differences are raised to a power of q instead of 2.  That is, it calculates the structure function given by Eq (4) in harris et al. (2001).  Namely,
+This function is basically an exact copy of \code{variogram.matrix}, which itself is a copy of \code{vgram.matrix} from package \pkg{fields} (but allows and ignores missing values, in order to ignore zero-valued pixels and does not include Cressie's robust version of the variogram), whereby the differences are raised to a power of q instead of 2.  That is, it calculates the structure function given by Eq (4) in harris et al. (2001).  Namely,
 
 	S_q(l_x,l_y) = <|R(x+l_x,y+l_y) - R(x,y)|^q>
 
 where R is the field of interest, <> denotes the average over pixels in the image (note, in Harris et al. (2001), this is only over non-zero pixels, so is only equivalent to this equation if zero.out=TRUE), l_x and l_y are lags in the x and y directions, resp.  If q=2, then this is the semivariogram.
 
-The plot method function makes two plots.  The first shows the structure by separation distance ignoring direction (circles) and all values (i.e., for each direction, dots).  The second shows the structure function values for separation distance and direction (see, e.g., plot.vgram.matrix).
+The \code{plot} method function makes two plots.  The first shows the structure by separation distance ignoring direction (circles) and all values (i.e., for each direction, dots).  The second shows the structure function values for separation distance and direction (see, e.g., \code{plot.vgram.matrix}).
 }
 \value{
  A list with the following components:
@@ -52,7 +51,7 @@ The plot method function makes two plots.  The first shows the structure by sepa
 Note that the plot method function does not return anything.
 }
 \references{
-Harris, D., E. Foufoula-Georgiou, K. K. Droegemeier, and J. J. Levit, 2001.  Multiscale statistical properties of a high-resolution precipitation forecast.  \emph{J. Hydrometeorol.}, \bold{2}, 406 - 418.
+Harris, D., Foufoula-Georgiou, E., Droegemeier, K. K. and Levit, J. J. (2001)  Multiscale statistical properties of a high-resolution precipitation forecast.  \emph{J. Hydrometeorol.}, \bold{2}, 406--418.
 }
 \author{
 Eric Gilleland
@@ -80,6 +79,4 @@ look <- structurogram.matrix(lennon, q=1, zero.out=TRUE)
 plot(look)
 }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ math }

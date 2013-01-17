@@ -4,7 +4,7 @@
 \alias{UKloc}
 \docType{data}
 \title{
-Example precipitation rate verification set (NIMROD)
+Example Precipitation Rate Verification Set (NIMROD)
 }
 \description{
 Example precipitation rate verification set from the very short-range mesoscale Numerical Weather Prediction (NWP) system used operationally at the UK Met Office.
@@ -30,7 +30,7 @@ The original lon/lat information is not available.  'UKloc' was created to match
 UK Met Office
 }
 \references{
-Casati, B., G. Ross, and D. B. Stephenson. 2004: A new intensity-scale approach for the verification of spatial precipitation forecasts. \emph{Meteorol. Appl.}, \bold{11}, 141--154, DOI:10.1017/S1350482704001239.
+Casati, B., Ross, G. and Stephenson, D. B. (2004) A new intensity-scale approach for the verification of spatial precipitation forecasts. \emph{Meteorol. Appl.}, \bold{11}, 141--154, doi:10.1017/S1350482704001239.
 }
 \examples{
 data(UKobs6)
@@ -40,10 +40,10 @@ data(UKloc)
 zl <- range(c(c(UKobs6), c(UKfcst6)))
 par(mfrow=c(1,2))
 image(UKobs6, col=c("grey", tim.colors(64)), zlim=zl, main="analysis", axes=FALSE)
-# par(usr=apply(UKloc, 2, range))
-# map(add=TRUE)
+par(usr=apply(UKloc, 2, range))
+map(add=TRUE)
 image.plot(UKfcst6, col=c("grey", tim.colors(64)), zlim=zl, main="forecast", axes=FALSE)
-# par(usr=apply(UKloc, 2, range))
-# map(add=TRUE)
+par(usr=apply(UKloc, 2, range))
+map(add=TRUE)
 }
 \keyword{datasets}

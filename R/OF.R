@@ -1,7 +1,8 @@
 OF <- function(X, Y, W=5, grads.diff=1, center=TRUE, cutoffpar=4, verbose=FALSE, ...) {
    out <- list()
-   out$Vx.name <- as.character(substitute(X))
-   out$Fcst.name <- as.character(substitute(Y))
+   data.name <- c(as.character(substitute(X)), as.character(substitute(Y)))
+   names(data.name) <- c("verification","forecast")
+   out$data.name <- data.name
    out$call <- match.call()
    if(verbose) begin.tiid <- Sys.time()
 
@@ -204,8 +205,8 @@ grads2 <- function(initial) {
 } # end of internal 'grads2' function.
 
 plot.OF <- function(x, ...) {
-   initial <- get(x$Fcst.name)
-   final   <- get(x$Vx.name)
+   initial <- get(x$data.name[2])
+   final   <- get(x$data.name[1])
    nr <- nrow(initial)
    nc <- ncol(initial)
 
@@ -232,7 +233,7 @@ plot.OF <- function(x, ...) {
    if(is.null(args$nbins)) nbins <- 40
    else nbins <- args$nbins
 
-   m1 <- paste("Optical Flow (", x$Fcst.name, " vs ", x$Vx.name, ")", sep="")
+   m1 <- paste("Optical Flow (", x$data.name[2], " vs ", x$data.name[1], ")", sep="")
 
    if(!full) {
 	layout(matrix(c(1,1,1,1,2,3,4,5,6,7),5,2,byrow=TRUE), c(2,2), c(1,1), TRUE)
@@ -327,7 +328,7 @@ plot.OF <- function(x, ...) {
 hist.OF <- function(x, ...) {
    out <- x
    out$hist.call <- match.call
-   m1 <- paste(x$Fcst.name, " vs ", x$Vx.name, sep="")
+   m1 <- paste(x$data.name[2], " vs ", x$data.name[1], sep="")
 
    args <- list(...)
    if(is.null(args$xmin)) xmin <- 0
@@ -371,7 +372,7 @@ hist.OF <- function(x, ...) {
 } # end of 'hist.OF' function.
 
 summary.OF <- function(object, ...) {
-   cat("Optical Flow Verification for ", object$Fcst.name, " into ", object$Vx.name, "\n")
+   cat("Optical Flow Verification for ", object$data.name[2], " into ", object$data.name[1], "\n")
    cat("Additive Errors (linear):\n")
    print(stats(c(object$err.add.lin)))
    cat("Magnitude (Displacement) Errors (linear):\n")

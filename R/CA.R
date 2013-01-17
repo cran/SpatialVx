@@ -2,8 +2,9 @@ clusterer <- function(X, Y, xloc=NULL, xyp=TRUE, threshold=1e-8, linkage.method=
    out <- list()
    out$linkage.method <- linkage.method
    out$trans <- trans
-   out$Vx.name <- as.character(substitute(X))
-   out$Fcst.name <- as.character(substitute(Y))
+   data.name <- c(as.character(substitute(X)), as.character(substitute(Y)))
+   names(data.name) <- c("verification","forecast")
+   out$data.name <- data.name
    xdim <- dim(X)
    N <- prod(xdim)
    out$N <- N
@@ -240,13 +241,13 @@ summary.clusterer <- function(object, ...) {
 
 plot.clusterer <- function(x, ...) {
    par(mfrow=c(4,2), bg="beige", mar=c(4.1,4.1,4.1,4.1), oma=rep(2,4))
-   X <- get(x$Vx.name)
-   Y <- get(x$Fcst.name)
+   X <- get(x$data.name[1])
+   Y <- get(x$data.name[2])
    X[X<x$threshold[1]] <- 0
    Y[Y<x$threshold[2]] <- 0
    zl <- range(c(c(X),c(Y)),finite=TRUE)
-   image(X, col=c("gray",tim.colors(64)), zlim=zl, axes=FALSE, main=paste(x$Vx.name, "\n(Threshold = ", x$threshold[1], ")", sep=""))
-   image(Y, col=c("gray",tim.colors(64)), zlim=zl, axes=FALSE, main=paste(x$Fcst.name, "\n(Threshold = ", x$threshold[2], ")", sep=""))
+   image(X, col=c("gray",tim.colors(64)), zlim=zl, axes=FALSE, main=paste(x$data.name[1], "\n(Threshold = ", x$threshold[1], ")", sep=""))
+   image(Y, col=c("gray",tim.colors(64)), zlim=zl, axes=FALSE, main=paste(x$data.name[2], "\n(Threshold = ", x$threshold[2], ")", sep=""))
    image.plot(Y, col=c("gray",tim.colors(64)), zlim=zl, legend.only=TRUE, horizontal=TRUE)
    plot(x$cluster.objects$X, xlab="")
    plot(x$cluster.objects$Y, xlab="")
@@ -303,8 +304,9 @@ CSIsamples <- function(X, Y, nbr.csi.samples = 100,
   ## Internal functions
   ##
   out <- list()
-  out$Vx.name <- as.character(substitute(X))
-  out$Fcst.name <- as.character(substitute(Y))
+  data.name <- c(as.character(substitute(X)),as.character(substitute(Y))) 
+  names(data.name) <- c("verification","forecast")
+  out$data.name <- data.name
   out$call <- match.call()
 
   ## convert and threshold the image
@@ -443,14 +445,14 @@ summary.CSIsamples <- function(object, ...) {
 } # end of 'summary.CSIsamples' function.
 
 plot.CSIsamples <- function(x, ...) {
-   m1 <- paste(x$Vx.name, " vs ", x$Fcst.name, sep="")
+   m1 <- paste(x$data.name[1], " vs ", x$data.name[2], sep="")
    y <- summary(x, silent=TRUE)
    plot(y, ...)
    invisible()
 } # end of 'plot.CSIsamples' function.
 
 plot.summary.CSIsamples <- function(x, ...) {
-   m1 <- paste(x$Vx.name, " vs ", x$Fcst.name, sep="")
+   m1 <- paste(x$data.name[1], " vs ", x$data.name[2], sep="")
    plot(x$csi, type="l", ylim=c(0,1), main=m1, xlab="Number of Clusters", ylab="CSI", lwd=1.5)
    invisible()
 } # end of 'plot.summary.CSIsamples' function.

@@ -2,16 +2,16 @@
 \alias{griddedVgram}
 \alias{plot.griddedVgram}
 \title{
-Variogram a gridded verification set
+Variograms for a Gridded Verification Set
 }
 \description{
 Find (and plot) variograms for each field in a gridded verification set.
 }
 \usage{
 griddedVgram(object, zero.in = TRUE, zero.out = TRUE, ...)
+
 \method{plot}{griddedVgram}(x, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{
 any list object from any \code{SpatialVx} object class containing information on the verification set (e.g., from \code{FeatureSuitePrep}, \code{hoods2dPrep}, etc.).
@@ -25,7 +25,7 @@ In the case of \code{griddedVgram}, these are optional arguments to the \code{vg
 \details{
 Here, the terms semi-variogram and variogram are used interchangeably.
 
-This is a simple wrapper function to vgram.matrix (entire field) and/or variogram.matrix (non-zero grid points only) for finding the variogram between two gridded fields.  It calls this function for each of two fields in a verification set.  This function allows one to do the diagnostic analysis proposed in Marzban and Sangathe (2009).
+This is a simple wrapper function to \code{vgram.matrix} (entire field) from \pkg{fields} and/or \code{variogram.matrix} (non-zero grid points only) for finding the variogram between two gridded fields.  It calls this function for each of two fields in a verification set.  This function allows one to do the diagnostic analysis proposed in Marzban and Sangathe (2009).
 }
 \value{
 A list object containing the entire list passed in by the object argument, and components:
@@ -34,7 +34,7 @@ A list object containing the entire list passed in by the object argument, and c
 No value is returned by plot.griddedVgram, plots are created showing the empirical variogram (circles), along with directional empirical variograms (dots), and the variogram by direction (image plot).
 }
 \references{
-Marzban, C. and S. Sandgathe, 2009: Verification with variograms.  \emph{Wea. Forecasting}, \bold{24} (4), 1102--1120, doi: 10.1175/2009WAF2222122.1
+Marzban, C. and Sandgathe, S. (2009) Verification with variograms.  \emph{Wea. Forecasting}, \bold{24} (4), 1102--1120, doi:10.1175/2009WAF2222122.1.
 
 }
 \author{
@@ -45,15 +45,12 @@ Eric Gilleland
 \code{\link{vgram.matrix}}, \code{\link{FeatureSuitePrep}}, \code{\link{hoods2dPrep}}, \code{\link{locmeasures2dPrep}}
 }
 \examples{
-grid<- list( x= seq( 0,5,,30), y= seq(0,5,,30))
-obj<-Exp.image.cov( grid=grid, theta=.5, setup=TRUE)
-look <- sim.rf( obj)
-look[ look < 0] <- 0
-look <- zapsmall( look)
-look2 <- sim.rf( obj)
-look2[look2<0] <- 0
+data(ExampleSpatialVxSet)
 
-hold <- FeatureSuitePrep("look2", "look")
+x <- ExampleSpatialVxSet$vx
+xhat <- ExampleSpatialVxSet$fcst
+
+hold <- FeatureSuitePrep("xhat", "x")
 res <- griddedVgram(hold,R=8)
 plot(res)
 

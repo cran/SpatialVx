@@ -5,8 +5,8 @@ function( obj, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "fss
    q <- dim( thresholds)[1]
    levels <- obj$levels
    l <- length( levels)
-   Y <- get( obj$Fcst.name)
-   X  <- get( obj$Vx.name)
+   X  <- get( obj$data.name[1])
+   Y <- get( obj$data.name[2])
    xdim <- obj$xdim
    binmat <- matrix(0, xdim[1], xdim[2])
    outmat <- matrix( NA, l, q)
@@ -89,11 +89,12 @@ function( obj, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "fss
 } # end of 'hoods2d' function.
 
 hoods2dPrep <-
-function( Fcst.name, Vx.name, thresholds=NULL, Pe=NULL, levels=NULL, max.n=NULL, subset=NULL,
+function( Vx.name, Fcst.name, thresholds=NULL, Pe=NULL, levels=NULL, max.n=NULL, subset=NULL,
                                 loc=NULL, qs=NULL, field.type="", units=NULL, smooth.fun="hoods2dsmooth", smooth.params=NULL, mapit=FALSE) {
    out <- list()
-   out$Fcst.name <- Fcst.name
-   out$Vx.name <- Vx.name
+   data.name <- c(Vx.name, Fcst.name)
+   names(data.name) <- c("verification","forecast")
+   out$data.name <- data.name
    Fcst <- get( Fcst.name)
    Obs <- get( Vx.name)
    dimF <- dim( Fcst)
@@ -133,18 +134,18 @@ function( Fcst.name, Vx.name, thresholds=NULL, Pe=NULL, levels=NULL, max.n=NULL,
 } # end of 'hoods2dPrep' function.
 
 plot.hoods2dPrep <- function(x, ...) {
-   X <- get(x$Vx.name)
-   Y <- get(x$Fcst.name)
+   X <- get(x$data.name[1])
+   Y <- get(x$data.name[2])
    zl <- range(c(c(X),c(Y)),finite=TRUE)
    par(mfrow=c(1,2),mar=c(4.1,2.1,4.1,2.1))
-   image(X, col=c("gray", tim.colors(64)), axes=FALSE, zlim=zl, main=paste(x$Vx.name, "\n", x$field.type, " (", x$units, ")", sep=""))
+   image(X, col=c("gray", tim.colors(64)), axes=FALSE, zlim=zl, main=paste(x$data.name[1], "\n", x$field.type, " (", x$units, ")", sep=""))
    if(!is.null(x$thresholds)) contour(X, levels=x$thresholds[,2], add=TRUE, lwd=0.5, lty=2, col="gray")
    if(x$map) {
 	par(usr=c(range(x$loc[,1],finite=TRUE),range(x$loc[,2], finite=TRUE)))
 	map(add=TRUE)
 	map(add=TRUE,database="state",lty=2)
    }
-   image(Y, col=c("gray", tim.colors(64)), axes=FALSE, zlim=zl, main=paste(x$Fcst.name, "\n", x$field.type, " (", x$units, ")", sep=""))
+   image(Y, col=c("gray", tim.colors(64)), axes=FALSE, zlim=zl, main=paste(x$data.name[2], "\n", x$field.type, " (", x$units, ")", sep=""))
    if(!is.null(x$thresholds)) contour(Y, levels=x$thresholds[,1], add=TRUE, lwd=0.5, lty=2, col="gray")
    if(x$map) {
         par(usr=c(range(x$loc[,1],finite=TRUE),range(x$loc[,2], finite=TRUE)))
@@ -160,16 +161,16 @@ plot.hoods2dPrep <- function(x, ...) {
 } # end of 'plot.hoods2dPrep' function.
 
 hist.hoods2dPrep <- function(x, ...) {
-   X <- get(x$Vx.name)
-   Y <- get(x$Fcst.name)
+   X <- get(x$data.name[1])
+   Y <- get(x$data.name[2])
    u <- x$thresholds
    udim <- dim(u)
    udim[1] <- udim[1]+1
    par(mfrow=udim)
    for(i in 1:udim[1]) {
 	if(i==1) {
-	   m1 <- paste(x$Vx.name, "\n", "All ", x$field.type, " values", sep="")
-	   m2 <- paste(x$Fcst.name, "\n", "All ", x$field.type, " values", sep="")
+	   m1 <- paste(x$data.name[1], "\n", "All ", x$field.type, " values", sep="")
+	   m2 <- paste(x$data.name[2], "\n", "All ", x$field.type, " values", sep="")
 	   tmpX <- c(X)
 	   tmpY <- c(Y)
 	} else {
@@ -588,8 +589,8 @@ upscale2d <- function(object, thresholds=NULL, verbose=FALSE) {
    out$levels <- levels
    out$rmse <- numeric(l)+NA
    out$bias <- out$ts <- out$ets <- matrix( NA, l, q)
-   X <- get( object$Vx.name)
-   Y <- get( object$Fcst.name)
+   X <- get( object$data.name[1])
+   Y <- get( object$data.name[2])
    xdim <- dim( X)
    sub <- object$subset
    for( level in 1:l) {
@@ -729,8 +730,8 @@ fss2dfun <- function(sPy, sPx, subset=NULL, verbose=FALSE) {
 } # end of 'fss2dfun' function.
 
 pphindcast2d <- function(obj, which.score="ets", verbose=FALSE, ...) {
-   Fcst <- get( obj$Fcst.name)
-   Obs <- get( obj$Vx.name)
+   Obs <- get( obj$data.name[1])
+   Fcst <- get( obj$data.name[2])
    xdim <- obj$xdim
    Nxy <- obj$Nxy
    subset <- obj$subset

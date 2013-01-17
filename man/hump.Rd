@@ -2,7 +2,7 @@
 \alias{hump}
 \docType{data}
 \title{
-Simulated forecast and verification fields
+Simulated Forecast and Verification Fields
 }
 \description{
 Simulated forecast and verification fields for optical flow example
@@ -20,7 +20,7 @@ Although not identically the same as the data used in Fig. 1 of Marzban and Sand
 The forecast is on a 50 X 50 grid simulated from a bivariate Gaussian with standard deviation of 11 and centered on the coordinate (10, 10).  The observed field is the same as the forecast field, but shifted one grid length in each direction and has 60 added to it everywhere.
 }
 \references{
-Marzban, C. and S. Sandgathe, 2010.  Optical flow for verification.  \emph{Wea. Forecasting}, \bold{25}, 1479 - 1494, doi:10.1175/2010WAF2222351.1.
+Marzban, C. and Sandgathe, S. (2010)  Optical flow for verification.  \emph{Wea. Forecasting}, \bold{25}, 1479--1494, doi:10.1175/2010WAF2222351.1.
 }
 \examples{
 data(hump)

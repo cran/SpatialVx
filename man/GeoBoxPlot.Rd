@@ -9,7 +9,6 @@ Make a geographic box plot as detailed in Willmott et al. (2007).
 \usage{
 GeoBoxPlot(x, areas, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
 numeric giving the values to be box-plotted.
@@ -26,13 +25,13 @@ This function makes the geographic box plots described in Willmott et al. (2007)
 
 Missing values are not handled, and ideally should be handled before calling ths routine.
 
-In future, this function may allow other options for 'x' than currently, but for now, only numeric vectors are allowed.
+In future, this function may allow other options for \code{x} than currently, but for now, only numeric vectors are allowed.
 }
 \value{
 List with the same components as returned by \code{boxplot}.
 }
 \references{
-Willmott, C. J., S. M. Robeson, and K. Matsuura, 2007.  Geographic box plots.  \emph{Physical Geography}, \bold{28}, 331--344, DOI: 10.2747/0272-3646.28.4.331.
+Willmott, C. J., Robeson, S. M. and Matsuura, K. (2007)  Geographic box plots.  \emph{Physical Geography}, \bold{28}, 331--344, doi:10.2747/0272-3646.28.4.331.
 }
 \author{
 Eric Gilleland

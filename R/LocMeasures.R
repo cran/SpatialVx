@@ -1,7 +1,8 @@
-locmeasures2dPrep <- function( Fcst.name, Vx.name, thresholds=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, loc=NULL, qs=NULL, units=NULL) {
+locmeasures2dPrep <- function( Vx.name, Fcst.name, thresholds=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, loc=NULL, qs=NULL, units=NULL) {
    out <- list()
-   out$Fcst.name <- Fcst.name
-   out$Vx.name <- Vx.name
+   data.name <- c(Vx.name, Fcst.name)
+   names(data.name) <- c("verification","forecast")
+   out$data.name <- data.name
    Fcst <- get(Fcst.name)
    Obs <- get(Vx.name)
    if (is.null(thresholds)) {
@@ -37,8 +38,8 @@ locmeasures2d <- function( object, which.stats=c("baddeley", "hausdorff", "ph", 
    else nalpha <- length( object$alpha)
    out <- LocListSetup(which.stats=which.stats, nthresh=q, np=np, nk=nk, nalpha=nalpha)
    out$prep.obj <- as.character(substitute(object))
-   Fcst <- get( object$Fcst.name)
-   Obs <- get( object$Vx.name)
+   Obs <- get( object$data.name[1])
+   Fcst <- get( object$data.name[2])
    xdim <- object$xdim
    x.id <- im( Obs)
    y.id <- im( Fcst)
@@ -70,12 +71,12 @@ locmeasures2d <- function( object, which.stats=c("baddeley", "hausdorff", "ph", 
 
 metrV <- function(object1, object2=NULL, lam1=0.5, lam2=0.5, distfun="distmapfun", verbose=FALSE, ...) {
    ## This works, and is fast, but does not match results in Zhu et al.
-   M1 <- get( object1$Fcst.name)
+   M1 <- get( object1$data.name[2])
    M1im <- im( M1)
-   O <- get( object1$Vx.name)
+   O <- get( object1$data.name[1])
    Oim <- im( O)
    if( is.m2 <- !is.null( object2)) {
-	M2 <- get( object2$Fcst.name)
+	M2 <- get( object2$data.name[2])
 	M2im <- im( M2)
    }
    thresholds <- object1$thresholds
@@ -189,7 +190,7 @@ summary.locmeasures2d <- function(object, ...) {
    k <- x$k
    p <- x$p
    a <- x$alpha
-   cat("Comparison between model ", x$Fcst.name, " and verification field ", x$Vx.name, ":\n")
+   cat("Comparison between model ", x$data.name[2], " and verification ", x$data.name[1], ":\n")
    cat("Threshold(s) is (are):\n")
    print( lu)
    if( !is.null( object$baddeley)) {

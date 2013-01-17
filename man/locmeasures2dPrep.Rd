@@ -7,15 +7,12 @@ Set up a list object for locmeasures2d
 Sets up a list object to run with locmeasures2d.
 }
 \usage{
-locmeasures2dPrep(Fcst.name, Vx.name, thresholds = NULL, k = NULL, alpha = 0.1,
-	bdconst = NULL, p = 2, loc = NULL, qs = NULL, units = NULL)
+locmeasures2dPrep(Vx.name, Fcst.name, thresholds = NULL, k = NULL, alpha = 0.1,
+    bdconst = NULL, p = 2, loc = NULL, qs = NULL, units = NULL)
 }
 \arguments{
-  \item{Fcst.name}{
-character giving the name of a forecast field.
-}
-  \item{Vx.name}{
-character giving the name of the verification field.
+  \item{Vx.name, Fcst.name}{
+character giving the name of a verification and forecast field.  Must have same dimension as each other.
 }
   \item{thresholds}{
 numeric vector giving the threhsold values over which (inclusive) binary fields are created.  If NULL, quantiles for each field are calculated.  Specifically the 0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.9 and 0.95 quantiles.
@@ -31,10 +28,10 @@ numeric giving the cut-off value for Baddeley's delta metric.
 numeric vector giving one or more values for the parameter p in Baddeley's delta metric.  Usually this is just 2.
 }
   \item{loc}{
-(optional) n X 2 matrix giving the lon/lat coordinates of the grid points (currently not used).
+(optional) n by 2 matrix giving the lon/lat coordinates of the grid points (currently not used).
 }
   \item{qs}{
-character vector giving alternative names for the thresholds.  If 'thresholds' is NULL and 'qs' is NULL, then this will give the quantiles used.
+character vector giving alternative names for the thresholds.  If \code{thresholds} is NULL and \code{qs} is NULL, then this will give the quantiles used.
 }
   \item{units}{
 character describing the units for the thresholds.
@@ -42,8 +39,8 @@ character describing the units for the thresholds.
 }
 \value{
 A list object withcomponents:
-\item{Fcst.name, Vx.name }{characters, same as the resp. arguments.}
-\item{thresholds }{n X 2 matrix of thresholds.}
+\item{data.name}{character vector giving the verification and forecast object names.}
+\item{thresholds }{n by 2 matrix of thresholds.}
 \item{qs}{ same as argument above.}
 \item{loc}{ same as argument above.}
 \item{units}{same as argument above.}
@@ -62,6 +59,6 @@ Eric Gilleland
 \examples{
   data( geom000)
   data( geom001)
-  hold <- locmeasures2dPrep( "geom001", "geom000", thresholds=c(0.1,50.1), k=4, units="in/100")
+  hold <- locmeasures2dPrep( "geom000", "geom001", thresholds=c(0.1,50.1), k=4, units="in/100")
 }
 \keyword{ list }

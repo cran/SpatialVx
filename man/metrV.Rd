@@ -1,7 +1,7 @@
 \name{metrV}
 \alias{metrV}
 \title{
-Calculate the binary location metric proposed in Zhu et al. (2011)
+Binary Location Metric Proposed in Zhu et al. (2011)
 }
 \description{
 Calculate the metric metrV proposed in Zhu et al (2011), which is a linear combination
@@ -11,9 +11,9 @@ between two forecast fields and the verificaiton field, if the comparison is per
 between two forecast models against the same verification field.
 }
 \usage{
-metrV(object1, object2 = NULL, lam1 = 0.5, lam2 = 0.5, distfun = "distmapfun", verbose = FALSE, ...)
+metrV(object1, object2 = NULL, lam1 = 0.5, lam2 = 0.5, distfun = "distmapfun",
+    verbose = FALSE, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object1}{
 list object as returned from the \code{locmeasures2dPrep} function.
@@ -36,7 +36,7 @@ Optional arguments to the \code{distfun} function.
 }
 }
 \details{
-The binary location metric proposed in Zhu et al. (2011) is a linear combination of two measures: the amount of overlap between events in two fields, given by distOV (simply the square root of sum of squared errors between two binary fields), and (if there are events in both fields) the mean error distance described in Peli and Malah (1982); see also Baddeley (1992).  The metric can be computed between a forecast field, M1, and the verificaiton field, V, or it can be compared between two foreast models M1 and M2 with reference to V.  That is,
+The binary location metric proposed in Zhu et al. (2011) is a linear combination of two measures: the amount of overlap between events in two fields, given by \code{distOV} (simply the square root of sum of squared errors between two binary fields), and (if there are events in both fields) the mean error distance described in Peli and Malah (1982); see also Baddeley (1992).  The metric can be computed between a forecast field, M1, and the verificaiton field, V, or it can be compared between two foreast models M1 and M2 with reference to V.  That is,
 
 metrV(M1,M2) = lam1*distOV(I.M1,I.M2) + lam2*distDV(I.M1,I.M2),
 
@@ -48,24 +48,24 @@ Note that if there are no events in both fields, then by definition, the term di
 
 If comparing between the verification field and one forecast model, then the distDV term simplifies to just distob(I.V,I.M1).
 
-One final note is that Eq (6) that defines distOV in Zhu et al. (2011) is correct (or rather, what is used in the paper).  It is not, as is stated below Eq (6) in Zhu et al. (2011) the root *mean* square error, but rather the root square error.  This is function computes Eq (6) as written.
+One final note is that Eq (6) that defines \code{distOV} in Zhu et al. (2011) is correct (or rather, what is used in the paper).  It is not, as is stated below Eq (6) in Zhu et al. (2011) the root *mean* square error, but rather the root square error.  This is function computes Eq (6) as written.
 }
 \value{
-list object of class "metrV" with components:
+list object of class \dQuote{metrV} with components:
 
 \item{prep.obj1}{character giving the name of the \code{locmeasures2dPrep} object as in the argument object1.}
 \item{prep.obj2}{If supplied, character giving the name of the \code{locmeasures2dPrep} object as in the argument object2.}
-\item{OvsM1}{k X 3 matrix whose rows represent thresholds and columns give the component distOV, distob and metrV between the verification field and the forecast model 1.}
-\item{OvsM2}{If object2 supplied, k X 3 matrix whose rows represent thresholds and columns give the component distOV, distob and metrV between the verification field and the forecast model 2.}
-\item{M1vsM2}{If object2 supplied, k X 3 matrix whose rows represent thresholds and columns give the component distOV, distob and metrV between model 1 and model 2.}
+\item{OvsM1}{k by 3 matrix whose rows represent thresholds and columns give the component distOV, distob and metrV between the verification field and the forecast model 1.}
+\item{OvsM2}{If object2 supplied, k by 3 matrix whose rows represent thresholds and columns give the component distOV, distob and metrV between the verification field and the forecast model 2.}
+\item{M1vsM2}{If object2 supplied, k by 3 matrix whose rows represent thresholds and columns give the component distOV, distob and metrV between model 1 and model 2.}
 }
 
 \references{
-Baddeley, A. J., 1992: An error metric for binary images.  In \emph{Robust Computer Vision Algorithms}, W. Forstner and S. Ruwiedel, Eds., Wichmann, 59--78.
+Baddeley, A. J. (1992) An error metric for binary images.  In \emph{Robust Computer Vision Algorithms}, W. Forstner and S. Ruwiedel, Eds., Wichmann, 59--78.
 
-Peli, T. and D. Malah, 1982: A study on edge detection algorithms.  \emph{Computer Graphics and Image Processing}, \bold{20}, 1--21.
+Peli, T. and Malah, D. (1982) A study on edge detection algorithms.  \emph{Computer Graphics and Image Processing}, \bold{20}, 1--21.
 
-Zhu, M., V. Lakshmanan, P. Zhang, Y. Hong, K. Cheng, and S. Chen, 2011: Spatial verification using a true metric.  \emph{Atmos. Res.}, \bold{102}, 408--419, doi:10.1016/j.atmosres.2011.09.004.
+Zhu, M., Lakshmanan, V. Zhang, P. Hong, Y. Cheng, K. and Chen, S. (2011) Spatial verification using a true metric.  \emph{Atmos. Res.}, \bold{102}, 408--419, doi:10.1016/j.atmosres.2011.09.004.
 }
 \author{
 Eric Gilleland
@@ -88,12 +88,12 @@ metrV( hold, hold2)
 \dontrun{
 data( pert000)
 data(pert001)
-testobj <- locmeasures2dPrep( "pert001", "pert000", thresholds=1e-8)
+testobj <- locmeasures2dPrep( "pert000", "pert001", thresholds=1e-8)
 metrV( testobj) # compare to results in Fig. 3 (top right panel) of Zhu et al. (2011).
 
 data( geom000)
 data( geom001)
-testobj <- locmeasures2dPrep( "geom001", "geom000", thresholds=0)
+testobj <- locmeasures2dPrep( "geom000", "geom001", thresholds=0)
 metrV( testobj)
 # compare above to results in Fig. 2 (top right panel) of Zhu et al. (2011).
 # Note that they differ wildly.  Perhaps because an actual elliptical area

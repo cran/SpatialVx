@@ -3,24 +3,25 @@
 \alias{sig.cor.t}
 \alias{sig.cor.Z}
 \alias{fisherz}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Estimate the distribution of the proportion of spatial locations that contain significant correlations with randomly generated data
+Monte Carlo Degrees of Freedom
 }
 \description{
 Estimate the distribution of the proportion of spatial locations that contain significant correlations with randomly generated data along the lines of Livezey and Chen (1983).
 }
 \usage{
 MCdof(x, ntrials = 5000, field.sig = 0.05, zfun = "rnorm", zfun.args = NULL,
-	which.test = c("t", "Z", "cor.test"), verbose = FALSE, ...)
+      which.test = c("t", "Z", "cor.test"), verbose = FALSE, ...)
+
 sig.cor.t(r, len = 40, ...)
+
 sig.cor.Z(r, len = 40, H0 = 0)
+
 fisherz(r)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
-n X m numeric matrix whose rows represent temporal points, and whose columns are spatial locations.
+n by m numeric matrix whose rows represent temporal points, and whose columns are spatial locations.
 }
   \item{ntrials}{
 numeric/integer giving the number of times to generate random samples of size n, and correlate them with the columns of \code{x}.
@@ -35,7 +36,7 @@ character naming a random number generator that takes \code{n} (the size of the 
 list object giving the values for additional arguments to the function named by \code{zfun}.
 }
   \item{which.test}{
-character naming which type of test to do (default, "t", is a t-test, calls \code{sig.cor.t}). "Z" does Fisher's Z transform (calls \code{sig.cor.Z}).   "cor.test" calls \code{cor.test} giving more options, but is also considerably slower than "t" or "Z".
+character naming which type of test to do (default, \dQuote{t}, is a t-test, calls \code{sig.cor.t}). \dQuote{Z} does Fisher's Z transform (calls \code{sig.cor.Z}).   \dQuote{cor.test} calls \code{cor.test} giving more options, but is also considerably slower than \dQuote{t} or \dQuote{Z}.
 }
   \item{r}{numeric giving the correlation value(s).}
   \item{len}{numeric giving the size of the data for the test.}
@@ -48,7 +49,7 @@ optional arguments to \code{sig.cor.t} (not used), \code{sig.cor.Z}, or \code{co
 }
 }
 \details{
-This function does the Livezey and Chen (1983) Monte Carlo step 2 (a) from Elmore et al. (2006).  It generates a random sample of size n, and finds the p-values of a correlation test with this random sample and each column of x.  From this, it estimates the proportion of spatial locations that could contain significant bias purely by chance.
+This function does the Livezey and Chen (1983) Monte Carlo step 2 (a) from Elmore et al. (2006).  It generates a random sample of size n, and finds the p-values of a correlation test with this random sample and each column of \code{x}.  From this, it estimates the proportion of spatial locations that could contain significant bias purely by chance.
 }
 \value{
 MCdof returns a list object with components:
@@ -58,12 +59,12 @@ MCdof returns a list object with components:
 sig.cor.t and sig.cor.Z return umeric vectors of p-values, and fisherz returns a numeric vector of test statistics.
 }
 \references{
-Elmore, K. L., M. E. Baldwin, and D. M. Schultz, 2006: Field significance revisited: Spatial bias errors in forecasts as applied to the Eta model.  \emph{Mon. Wea. Rev.}, \bold{134}, 519--531.
+Elmore, K. L., Baldwin, M. E. and Schultz, D. M. (2006) Field significance revisited: Spatial bias errors in forecasts as applied to the Eta model.  \emph{Mon. Wea. Rev.}, \bold{134}, 519--531.
 
-Livezey, R. E. and W. Y. Chen, 1983: Statistical field significance and its determination by Monte Carlo techniques.  \emph{Mon. Wea. Rev.}, \bold{111}, 46--59.
+Livezey, R. E. and Chen, W. Y. (1983) Statistical field significance and its determination by Monte Carlo techniques.  \emph{Mon. Wea. Rev.}, \bold{111}, 46--59.
 }
 \author{
-Kimberly L. Elmore and Eric Gilleland
+Kimberly L. Elmore, Kim.Elmore \dQuote{at} noaa.gov, and Eric Gilleland
 }
 
 \seealso{

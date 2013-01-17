@@ -1,7 +1,7 @@
 griddedVgram <- function(object, zero.in=TRUE, zero.out=TRUE, ...) {
    out <- object
-   X <- get(object$Vx.name)
-   Y <- get(object$Fcst.name)
+   X <- get(object$data.name[1])
+   Y <- get(object$data.name[2])
    out$zero.in <- zero.in
    out$zero.out <- zero.out
    out$Vx.vgram.matrix <- list()
@@ -19,8 +19,8 @@ griddedVgram <- function(object, zero.in=TRUE, zero.out=TRUE, ...) {
 } # end of 'griddedVgram' function.
 
 plot.griddedVgram <- function(x, ...) {
-   mainX <- x$Vx.name
-   mainY <- x$Fcst.name
+   mainX <- x$data.name[1]
+   mainY <- x$data.name[2]
    if(x$zero.in) {
       vgX <- x$Vx.vgram.matrix[[1]]
       vgY <- x$Fcst.vgram.matrix[[1]]
@@ -99,9 +99,9 @@ distmaploss <- function(x,y, threshold=0, const=Inf, ...) {
 
 spatMLD <- function(x,y1,y2,lossfun="corrskill", trend="ols", loc=NULL, maxrad=20, dx=1, dy=1, zero.out=FALSE, ...) {
    out <- list()
-   out$Vx.name <- as.character(substitute(x))
-   out$Mod1.name <- as.character(substitute(y1))
-   out$Mod2.name <- as.character(substitute(y2))
+   data.name <- c(as.character(substitute(x)),as.character(substitute(y1)),as.character(substitute(y2)))
+   names(data.name) <- c("verification","model1", "model2")
+   out$data.name <- data.name
    out$trend <- trend
    xdim <- dim(x)
    out$lossfun <- lossfun
@@ -156,7 +156,7 @@ fit.spatMLD <- function(object, start.list=NULL) {
 } # end of 'fit.spatMLD' function.
 
 plot.spatMLD <- function(x, ...) {
-   msg <- paste(x$lossfun, ": ", x$Mod1.name, " vs ", x$Mod2.name, " (", x$Vx.name, ")", sep="")
+   msg <- paste(x$lossfun, ": ", x$data.name[2], " vs ", x$data.name[3], " (", x$data.name[1], ")", sep="")
    par(mfrow=c(2,2), mar=rep(4.1,4), bg="beige")
    if(is.null(x$zeros)) image.plot(x$d, main=msg, axes=FALSE)
    else {
@@ -182,7 +182,8 @@ plot.spatMLD <- function(x, ...) {
 
 summary.spatMLD <- function(object, ...) {
    out <- object
-   msg <- paste(object$lossfun, ": ", object$Mod1.name, " vs ", object$Mod2.name, " (against verification: ", object$Vx.name, ")", sep="")
+   out$summary.call <- match.call()
+   msg <- paste(object$lossfun, ": ", object$data.name[2], " vs ", object$data.name[3], " (against verification: ", object$data.name[1], ")", sep="")
    print(msg)
    d <- object$d
    if(zero.out <- !is.null(object$beta)) {
@@ -213,8 +214,11 @@ summary.spatMLD <- function(object, ...) {
       out$test.statistic <- SV
       cat("Test Statistic for null hypothesis of equal predictive ability on average\n")
       print(SV)
-      pval <- pnorm(abs(SV), lower.tail=FALSE)
-      cat("p-value for (two-sided) test is: ", pval, "\n")
+      pval <- c(2*pnorm(-abs(SV)), pnorm(SV), pnorm(SV, lower.tail=FALSE))
+      names(pval) <- c("two.sided", "less", "greater")
+      cat("p-value for two-sided alternative hypothesis is: ", pval[1], "\n")
+      cat("p-value for (one-sided) alternative hypothesis that mu(D) < 0 is: ", pval[2], "\n")
+      cat("p-value for (one-sided) alternative hypothesis that mu(D) > 0 is: ", pval[3], "\n")
       out$p.value <- pval
    }
    invisible(out)

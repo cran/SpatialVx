@@ -4,18 +4,20 @@
 \alias{summary.waveIS}
 
 \title{
-Intensity Scale (IS) verification
+Intensity Scale (IS) Verification
 }
 \description{
 Intensity Scale (IS) verification based on Casat et al (2004) and Casati (2010).
 }
 \usage{
 waveIS(obj, J = NULL, wavelet.type = "haar", verbose = FALSE)
+
 \method{plot}{waveIS}(x, main1 = "X", main2 = "Y",
-	which.plots = c("all", "mse", "ss", "energy"), level.label = NULL, ...)
+    which.plots = c("all", "mse", "ss", "energy"),
+    level.label = NULL, ...)
+
 \method{summary}{waveIS}(object, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{obj}{
 A list object as returned by \code{hoods2dPrep}.
@@ -36,31 +38,29 @@ logical, should progress information be printed to the screen?
   \item{\dots}{Not used by \code{plot.waveIS}.  Only sort of used by \code{summary.waveIS}.  One can put the argument silent=TRUE so that nothing is printed to the screen (useful if you just want the values calculated and stored without writing to the screen).}
 }
 \details{
-This function applies various statistics to the detail fields (in wavelet space) of a discrete wavelet decomposition (DWT) of the binary error fields for a verification set.  In particular, the statistics described in Casati et al (2004) and Casati (2010) are calculated.  This function depends on the waverify2d or mowaverify2d function (depending on whether the fields are dyadic or not, resp.), which themselves depend on the dwt.2d and idwt.2d or modwt.2d and imodwt.2d functions.
+This function applies various statistics to the detail fields (in wavelet space) of a discrete wavelet decomposition (DWT) of the binary error fields for a verification set.  In particular, the statistics described in Casati et al (2004) and Casati (2010) are calculated.  This function depends on the \code{waverify2d} or \code{mowaverify2d} function (depending on whether the fields are dyadic or not, resp.), which themselves depend on the \code{dwt.2d} and \code{idwt.2d} or \code{modwt.2d} and \code{imodwt.2d} functions.
 
-See the references herein and the help files and references therein for dwt.2d and modwt.2d for more information on this approach, as well as Percival and Guttorp (1994) and Lindsay et al. (1996).
+See the references herein and the help files and references therein for \code{dwt.2d} and \code{modwt.2d} for more information on this approach, as well as Percival and Guttorp (1994) and Lindsay et al. (1996).
 }
 \value{
-A list object of class "waveIS" that contains the entire prep object passed in by obj, as well as additional components:
-  \item{EnVx,EnFcst}{J X q matrices giving the energy for the verification and forecast fields, resp., for each threshold (columns) and scale (rows).}
-  \item{MSE,SS }{J X q matrices giving the mean square error and IS skill score for each threshold (column) and scale (rows).}
+A list object of class \dQuote{waveIS} that contains the entire prep object passed in by obj, as well as additional components:
+  \item{EnVx,EnFcst}{J by q matrices giving the energy for the verification and forecast fields, resp., for each threshold (columns) and scale (rows).}
+  \item{MSE,SS }{J by q matrices giving the mean square error and IS skill score for each threshold (column) and scale (rows).}
   \item{Bias}{numeric vector of length q giving the frequency bias of the original fields for each threshold.}
 plot.waveIS does not return any value.  A plot is created on the current graphic device.
 summary.waveIS returns a list invisibly with the same components as returned by waveIS along with extra components:
   \item{MSEu,SSu,EnVx.u,EnFcst.u}{length q numeric vectors giving the MSE, SS, and Vx and Fcst energy for each threshold (i.e., ignoring the wavelet decomposition).}
-  \item{MSEperc,EnVx.perc,EnFcst.perc}{J X q numeric matrices giving percentage form of MSE, Vx Energy and Fcst Energy values, resp.}
-  \item{EnRelDiff}{J X q numeric matrix giving the energy relative difference.}
+  \item{MSEperc,EnVx.perc,EnFcst.perc}{J by q numeric matrices giving percentage form of MSE, Vx Energy and Fcst Energy values, resp.}
+  \item{EnRelDiff}{J by q numeric matrix giving the energy relative difference.}
 }
 \references{
-Casati B, G Ross, and DB Stephenson, 2004. A new intensity-scale approach for the verification of spatial precipitation forecasts. \emph{Meteorol. Appl.} \bold{11}, 141--154.
+Casati, B., Ross, G. and Stephenson, D. B. (2004) A new intensity-scale approach for the verification of spatial precipitation forecasts. \emph{Meteorol. Appl.} \bold{11}, 141--154.
 
-Casati, B., 2010: New Developments of the Intensity-Scale Technique within the Spatial Verification Methods Inter-Comparison Project. \emph{Wea. Forecasting} \bold{25}, (1), 113--143, DOI: 10.1175/2009WAF2222257.1.
+Casati, B. (2010) New Developments of the Intensity-Scale Technique within the Spatial Verification Methods Inter-Comparison Project. \emph{Wea. Forecasting} \bold{25}, (1), 113--143, doi:10.1175/2009WAF2222257.1.
 
-Lindsay, R. W., D. B. Percival, and D. A. Rothrock, 1996.  The discrete wavelet transform and the scale analysis of the surface properties of sea ice.
-  \emph{IEEE Transactions on Geoscience and Remote Sensing}, \bold{34} (3), 771--787.
+Lindsay, R. W., Percival, D. B. and Rothrock, D. A. (1996)  The discrete wavelet transform and the scale analysis of the surface properties of sea ice.  \emph{IEEE Transactions on Geoscience and Remote Sensing}, \bold{34} (3), 771--787.
 
-Percival, D. B. and P. Guttorp, 1994.  Long-memory processes, the Allan variance and wavelets.  In \emph{Wavelets in Geophysics}, E. Foufoula-Georgiou
- and P. Kumar, Eds., New York: Academic, pp. 325--343.
+Percival, D. B. and Guttorp, P. (1994)  Long-memory processes, the Allan variance and wavelets.  In \emph{Wavelets in Geophysics}, Foufoula-Georgiou, E. and Kumar, P., Eds., New York: Academic, 325--343.
 }
 \author{
 Eric Gilleland
@@ -72,6 +72,7 @@ Eric Gilleland
 \code{\link{dwt.2d}}, \code{\link{modwt.2d}}, \code{\link{idwt.2d}}, \code{\link{imodwt.2d}}, \code{\link{hoods2dPrep}}, \code{\link{hoods2d}}
 }
 \examples{
+\dontrun{
 data(UKobs6)
 data(UKfcst6)
 data(UKloc)
@@ -83,10 +84,12 @@ plot(look, which.plots="ss")
 plot(look, which.plots="energy")
 summary(look)
 
-\dontrun{
 data(pert004)
 data(pert000)
-hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,10,50), levels=1:4, loc=ICPg240Locs, units="mm/h")
+
+hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,10,50),
+    levels=1:4, loc=ICPg240Locs, units="mm/h")
+
 look <- hoods2d( hold, verbose=TRUE)
 plot( look)}
 

@@ -200,9 +200,14 @@ is.sig <- function(X, blockboot.results.df, n = 3000, fld.sig = 0.05, verbose=FA
 
 spatbiasFS <- function(X, Y, loc=NULL, block.length=NULL, alpha.boot=0.05, field.sig=0.05, bootR=1000, ntrials=1000, verbose=FALSE) {
    out <- list()
-   out$Vx.name <- as.character(substitute(X))
-   out$Fcst.name <- as.character(substitute(Y))
-   out$loc.name <- as.character(substitute(loc))
+   if(!is.null(loc)) {
+      data.name <- c(as.character(substitute(X)),as.character(substitute(Y)),as.character(substitute(loc)))
+      names(data.name) <- c("verification","forecast","locations")
+   } else {
+      data.name <- c(as.character(substitute(X)),as.character(substitute(Y)))
+      names(data.name) <- c("verification","forecast")
+   }
+   out$data.name <- data.name
    errfield <- Y - X
    hold <- LocSig(Z=errfield, numrep=bootR, block.length=block.length, alpha=alpha.boot)
    res <- is.sig(errfield, hold, n=ntrials, fld.sig=field.sig, verbose=verbose)
@@ -218,7 +223,7 @@ spatbiasFS <- function(X, Y, loc=NULL, block.length=NULL, alpha.boot=0.05, field
 
 summary.spatbiasFS <- function(object, ...) {
    cat("\n")
-   msg <- paste("Results for ", object$Fcst.name, " compared against ", object$Vx.name, sep="")
+   msg <- paste("Results for ", object$data.name[2], " compared against ", object$data.name[1], sep="")
    print(msg)
    cat("\n", "\n")
    cat("Field significance level: ", object$field.significance, "\n")
@@ -228,10 +233,10 @@ summary.spatbiasFS <- function(object, ...) {
 } # end of 'summary.spatbiasFS' function.
 
 plot.spatbiasFS <- function(x, ...) {
-   msg <- paste("Mean Error: ", x$Fcst.name, " vs ", x$Vx.name, sep="")
-   X <- get(x$Vx.name)
-   Y <- get(x$Fcst.name)
-   if(!is.null(x$loc.name)) loc <- get(x$loc.name)
+   msg <- paste("Mean Error: ", x$data.name[2], " vs ", x$data.name[1], sep="")
+   X <- get(x$data.name[1])
+   Y <- get(x$data.name[2])
+   if(length(x$data.name)==3) loc <- get(x$data.name[3])
    else stop("plot.spatbiasFS: No entry loc.  Must supply location information.")
    est.i <- as.image(x$block.boot.results$Estimate, x=loc)
    CIrange <- as.image(x$block.boot.results$Upper - x$block.boot.results$Lower, x=loc)
