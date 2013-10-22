@@ -1,10 +1,55 @@
-OF <- function(X, Y, W=5, grads.diff=1, center=TRUE, cutoffpar=4, verbose=FALSE, ...) {
+OF <- function(x, ...) {
+    UseMethod("OF", x)
+} # end of 'OF' function.
+
+OF.SpatialVx <- function(x, ..., time.point=1, model=1, W=5, grads.diff=1, center=TRUE, cutoffpar=4, verbose=FALSE) {
+
+    a <- attributes(x)
+
+    ## Begin: Get the data sets
+    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model)
+    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
+    else if(!missing(model)) dat <- datagrabber(x, model=model)
+    else dat <- datagrabber(x)
+   
+    X <- dat$X
+    Xhat <- dat$Xhat
+    ## End: Get the data sets
+
+    out <- OF.default(x=X, xhat=Xhat, W=W, grads.diff=grads.diff, center=center, verbose=verbose)
+
+    if(length(a$data.name) == a$nforecast + 2) {
+        dn <- a$data.name[-(1:2)]
+        vxname <- a$data.name[2]
+    } else {
+        dn <- a$data.name[-1]
+        vxname <- a$data.name[1]
+    }
+    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
+    else model.num <- model
+
+    attr(out, "time.point") <- time.point
+    attr(out, "model") <- model
+
+    attr(out, "msg") <- a$msg
+    attr(out, "data.name") <- c(vxname, dn[model.num])
+
+    attr(out, "map") <- a$map
+    attr(out, "projection") <- a$projection
+    attr(out, "loc") <- a$loc
+
+    return(out)
+} # end of 'OF.SpatialVx' function.
+
+OF.default <- function(x, ..., xhat, W=5, grads.diff=1, center=TRUE, cutoffpar=4, verbose=FALSE) {
    out <- list()
-   data.name <- c(as.character(substitute(X)), as.character(substitute(Y)))
+   data.name <- c(as.character(substitute(x)), as.character(substitute(xhat)))
    names(data.name) <- c("verification","forecast")
    out$data.name <- data.name
    out$call <- match.call()
    if(verbose) begin.tiid <- Sys.time()
+
+    out$data <- list(x=x, xhat=xhat)
 
    ##
    ## Internal functions.
@@ -39,12 +84,12 @@ OF <- function(X, Y, W=5, grads.diff=1, center=TRUE, cutoffpar=4, verbose=FALSE,
 
    if(center) {
 	if(verbose) cat("\n", "Calculating mean field.\n")
-	N <- sum(!is.na(Y), na.rm=TRUE)
-	mean.field <- sum(colSums(Y, na.rm=TRUE),na.rm=TRUE)/N
+	N <- sum(!is.na(xhat), na.rm=TRUE)
+	mean.field <- sum(colSums(xhat, na.rm=TRUE),na.rm=TRUE)/N
    } # end of if 'center' stmt.
 
-   nr <- nrow(X)
-   nc <- ncol(X)
+   nr <- nrow(x)
+   nc <- ncol(x)
    rows <- seq( 2, nr-2 , 1 )  # Start with 2 to assure the smallest window is big
    cols <- seq( 2 ,nc-2 , 1 )  # enough to allow for derivatives in optflow().
    out$rows <- rows
@@ -59,13 +104,13 @@ OF <- function(X, Y, W=5, grads.diff=1, center=TRUE, cutoffpar=4, verbose=FALSE,
 	if(verbose) cat(i, " ")
 	for(j in cols ) {   # along x axis
 	   # if(verbose) cat(j, " ")
-	   initial.crop <- Y[ pmax(i-0.5*(W-1),1) : pmin(i+0.5*(W-1),nr) , pmax(j-0.5*(W-1),1) : pmin(j+0.5*(W-1),nc) ]
-	   final.crop <- X[ pmax(i-0.5*(W-1),1) : pmin(i+0.5*(W-1),nr) , pmax(j-0.5*(W-1),1) : pmin(j+0.5*(W-1),nc) ]
+	   initial.crop <- xhat[ pmax(i-0.5*(W-1),1) : pmin(i+0.5*(W-1),nr) , pmax(j-0.5*(W-1),1) : pmin(j+0.5*(W-1),nc) ]
+	   final.crop <- x[ pmax(i-0.5*(W-1),1) : pmin(i+0.5*(W-1),nr) , pmax(j-0.5*(W-1),1) : pmin(j+0.5*(W-1),nc) ]
 
 	   if(!center) of <- optflow(initial.crop, final.crop, grads.diff=grads.diff, ...)   # from forecast to obs.  
 	   if(center) {
-		if(grads.diff==1) grads <- grads1(Y)
-		else if(grads.diff==2) grads <- grads2(Y)
+		if(grads.diff==1) grads <- grads1(xhat)
+		else if(grads.diff==2) grads <- grads2(xhat)
 		else stop("OF: grads.diff must be 1 or 2.")
 		mean.grads <- apply(grads,2,mean,na.rm=TRUE)
 
@@ -109,7 +154,7 @@ OF <- function(X, Y, W=5, grads.diff=1, center=TRUE, cutoffpar=4, verbose=FALSE,
    } # end of if 'verbose' stmt.
    class(out) <- "OF"
    return(out)
-} # end of 'OF' function.
+} # end of 'OF.default' function.
 
 optflow <- function(initial, final, grads.diff=1, mean.field=NULL, ...) {
    args <- list(...)
@@ -205,8 +250,9 @@ grads2 <- function(initial) {
 } # end of internal 'grads2' function.
 
 plot.OF <- function(x, ...) {
-   initial <- get(x$data.name[2])
-   final   <- get(x$data.name[1])
+
+   initial <- x$data$xhat
+   final   <- x$data$x
    nr <- nrow(initial)
    nc <- ncol(initial)
 
@@ -372,24 +418,32 @@ hist.OF <- function(x, ...) {
 } # end of 'hist.OF' function.
 
 summary.OF <- function(object, ...) {
-   cat("Optical Flow Verification for ", object$data.name[2], " into ", object$data.name[1], "\n")
-   cat("Additive Errors (linear):\n")
-   print(stats(c(object$err.add.lin)))
-   cat("Magnitude (Displacement) Errors (linear):\n")
-   print(stats(c(object$err.mag.lin)))
-   cat("Angular Errors (linear):\n")
-   x <- rad(c(object$err.ang.lin))
-   x <- x[!is.na(x)]
-   print(circ.summary(x))
-   # print(stats(c(object$err.ang.lin)))
-   cat("Additive Errors (nonlinear):\n")
-   print(stats(c(object$err.add.nlin)))
-   cat("Magnitude (Displacement) Errors (nonlinear):\n")
-   print(stats(c(object$err.mag.nlin)))
-   cat("Angular Errors (nonlinear):\n")
-   x <- rad(c(object$err.ang.nlin))
-   x <- x[!is.na(x)]
-   print(circ.summary(x))
-   # print(stats(c(object$err.ang.nlin)))
-   invisible()
+    a <- attributes(object)
+    if(is.null(a$data.name)) cat("Optical Flow Verification for ", object$data.name[2], " into ", object$data.name[1], "\n")
+    else if(length(a$data.name == 2)) cat("Optical Flow Verification for ", a$data.name[2], " into ", a$data.name[1], "\n")
+    else if(length(a$data.name == 3)) cat("Optical Flow Verification for ", a$data.name[3], " into ", a$data.name[2], "\n")
+    cat("Additive Errors (linear):\n")
+    print(stats(c(object$err.add.lin)))
+    cat("Magnitude (Displacement) Errors (linear):\n")
+    print(stats(c(object$err.mag.lin)))
+    cat("Angular Errors (linear):\n")
+    x <- rad(c(object$err.ang.lin))
+    x <- x[!is.na(x)]
+    print(circ.summary(x))
+    # print(stats(c(object$err.ang.lin)))
+    cat("Additive Errors (nonlinear):\n")
+    print(stats(c(object$err.add.nlin)))
+    cat("Magnitude (Displacement) Errors (nonlinear):\n")
+    print(stats(c(object$err.mag.nlin)))
+    cat("Angular Errors (nonlinear):\n")
+    x <- rad(c(object$err.ang.nlin))
+    x <- x[!is.na(x)]
+    print(circ.summary(x))
+    # print(stats(c(object$err.ang.nlin)))
+    invisible()
 } # end of 'summary.OF' function.
+
+print.OF <- function(x, ...) {
+    print(summary(x))
+    invisible()
+} # end of 'print.OF' function.

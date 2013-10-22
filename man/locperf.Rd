@@ -10,7 +10,7 @@ Some localization performance (distance) measures for binary images.
 }
 \usage{
 locperf(X, Y, which.stats = c("ph", "mhd", "med", "msd", "fom", "minsep"),
-    alpha = 0.1, k = 4, distfun = "distmapfun", ...)
+    alpha = 0.1, k = 4, distfun = "distmapfun", a=NULL, ...)
 
 distob(X, Y, distfun = "distmapfun", ...)
 
@@ -34,6 +34,7 @@ numeric giving the scaling constant for Pratt's figure of merit (FOM).  Only use
 single numeric giving the order for the partial Hausdorff distance.  If 0 <= k < 1, this is assumed to be a quantile for use with the \code{quantile} function.  Otherwise, k should be a whole number such that 1 <= k <= Nxy, where nxy is the total number of grid points in the set.
 }
   \item{distfun}{character specifying a distance metric that returns a matrix of same dimension as \code{X} yielding, at each point x, the shortest distances from x to the set of events in the field.  Default is \code{distmapfun}, which returns the Euclidean distances.}
+   \item{a}{Not used.  For compatibility with \code{locmeasures2d}.}
   \item{\dots}{
 Optional arguments to the \code{distfun} function.  In the case of \code{distmapfun}, these are the optional arguments to \code{distmap} from package \pkg{spatstat}.
 }
@@ -83,7 +84,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{distmap}}, \code{\link{solutionset}}, \code{\link{im}}, \code{\link{bounding.box}}, \code{\link{as.rectangle}}, \code{\link{metrV}}, \code{\link{locmeasures2d}}, \code{\link{locmeasures2dPrep}}
+\code{\link{distmap}}, \code{\link{solutionset}}, \code{\link{im}}, \code{\link{bounding.box}}, \code{\link{as.rectangle}}, \code{\link{metrV}}, \code{\link{locmeasures2d}}
 }
 \examples{
 x <- y <- matrix( 0, 10, 12)

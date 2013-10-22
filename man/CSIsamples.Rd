@@ -1,8 +1,11 @@
 \name{CSIsamples}
 \alias{CSIsamples}
+\alias{CSIsamples.default}
+\alias{CSIsamples.SpatialVx}
 \alias{summary.CSIsamples}
 \alias{plot.CSIsamples}
 \alias{plot.summary.CSIsamples}
+\alias{print.CSIsamples}
 \title{
 Forecast Verification with Cluster Analysis: The Variation
 }
@@ -10,19 +13,34 @@ Forecast Verification with Cluster Analysis: The Variation
 A variation on cluster analysis for forecast verification as proposed by Marzban and Sandgathe (2008).
 }
 \usage{
-CSIsamples(X, Y, nbr.csi.samples = 100, threshold = 20, k = 100, width = 25, stand = TRUE,
-        z.mult = 0, hit.threshold = 0.1, max.csi.clust = 100, diss.metric = "euclidean",
-     linkage.method = "average", verbose = FALSE)
+CSIsamples(x, ...)
+
+\method{CSIsamples}{default}(x, ..., xhat, nbr.csi.samples = 100, threshold = 20, 
+    k = 100, width = 25, stand = TRUE, z.mult = 0, hit.threshold = 0.1, 
+    max.csi.clust = 100, diss.metric = "euclidean", linkage.method = "average", 
+    verbose = FALSE)
+
+\method{CSIsamples}{SpatialVx}(x, ..., time.point = 1, model = 1, nbr.csi.samples = 100, 
+    threshold = 20, k = 100, width = 25, stand = TRUE, z.mult = 0, 
+    hit.threshold = 0.1, max.csi.clust = 100, diss.metric = "euclidean", 
+    linkage.method = "average", verbose = FALSE)
 
 \method{summary}{CSIsamples}(object, ...)
 
 \method{plot}{CSIsamples}(x, ...)
 
 \method{plot}{summary.CSIsamples}(x, ...)
+
+\method{print}{CSIsamples}(x, ...)
 }
 \arguments{
-  \item{X,Y}{matrices giving the verification and forecast fields, resp.}
-  \item{object,x}{list objects of class \dQuote{CSIsamples} or \dQuote{summary.CSIsamples}.}
+  \item{x,xhat}{default method: matrices giving the verification and forecast fields, resp.
+
+    \dQuote{SpatialVx} method: \code{x} is an object of class \dQuote{SpatialVx}.
+
+    \code{plot}, \code{print} methods:  list object of class \dQuote{CSIsamples} or \dQuote{summary.CSIsamples} (in the case of \code{plot}).
+}
+  \item{object}{list object of class \dQuote{CSIsamples}.}
   \item{nbr.csi.samples}{integer giving the number of samples to take at each level of the CA.}
   \item{threshold}{numeric giving a value over which is to be considered an event.}
   \item{k}{numeric giving the value for \code{centers} in the call to \code{kmeans}.}
@@ -33,8 +51,15 @@ CSIsamples(X, Y, nbr.csi.samples = 100, threshold = 20, k = 100, width = 25, sta
   \item{max.csi.clust}{integer giving the maximum number of clusters allowed.}
   \item{diss.metric}{character giving which \code{method} to use in the call to \code{dist} (which dissimilarity metric should be used?).}
   \item{linkage.method}{character giving the name of a linkage method acceptable to the \code{method} argument from the \code{hclust} function of package \pkg{fastcluster}.}
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+  \item{model}{numeric indicating which forecast model to select for the analysis.}
   \item{verbose}{logical, should progress information be printed to the screen?}
-  \item{\dots}{In the \code{summary} method function, the argument \code{silent} may be specified, which is a logical stating whether to print the information to the screen (FALSE) or not (TRUE).  If not given, the summary information will be printed to the screen.  Not used by the \code{plot} method function.}
+  \item{\dots}{
+Not used by \code{CSIsamples} method functions.
+
+\code{summary} method function: the argument \code{silent} may be specified, which is a logical stating whether to print the information to the screen (FALSE) or not (TRUE).  If not given, the summary information will be printed to the screen.
+
+Not used by the \code{plot} method function.}
 }
 \details{
 This function carries out the procedure described in Marzban and Sandgathe (2008) for verifying forecasts.  Effectively, it combines the verification and forecast fields (keeping track of which values belong to which field) and applies CA to the combined field.  Clusters identified with a proportion of values belonging to the verification field within a certain range (defined by the hit.threshold argument) are determined to be hits, misses or false alarms.  From this information, the CSI (at each number of clusters; scale) is calculated.  A sampling scheme is used to speed up the process.
@@ -72,15 +97,22 @@ obj<-Exp.image.cov( grid=grid, theta=.5, setup=TRUE)
 look<- sim.rf( obj)
 look2 <- sim.rf( obj)
 
-res <- CSIsamples(X=look, Y=look2, 10, threshold=0, k=100,
+res <- CSIsamples(x=look, xhat=look2, 10, threshold=0, k=100,
                   width=2, z.mult=0, hit.threshold=0.25, max.csi.clust=75)
 plot(res)
 y <- summary(res)
 plot(y)
-
+}
+\dontrun{
 data(UKfcst6)
 data(UKobs6)
-res <- CSIsamples(UKobs6, UKfcst6, threshold=0, k=200, z.mult=0.3, hit.threshold=0.2,
+data(UKloc)
+
+hold <- make.SpatialVx(UKobs6, UKfcst6, thresholds=0,
+    loc=UKloc, map=TRUE, field.type="Rainfall", units="mm/h",
+    data.name=c("Nimrod", "obs 6", "fcst 6"))
+
+res <- CSIsamples(hold, threshold=0, k=200, z.mult=0.3, hit.threshold=0.2,
                   max.csi.clust=150, verbose=TRUE)
 plot(res)
 summary(res)

@@ -1,8 +1,8 @@
 \name{FeatureSuite}
 \alias{FeatureSuite}
-\alias{FeatureSuitePrep}
 \alias{FeatureFunPrep}
 \alias{plot.FeatureSuite}
+\alias{print.FeatureSuite}
 \alias{summary.FeatureSuite}
 \title{
 Wrapper function to perform feature-based spatial verification
@@ -11,30 +11,32 @@ Wrapper function to perform feature-based spatial verification
 Wrapper function to perform feature-based spatial verification.
 }
 \usage{
-FeatureSuite(prep.object, fun.object, verbose = FALSE)
+FeatureSuite(object, fun.object, time.point = 1, model = 1, verbose = FALSE)
 
-FeatureSuitePrep(Vx.name, Fcst.name, loc = NULL, units = NULL)
-
-FeatureFunPrep(identfun = NULL, identfun.args = NULL, mergefun = NULL, mergefun.args = NULL,
-         matchfun = NULL, matchfun.args = NULL, analysisfun = NULL, analysisfun.args = NULL)
+FeatureFunPrep(identfun = NULL, identfun.args = NULL, mergefun = NULL,
+    mergefun.args = NULL, matchfun = NULL, matchfun.args = NULL,
+    analysisfun = NULL, analysisfun.args = NULL)
 
 \method{plot}{FeatureSuite}(x, ...)
+
+\method{print}{FeatureSuite}(x, ...)
 
 \method{summary}{FeatureSuite}(object, ...)
 }
 \arguments{
-  \item{prep.object}{
-list object as output from the \code{FeatureSuitePrep} function.
+  \item{object}{
+\code{FeatureSuite}: list object of class \dQuote{SpatialVx}.
+
+\code{summary}: list object of class \dQuote{FeatureSuite}.
 }
   \item{fun.object}{
 list object as output from the \code{FeatureFunPrep} function.
 }
-   \item{Vx.name, Fcst.name}{character giving the name of the fields in the verification set.  Must have the same dimensions as each other (e.g., both should be m by n).}
-   \item{loc}{(optional) numeric n*m by 2 matrix giving lon/lat coordinates for the verification set.  Currently, this is not used for anything, but may have a use in the future, e.g., for adding a map to plots of neighborhood smoothed fields.}
-   \item{object,x}{list objects as returned by function \code{FeatureSuite}.}
-  \item{units}{(optional) character giving the name of the units of the verification set.}
+   \item{x}{list object of class \dQuote{FeatureSuite}.}
    \item{identfun,mergefun,matchfun,analysisfun}{character specifying a function for performing feature: (i) identification, (ii) merging, (iii) matching and (iv) analyzing the resulting (possibly merged and/or matched) features.  The arguments \code{mergefun} and \code{matchfun} may be left NULL, in which case no merging and/or matching of features will be carried out. }
    \item{identfun.args,mergefun.args,matchfun.args,analysisfun.args}{list objects containing relevant optional arguments to \code{identfun}, \code{mergefun}, \code{matchfun}, and \code{analysisfun}.  these may be left NULL.  See Details section for specific arguments that each function must take.  Such arguments should not be supplied here.}
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+  \item{model}{numeric indicating which forecast model to select for the analysis.}
   \item{verbose}{
 logical, should progress information be printed to the screen (including total lapsed time)?
 }
@@ -61,12 +63,6 @@ The values returned by each of the above functions may vary substantially provid
 FeatureSuite returns a list object with numbered components depending on the numbers of thresholds (if any) supplied with output from the analysisfun function as well as additional components:
 \item{prep.obj}{character naming the prep object used.}
 \item{fun.object}{character naming the function obect supplied to the fun.object argument.}
-
-FeatureSuitePrep returns a list object with components:
-   \item{data.name}{character vector giving the name of the verification and forecast fields, resp., of the verification set.}
-   \item{xdim}{numeric vector of length 2 giving the dimensions of the verification set.}
-   \item{loc}{Same as in Arguments above.}
-   \item{units}{Same as in Arguments above.}
 
 FeatureFunPrep returns a list object with components:
 
@@ -99,25 +95,32 @@ Wernli, H., Paulat, M., Hagen, M. and Frei, C. (2008) SAL--A novel quality measu
 Eric Gilleland
 }
 \seealso{
-\code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{as.im}}, \code{\link{convthresh}}
+\code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{as.im}}, \code{\link{convthresh}}, \code{\link{make.SpatialVx}}
 }
 \examples{
 x <- y <- matrix(0, 10, 12)
 x[2:3,c(3:6, 8:10)] <- 1
 y[c(4:7, 9:10),c(7:9, 11:12)] <- 1
 
-hold <- FeatureSuitePrep("x", "y")
+hold <- make.SpatialVx(x, y, field.type="contrived",
+    units="units", data.name=c("Example", "x", "y"))
 
 # Do SAL
-holdfun <- FeatureFunPrep(identfun="salIDfun", analysisfun="saller") 
-look <- FeatureSuite( hold, holdfun)
+holdfun <- FeatureFunPrep(identfun="threshfac", analysisfun="saller") 
+look <- FeatureSuite(hold, holdfun)
 summary(look)
 
 \dontrun{
 data(geom000)
 data(geom002)
-hold <- FeatureSuitePrep("geom000", "geom002")
-holdfun <- FeatureFunPrep(identfun="salIDfun", identfun.args=list(thresh=0.1), analysisfun="saller")
+data(ICPg240Locs)
+
+hold <- make.SpatialVx(geom000, geom002, projection=TRUE, map=TRUE,
+    loc=ICPg240Locs, field.type="Precipitation", units="mm/h",
+    data.name=c("Geometric ICP Cases", "geom000", "geom002"))
+
+holdfun <- FeatureFunPrep(identfun="threshfac",
+    identfun.args=list(thresh=0.1), analysisfun="saller")
 
 look <- FeatureSuite(hold, holdfun)
 summary(look)
@@ -125,12 +128,22 @@ summary(look)
 ## Try to make a good example!!
 data(UKfcst6)
 data(UKobs6)
-hold <- FeatureSuitePrep("UKobs6", "UKfcst6")
-holdfun <- FeatureFunPrep(identfun="convthresh", identfun.args=list(smoothpar=1.5, thresh=1),
+data(UKloc)
+
+hold <- make.SpatialVx(UKobs6, UKfcst6, map=TRUE, loc=UKloc,
+    field.type="Rainfall", units="mm/h",
+    data.name=c("Nimrod", "obs 6", "fcst 6"))
+
+holdfun <- FeatureFunPrep(identfun="convthresh",
+    identfun.args=list(smoothpar=1.5, thresh=1),
     matchfun="centmatch", analysisfun="FeatureMatchAnalyzer")
+
 look <- FeatureSuite(hold, holdfun, verbose=TRUE)
 summary(look)
-# use the pdf function to print the following plots to a file (in order to see all of them).
+
+# use the pdf function to print the following plots to a file
+# in order to see all of them.
+
 plot(look)
 }
 }

@@ -1,6 +1,9 @@
 \name{OF}
 \alias{OF}
+\alias{OF.default}
+\alias{OF.SpatialVx}
 \alias{plot.OF}
+\alias{print.OF}
 \alias{hist.OF}
 \alias{summary.OF}
 \title{
@@ -10,19 +13,31 @@ Optical Flow Verification
 Perform verification using optical flow as described in Marzban and Sandgathe (2010).
 }
 \usage{
-OF(X, Y, W = 5, grads.diff = 1, center = TRUE, cutoffpar = 4, verbose = FALSE, ...)
+OF(x, ...)
+
+\method{OF}{default}(x, ..., xhat, W = 5, grads.diff = 1, center = TRUE, 
+    cutoffpar = 4, verbose = FALSE)
+
+\method{OF}{SpatialVx}(x, ..., time.point = 1, model = 1, W = 5, grads.diff = 1, 
+    center = TRUE, cutoffpar = 4, verbose = FALSE)
 
 \method{plot}{OF}(x, ...)
+
+\method{print}{OF}(x, ...)
 
 \method{hist}{OF}(x, ...)
 
 \method{summary}{OF}(object, ...)
 }
 \arguments{
-  \item{X,Y}{
-m by n matrices describing the verification and forecast fields, resp.  The forecast field is considered the initial field that is morphed into the final (verification) field.
+  \item{x, xhat}{
+Default: m by n matrices describing the verification and forecast fields, resp.  The forecast field is considered the initial field that is morphed into the final (verification) field.
+
+\code{OF.SpatialVx}: list object of class \dQuote{SpatialVx}.
+
+\code{plot}, \code{hist} and \code{print} methods: list object as returned by \code{OF}.
 }
-  \item{x,object}{
+  \item{object}{
 list object as returned by \code{OF}.
 }
   \item{W}{
@@ -40,6 +55,8 @@ numeric, set to NaN everything exceeding median +/- \code{cutoffpar}*sd.
   \item{verbose}{
 logical, should progress information be printed to the screen?
 }
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+    \item{model}{numeric indicating which forecast model to select for the analysis.}
   \item{\dots}{
 For \code{OF}: optional arguments to the \code{optim} function (cannot be \code{par}, \code{fn}, \code{gr} or \code{method}).  See details section for \code{plot} and \code{hist} method functions.  Not used by the \code{summary} method function.
 }
@@ -65,6 +82,7 @@ The \code{summary} method mostly uses the \code{stats} function from package \pk
 }
 \value{
 OF returns a list object of class \dQuote{OF} with components:
+  \item{data}{list with components x and xhat containing the data.}
   \item{data.name}{character vector giving the names of the verification and forecast fields.}
   \item{call}{object of class \dQuote{call} giving the original function call.}
   \item{rows,cols}{numeric vector giving the rows and columns used for finding the centers of windows.  Needed by the plot and hist method functions.}
@@ -96,11 +114,23 @@ Caren Marzban, marzban \dQuote{at} u.washington.edu, with modifications by Eric 
 data(hump)
 initial <- hump$initial
 final <- hump$final
-look <- OF(final, initial, W=9, verbose=TRUE)
+look <- OF(final, xhat=initial, W=9, verbose=TRUE)
 plot(look) # Compare with Fig. 1 in Marzban and Sandgathe (2010).
+par(mfrow=c(1,1))
 hist(look) # 2-d histogram.
 plot(look, full=TRUE) # More plots.
 summary(look)
+
+# Another way to skin the cat.
+hold <- make.SpatialVx(final, initial, field.type="Bi-variate Gaussian",
+    data.name=c("final", "initial"))
+
+look2 <- OF(hold, W=9, verbose=TRUE)
+plot(look2)
+par(mfrow=c(1,1))
+hist(look2)
+plot(look2, full=TRUE)
+summary(look2)
 }
 }
 \keyword{ math }

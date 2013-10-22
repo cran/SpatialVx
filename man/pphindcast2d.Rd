@@ -1,5 +1,7 @@
 \name{pphindcast2d}
 \alias{pphindcast2d}
+\alias{plot.pphindcast2d}
+\alias{print.pphindcast2d}
 \title{
 Practically Perfect Hindcast Neighborhood Verification Method
 }
@@ -8,27 +10,48 @@ Function to perform the practically perfect hindcast neighborhood verification m
 optimal threhsold, Pthresh, and calculates the desired statistic for that threshold.
 }
 \usage{
-pphindcast2d(obj, which.score = "ets", verbose = FALSE, ...)
+pphindcast2d(object, which.score = "ets", time.point = 1, model =
+                 1, levels = NULL, max.n = NULL, smooth.fun =
+                 "hoods2dsmooth", smooth.params = NULL, verbose =
+                 FALSE, ...)
+
+\method{plot}{pphindcast2d}(x, ..., set.pw = FALSE,
+    type = c("quilt", "line"), 
+    col = heat.colors(12), horizontal = FALSE)
+
+\method{print}{pphindcast2d}(x, ...)
 }
 \arguments{
-  \item{obj}{
-A list object returned by the \code{hoods2dPrep} function.
+  \item{object}{
+A list object returned by the \code{make.SpatialVx} function.
 }
   \item{which.score}{
 character stating which verification score is to be used.  Must be one that is accepted by \code{vxstats}.
 }
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+  \item{model}{numeric indicating which forecast model to select for the analysis.}
+   \item{levels}{numeric vector giving the successive values of the smoothing parameter.  For example, for the default method, these are the neighborhood lengths over which the levels^2 nearest neighbors are averaged for each point.  Values should make sense for the specific smoothing function.  For example, for the default method, these should be odd integers.}
+    \item{max.n}{(optional) single numeric giving the maximum neighborhood length to use.  Only used if levels are NULL.}
+    \item{smooth.fun}{character giving the name of a smoothing function to be applied.  Default is an average over the n^2 nearest neighbors, where n is taken to be each value of the \code{levels} argument.} 
+    \item{smooth.params}{list object containing any optional arguments to \code{smooth.fun}.  Use NULL if none.}
   \item{verbose}{
-logical, should progress information be printed ot the screen?
+logical, should progress information be printed to the screen?
 }
+  \item{x}{An object of class \dQuote{pphindcast2d} as returned by the self-same function.}
+  \item{set.pw}{logical, should plotting panels be set by the function?}
+  \item{type}{character specifying whether two quilt plots (one for the score and one for Pthresh) should be made, or one line plot incorporating both the score and the Pthresh values; the latter's values being displayed on the right axis.}
+  \item{col, horizontal}{arguments used in the calls by \code{image} and \code{image.plot}.}
   \item{\dots}{
-optional arguments to the \code{optim} function.  May not include lower, upper or method as these are hard
-coded into the function.
+\code{pphindcast2d}: optional arguments to the \code{optim} function.  May not include lower, upper or method as these are hard coded into the function.
+
+\code{plot} method function: optional arguments to the \code{image} function.
+
+\code{print} method function: not used.
 }
 }
 \details{
 The practically perfect hindcast method is described in Ebert (2008).  Using a similar notation as that described therein (and in the help
-page for \code{hoods2d}), the method is a SO-NF approach that first compares the observed binary field (obtained from the trheshold(s)
-provided by obj from \code{hoods2dPrep}), Ix, with the smoothed binary field, <Px>s.  This smoothed binary field is thresholded by
+page for \code{hoods2d}), the method is a SO-NF approach that first compares the observed binary field (obtained from the trheshold(s) provided by \code{object}), Ix, with the smoothed binary field, <Px>s.  This smoothed binary field is thresholded by
 Pthresh to obtain a new binary field.  The value of Pthresh that maximizes the verification score (provided by the which.score argument)
 is then used to compare Ix with <Iy>s, the binary forecast field obtained by thresholding the smoothed binary forecast field Iy using
 the value of Pthresh found above.  The verification statistic determined by which.score is calculated between Ix and <Iy>s.
@@ -56,18 +79,28 @@ Eric Gilleland
 x <- y <- matrix( 0, 50, 50)
 x[ sample(1:50,10), sample(1:50,10)] <- rexp( 100, 0.25)
 y[ sample(1:50,20), sample(1:50,20)] <- rexp( 400)
-hold <- hoods2dPrep("y", "x", thresholds=c(0.1, 0.5), levels=c(1, 3))
-look <- pphindcast2d( hold)
+hold <- make.SpatialVx(x, y, thresholds=c(0.1, 0.5),
+    field.type="random")
+look <- pphindcast2d(hold, levels=c(1, 3))
 look
 \dontrun{
 data(geom001)
 data(geom000)
 data(ICPg240Locs)
-hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01), levels=c(1, 3, 65),
-    loc=ICPg240Locs, units="in/100")
-look <- pphindcast2d( hold, verbose=TRUE)
-par( mfrow=c(1,2))
-hoods2dPlot( look$values, args=list( thresholds=hold$thresholds, units="in/100", levels=hold$levels),
+
+hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
+    loc=ICPg240Locs, projection=TRUE, map=TRUE,
+    data.name=c("Geometric", "geom000", "geom001"),
+    field.type="Precipitation", units="mm/h")
+
+look <- pphindcast2d( hold, levels=c(1, 3, 65), verbose=TRUE)
+
+plot(look, set.pw=TRUE)
+plot(look, set.pw=TRUE, type="line")
+
+# Alternatively:
+par(mfrow=c(1,2))
+hoods2dPlot( look$values, args=attributes(look),
     main="Gilbert Skill Score")
 }
 }

@@ -1,27 +1,41 @@
 \name{upscale2d}
 \alias{upscale2d}
 \alias{plot.upscale2d}
+\alias{print.upscale2d}
 \title{
 Upscaling Neighborhood Verification on a 2-d Verification Set
 }
 \description{
-Perform upscaling neighborhood veriication on a 2-d verification set.
+Perform upscaling neighborhood verification on a 2-d verification set.
 }
 \usage{
-upscale2d(object, thresholds = NULL, verbose = FALSE)
+upscale2d(object, thresholds = NULL, quantiles = NULL, q.gt.zero
+                 = FALSE, time.point = 1, model = 1, levels = NULL,
+                 max.n = NULL, smooth.fun = "hoods2dsmooth",
+                 smooth.params = NULL, verbose = FALSE)
 
-\method{plot}{upscale2d}(x, ...)
+\method{plot}{upscale2d}(x, ..., set.pw = FALSE)
+
+\method{print}{upscale2d}(x, ...)
 }
 \arguments{
   \item{object}{
-list object output from the \code{hoods2dPrep} function.
+list object of class \dQuote{SpatialVx}.
 }
-  \item{thresholds}{
-(optional) alternative thresholds to use on the upscaled fields.  If NULL, the thresholds from the \code{hoods2dPrep} object are used.
+  \item{thresholds,quantiles}{
+(optional) alternative thresholds (or quantiles of upscaled fields) to use on the upscaled fields.  If both are NULL, the thresholds from the \dQuote{SpatialVx} object are used.
 }
+   \item{q.gt.zero}{logical, If quantiles are not NULL, then should the quantiles be calculated only for values greater than zero in the upscaled fields?}
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+  \item{model}{numeric indicating which forecast model to select for the analysis.}
+   \item{levels}{numeric vector giving the successive values of the smoothing parameter.  For example, for the default method, these are the neighborhood lengths over which the levels^2 nearest neighbors are averaged for each point.  Values should make sense for the specific smoothing function.  For example, for the default method, these should be odd integers.}
+    \item{max.n}{(optional) single numeric giving the maximum neighborhood length to use.  Only used if levels are NULL.}
+    \item{smooth.fun}{character giving the name of a smoothing function to be applied.  Default is an average over the n^2 nearest neighbors, where n is taken to be each value of the \code{levels} argument.}
+    \item{smooth.params}{list object containing any optional arguments to \code{smooth.fun}.  Use NULL if none.}
    \item{verbose}{logical, should progress information be printed to the screen?}
    \item{x}{list object of class \dQuote{upscale2d} as returned by \code{upscale2d}.}
-   \item{\dots}{optional arguments to the \code{image.plot} function from package \pkg{fields}.}
+   \item{set.pw}{logical, should panels for the plot be set?  Recommended here if you want to see all displays.  Set to FALSE for printing to a pdf, for example, or for use with adding to other plots.}
+   \item{\dots}{optional arguments to the \code{image.plot} function from package \pkg{fields}.  Can also include the argument \code{type}, which must be one of \dQuote{all}, \dQuote{gss}, \dQuote{ts}, \dQuote{bias} or \dQuote{rmse}.}
 }
 \details{
 Upscaling is performed via neighborhood smoothing.  Here, a boxcar kernel is convolved (using the convolution theorem with FFT's) to obtain an average over the nearest n^2 grid squares at each grid point.  This is performed on the raw forecast and verification fields.  The root mean square error (RMSE) is taken for each threshold (Yates et al., 2006; Ebert, 2008).  Further, binary fields are obtained for each smoothed field via thresholding, and frequency bias, threat score ts) and equitable threat score (ets) are calculated (Zepeda-Arce et al., 2000; Ebert, 2008).
@@ -42,15 +56,16 @@ Zepeda-Arce, J., Foufoula-Georgiou, E., Droegemeier, K. K. (2000) Space-time rai
 Eric Gilleland
 }
 \seealso{
-\code{\link{hoods2d}}, \code{\link{hoods2dPrep}}, \code{\link{kernel2dsmooth}}, \code{\link{kernel2dmeitsjer}}, \code{\link{fft}}
+\code{\link{hoods2d}}, \code{\link{kernel2dsmooth}}, \code{\link{kernel2dmeitsjer}}, \code{\link{fft}}
 }
 \examples{
 x <- matrix( 0, 50, 50)
 x[ sample(1:50,10), sample(1:50,10)] <- rexp( 100, 0.25)
 y <- kernel2dsmooth( x, kernel.type="disk", r=6.5)
 x <- kernel2dsmooth( x, kernel.type="gauss", nx=50, ny=50, sigma=3.5)
-hold <- hoods2dPrep("y", "x", thresholds=c(1e-8, 0.05, 0.1), levels=c(1, 3, 20))
-look <- upscale2d( hold, thresholds=seq(0.01,1,,5))
+hold <- make.SpatialVx(x, y, thresholds=c(1e-8, 0.05, 0.1),
+    field.type="random")
+look <- upscale2d( hold, thresholds=seq(0.01,1,,5), levels=c(1, 3, 20))
 look
 plot( look)
 
@@ -60,18 +75,21 @@ plot( look)
 data(geom001)
 data(geom000)
 data(ICPg240Locs)
-hold <- hoods2dPrep( "geom001", "geom000", thresholds=c(0.01,50.01),
-    levels=c(1, 3, 9, 17, 33, 65, 129, 257), loc=ICPg240Locs, units="in/100")
+hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
+    loc=ICPg240Locs, projection=TRUE, map=TRUE, field.type="Precipitation",
+    units="mm/h", data.name=c("Geometric", "geom000", "geom001"))
 
-look <- upscale2d(hold, thresholds=c(1e-8, 0.1, 0.5, 45, 50.1), verbose=TRUE)
-plot( look) # Might want to use 'pdf' to print these out so that all of them can be observed.
+look <- upscale2d(hold, quantiles=c(0.25, 0.5, 0.75),
+    levels=c(1, 3, 9, 17, 33, 65, 129, 257),
+    verbose=TRUE)
+plot(look, set.pw=TRUE)
+look <- upscale2d(hold, quantiles=c(0.25, 0.5, 0.75),
+    q.gt.zero=TRUE, verbose=TRUE)
+plot(look)
+look <- upscale2d(hold, thresholds=c(1e-8, 0.1, 0.5, 45, 50.1),
+    verbose=TRUE)
+plot(look)
 
-data(pert004)
-data(pert000)
-hold <- hoods2dPrep( "pert004", "pert000", thresholds=c(1,10,50),
-    levels=c(1, 3, 17, 33, 65, 129, 257), loc=ICPg240Locs, units="mm/h")
-look <- upscale2d( hold, thresholds=c(1e-8, 3:5, 45, 50.1), verbose=TRUE)
-plot( look)}
-
+}
 }
 \keyword{ math }

@@ -1,58 +1,100 @@
-locmeasures2dPrep <- function( Vx.name, Fcst.name, thresholds=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, loc=NULL, qs=NULL, units=NULL) {
-   out <- list()
-   data.name <- c(Vx.name, Fcst.name)
-   names(data.name) <- c("verification","forecast")
-   out$data.name <- data.name
-   Fcst <- get(Fcst.name)
-   Obs <- get(Vx.name)
-   if (is.null(thresholds)) {
-        thresholds <- cbind(quantile(c(Fcst), probs = c(0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.9, 0.95)),
-			    quantile(c(Obs), probs = c(0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.9, 0.95)))
-        qs <- as.character(c(0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.9, 0.95))
-   }
-   else if (!is.matrix(thresholds)) thresholds <- cbind(thresholds, thresholds)
-   out$thresholds <- thresholds
-   out$qs <- qs
-   out$alpha <- alpha
-   out$loc <- loc
-   out$units <- units
-   out$xdim <- dim( Fcst)
-   out$Nxy <- prod( out$xdim)
-   if( is.null( bdconst)) out$bdconst <- Inf
-   else out$bdconst <- bdconst
-   out$p <- p
-   out$k <- k
-   return( out)
+locmeasures2dPrep <- function(object, k=NULL, alpha=0.1, bdconst=NULL, p=2) {
+
+   out <- object
+   attr(out, "alpha") <- alpha
+   if(is.null(bdconst)) attr(out, "bdconst") <- Inf
+   else attr(out, "bdconst") <- bdconst
+   attr(out, "p") <- p
+   attr(out, "k") <- k
+
+   return(out)
+
 } # end of 'locmetric2dPrep' function.
 
-locmeasures2d <- function( object, which.stats=c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom"),
-	distfun="distmapfun", distfun.params=NULL, ...) {
-   thresholds <- object$thresholds
-   q <- dim( thresholds)[1]
-   if( is.null(object$k) & "ph" %in% which.stats) stop("locmeasures2d: must supply k in call to locmeasures2dPrep to do ph method.")
-   if( !is.null(object$k)) nk <- length( object$k)
-   else nk <- 1
-   if( !is.null(object$p)) np <- length( object$p)
-   else np <- 1
-   if( is.null(object$alpha)) nalpha <- 1
-   else nalpha <- length( object$alpha)
-   out <- LocListSetup(which.stats=which.stats, nthresh=q, np=np, nk=nk, nalpha=nalpha)
-   out$prep.obj <- as.character(substitute(object))
-   Obs <- get( object$data.name[1])
-   Fcst <- get( object$data.name[2])
-   xdim <- object$xdim
-   x.id <- im( Obs)
-   y.id <- im( Fcst)
-   for( threshold in 1:q) {
-	Ix <- solutionset(x.id>=thresholds[threshold,2])
-	Iy <- solutionset(y.id>=thresholds[threshold,1])
-	if( "baddeley" %in% which.stats) for( p in 1:np) { 
-			tmpDelta <- try(deltametric(Iy,Ix,p=object$p[p], c=object$bdconst, ...))
+locmeasures2d <- function(object, which.stats=c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom"),
+        distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ...) {
+
+    UseMethod("locmeasures2d", object)
+
+} # end of 'locmeasures2d' function.
+
+locmeasures2d.default <- function(object, which.stats=c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom"),
+        distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ..., Y, thresholds=NULL) {
+
+    args <- list(...)
+    if(missing(Y) && is.element("Xhat", names(args))) Y <- args$Xhat
+    obj <- make.SpatialVx(X=object, Xhat=Y, thresholds=thresholds)
+
+    out <- locmeasures2d.SpatialVx(object=obj, which.stats=which.stats, distfun=distfun,
+						k=k, alpha=alpha, bdconst=bdconst, p=p, ...)
+    return(out)
+} # end of 'locmeasures2d.default' function.
+
+locmeasures2d.SpatialVx <- function(object, which.stats=c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom"),
+	distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ..., time.point=1, model=1) {
+
+    object <- locmeasures2dPrep(object=object, k=k, alpha=alpha, bdconst=bdconst, p=p)
+    a <- attributes(object)
+
+    thresholds <- a$thresholds
+    q <- dim( thresholds)[1]
+
+    if(is.null(a$k) & "ph" %in% which.stats) stop("locmeasures2d: must supply k in call to locmeasures2dPrep to do ph method.")
+
+    if(!is.null(a$k)) nk <- length(a$k)
+    else nk <- 1
+
+    if(!is.null(a$p)) np <- length(a$p)
+    else np <- 1
+
+    if(is.null(a$alpha)) nalpha <- 1
+    else nalpha <- length(a$alpha)
+
+    out <- LocListSetup(a=a, which.stats=which.stats, nthresh=q, np=np, nk=nk, nalpha=nalpha)
+    attr(out, "time.point") <- time.point
+    attr(out, "model") <- model
+
+    ## Begin: Get the data sets
+    if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
+    else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
+    else if(!missing(model)) dat <- datagrabber(object, model=model)
+    else dat <- datagrabber(object)
+
+    Obs <- dat$X
+    Fcst <- dat$Xhat
+
+    dn <- a$data.name
+    if(length(dn) == a$nforecast + 2) {
+	mainname <- dn[1]
+	dn <- dn[-1]
+    } else mainname <- NULL
+
+    vxname <- dn[1]
+    dn <- dn[-1]
+
+    if(!is.numeric(model)) {
+	model.num <- (1:a$nforecast)[model == dn]
+    } else model.num <- model
+    attr(out, "data.name") <- c(mainname, vxname, dn[model.num])
+    thresholds <- cbind(thresholds[,1], thresholds[,model.num + 1])
+    colnames(thresholds) <- c(vxname, dn[model.num])
+    attr(out, "thresholds") <- thresholds
+    ## End: Get the data sets
+
+    xdim <- a$xdim
+    x.id <- im(Obs)
+    y.id <- im(Fcst)
+
+    for(threshold in 1:q) {
+	Ix <- solutionset(x.id>=thresholds[threshold,1])
+	Iy <- solutionset(y.id>=thresholds[threshold,2])
+	if( "baddeley" %in% which.stats) for(p in 1:np) { 
+			tmpDelta <- try(deltametric(Iy,Ix,p=a$p[p], c=a$bdconst, ...))
 			if(class(tmpDelta) != "try-error") out$baddeley[p, threshold] <- tmpDelta
 			} # end of for 'p' loop.
 	if( "hausdorff" %in% which.stats) out$hausdorff[threshold] <- deltametric(Iy,Ix,p=Inf,c=Inf, ...)
-	if( "ph" %in% which.stats) for( k in 1:nk) out$ph[k,threshold] <- locperf(X=Ix, Y=Iy, which.stats="ph", k=object$k[k],
-												distfun=distfun, distfun.params)$ph
+	if( "ph" %in% which.stats) for( k in 1:nk) out$ph[k,threshold] <- locperf(X=Ix, Y=Iy, which.stats="ph", k=a$k[k],
+											distfun=distfun, distfun.params)$ph
 	if( w.id <- any( c("mhd", "med", "msd") %in% which.stats)) {
 	   tmp <- locperf(X=Ix, Y=Iy, which.stats=c("ph","mhd", "med", "msd")[w.id], distfun=distfun, distfun.params)
 	   if( "mhd" %in% which.stats) out$mhd[threshold] <- tmp$mhd
@@ -61,57 +103,169 @@ locmeasures2d <- function( object, which.stats=c("baddeley", "hausdorff", "ph", 
 	} # end of if do partial and/or modified Hausdorff metric.
 	if( "fom" %in% which.stats) {
 	   for( i in 1:nalpha) {
-		out$fom[i,threshold] <- locperf(X=Ix, Y=Iy, which.stats="fom", alpha=object$alpha[i], distfun=distfun, distfun.params)$fom
+		out$fom[i,threshold] <- locperf(X=Ix, Y=Iy, which.stats="fom", alpha=a$alpha[i], distfun=distfun, distfun.params)$fom
 	   } # end of for 'a' loop.
 	}
    } # end of for 'threshold' loop.
-   class( out) <- "locmeasures2d"
-   return( out)
-} # end of 'locmeasures function.
+   class(out) <- "locmeasures2d"
+   return(out)
+} # end of 'locmeasures.SpatialVx' function.
 
-metrV <- function(object1, object2=NULL, lam1=0.5, lam2=0.5, distfun="distmapfun", verbose=FALSE, ...) {
-   ## This works, and is fast, but does not match results in Zhu et al.
-   M1 <- get( object1$data.name[2])
-   M1im <- im( M1)
-   O <- get( object1$data.name[1])
-   Oim <- im( O)
-   if( is.m2 <- !is.null( object2)) {
-	M2 <- get( object2$data.name[2])
-	M2im <- im( M2)
-   }
-   thresholds <- object1$thresholds
-   q <- dim( thresholds)[1]
-   out <- list()
-   out$prep.obj1 <- as.character( substitute( object1))
-   out$OvsM1 <- matrix( NA, q, 3)
-   colnames( out$OvsM1) <- c("distOV", "distob", "metrV")
-   if( is.m2) {
-	out$prep.obj2 <- as.character( substitute( object2))
+metrV <- function(x, ...) {
+    UseMethod("metrV", x)
+} # end of 'metrV' function.
+
+metrV.SpatialVx <- function(x, time.point=1, model=1, lam1=0.5, lam2=0.5, distfun="distmapfun", verbose=FALSE, ...) {
+
+    a <- attributes(x)
+    out <- list()
+    attributes(out) <- a
+
+    thresholds <- a$thresholds
+
+    ## Begin: Get the data sets
+    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model[1])
+    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
+    else if(!missing(model)) dat <- datagrabber(x, model=model[1])
+    else dat <- datagrabber(x)
+
+    X <- dat$X
+    Xhat <- dat$Xhat
+
+    dn <- a$data.name
+    if(length(dn) == a$nforecast + 2) {
+        mainname <- dn[1]
+        dn <- dn[-1]
+    } else mainname <- NULL
+
+    vxname <- dn[1]
+    dn <- dn[-1]
+
+    if(length(model) == 1) {
+
+        if(!is.numeric(model)) {
+            model.num <- (1:a$nforecast)[model == dn]
+        } else model.num <- model
+
+        attr(out, "data.name") <- c(mainname, vxname, dn[model.num])
+        if(dim(thresholds)[2] > 2) thresholds <- cbind(thresholds[,1], thresholds[,model.num + 1])
+        colnames(thresholds) <- c(vxname, dn[model.num])
+        attr(out, "thresholds") <- thresholds
+	a <- attributes(out)
+
+	out <- metrV.default(x=X, xhat=Xhat, thresholds=thresholds, lam1=lam1, lam2=lam2, distfun=distfun,
+				a=a, verbose=verbose, ...)
+
+    } else {
+
+	if(length(model) != 2) stop("metrV.SpatialVx: invalid model argument.  Must have length 1 or 2.")
+
+	if(!is.numeric(model)) {
+	    model1.num <- (1:a$nforecast)[model[1] == dn]
+	    model2.num <- (1:a$nforecast)[model[2] == dn]
+	    model.num <- c(model1.num, model2.num)
+	} else model.num <- model
+
+	if(!missing(time.point)) dat2 <- datagrabber(x, time.point=time.point, model=model[2])
+        else dat2 <- datagrabber(x, model=model[2])
+
+        Xhat2 <- dat2$Xhat
+
+	attr(out, "data.name") <- c(mainname, vxname, dn[model.num])
+        if(dim(thresholds)[2] == 2) thresholds <- cbind(thresholds, thresholds[,2])
+	else thresholds <- cbind(thresholds[,1], thresholds[,model.num + 1])
+        colnames(thresholds) <- c(vxname, dn[model.num])
+
+	attr(out, "thresholds") <- thresholds
+        a <- attributes(out)
+
+	out <- metrV.default(x=X, xhat=Xhat, xhat2=Xhat2, thresholds=thresholds, lam1=lam1, lam2=lam2, distfun=distfun,
+                                a=a, verbose=verbose, ...)
+
+    } # end of if else 1 or 2 models stmts.
+    ## End: Get the data sets
+
+    return(out)
+} # end of 'metrV.SpatialVx' function.
+
+metrV.default <- function(x, xhat, xhat2=NULL, thresholds, lam1=0.5, lam2=0.5, distfun="distmapfun", a=NULL, verbose=FALSE, ...) {
+
+    if(!is.matrix(x) || !is.matrix(xhat)) stop("metrV.default: invalid x and/or xhat argument.")
+    if((!missing(xhat2) || !is.null(xhat2)) && !is.matrix(xhat2)) stop("metrV.default: xhat2 must be NULL or a matrix.")
+
+    M1im <- im(xhat)
+    Oim <- im(x)
+    if(is.m2 <- !is.null(xhat2)) M2im <- im(xhat2)
+    
+    q <- dim(thresholds)[1]
+    out <- list()
+
+    if(!is.null(a)) attributes(out) <- a
+    else attr(out, "thresholds") <- thresholds
+
+    out$OvsM1 <- matrix(NA, q, 3)
+    colnames( out$OvsM1) <- c("distOV", "distob", "metrV")
+
+    if(is.m2) {
 	out$OvsM2 <- out$OvsM1
 	out$M1vsM2 <- out$OvsM1
-   }
-   for( threshold in 1:q) {
-	Ix <- solutionset( Oim >= thresholds[threshold,2])
-	Im1 <- solutionset( M1im >= thresholds[threshold,1])
-	if(is.m2) Im2 <- solutionset( M2im >= thresholds[threshold,1]) 
-	out$OvsM1[threshold,1] <- sqrt( sum( colSums( (Ix$m - Im1$m)^2, na.rm=TRUE), na.rm=TRUE))
+    }
+
+    for(threshold in 1:q) {
+	Ix <- solutionset(Oim >= thresholds[threshold,1])
+	Im1 <- solutionset(M1im >= thresholds[threshold,2])
+	if(is.m2) Im2 <- solutionset(M2im >= thresholds[threshold,3]) 
+
+	out$OvsM1[threshold,1] <- sqrt(sum(colSums((Ix$m - Im1$m)^2, na.rm=TRUE), na.rm=TRUE))
 	out$OvsM1[threshold,2] <- distob( Ix, Im1, distfun=distfun, ...)
 	out$OvsM1[threshold,3] <- lam1*out$OvsM1[threshold,1] + lam2*out$OvsM1[threshold,2]
-	if( verbose) cat("O vs M1 distOV for thresholds: ", thresholds[threshold,], " = ", out$OvsM1[threshold,], "\n")
-	if( is.m2) {
-	   out$OvsM2[threshold,1] <- sqrt( sum( colSums( (Ix$m - Im2$m)^2, na.rm=TRUE), na.rm=TRUE))
-           out$OvsM2[threshold,2] <- distob( Ix, Im2, distfun=distfun, ...)
+
+	if(verbose) cat("O vs M1 distOV for thresholds: ", thresholds[threshold,], " = ", out$OvsM1[threshold,], "\n")
+
+	if(is.m2) {
+	   out$OvsM2[threshold,1] <- sqrt(sum(colSums((Ix$m - Im2$m)^2, na.rm=TRUE), na.rm=TRUE))
+           out$OvsM2[threshold,2] <- distob(Ix, Im2, distfun=distfun, ...)
            out$OvsM2[threshold,3] <- lam1*out$OvsM2[threshold,1] + lam2*out$OvsM2[threshold,2]
-	   if( verbose) cat("O vs M2 distOV for thresholds: ", thresholds[threshold,], " = ", out$OvsM2[threshold,], "\n")
-	   out$M1vsM2[threshold,1] <- sqrt( sum( colSums( (Im1$m - Im2$m)^2, na.rm=TRUE), na.rm=TRUE))
+
+	   if(verbose) cat("O vs M2 distOV for thresholds: ", thresholds[threshold,], " = ", out$OvsM2[threshold,], "\n")
+
+	   out$M1vsM2[threshold,1] <- sqrt(sum(colSums((Im1$m - Im2$m)^2, na.rm=TRUE), na.rm=TRUE))
 	   out$M1vsM2[threshold,2] <- abs( out$OvsM1[threshold,2] - out$OvsM2[threshold,2]) 
 	   out$M1vsM2[threshold,3] <- lam1*out$M1vsM2[threshold,1] + lam2*out$M1vsM2[threshold,2] 
-	   if( verbose) cat("M1 vs M2 distOV for thresholds: ", thresholds[threshold,], " = ", out$M1vsM2[threshold,], "\n")
+
+	   if(verbose) cat("M1 vs M2 distOV for thresholds: ", thresholds[threshold,], " = ", out$M1vsM2[threshold,], "\n")
 	}
-   } # end of for 'threshold' loop.
-   class( out) <- "metrV"
-   return( out)
-} # end of 'metrV' function.
+    } # end of for 'threshold' loop.
+    class( out) <- "metrV"
+    return( out)
+} # end of 'metrV.default' function.
+
+print.metrV <- function(x, ...) {
+
+    a <- attributes(x)
+
+    if(!is.null(a$msg)) print(a$msg)
+    if(!is.null(a$data.name)) {
+	cat("\n", "Comparison for:\n")
+	print(a$data.name)
+    }
+
+    cat("\n", "Thresholds applied:\n")
+    if(!is.null(a$qs)) print(a$qs)
+    else print(a$thresholds)
+
+    cat("\n", "Observed field vs Forecast 1:\n")
+    print(x$OvsM1)
+
+    if(!is.null(x$OvsM2)) {
+	cat("\n", "Observed field vs Forecast 2:\n")
+	print(x$OvsM2)
+	cat("\n", "Forecast 1 vs Forecast 2:\n")
+	print(x$M1vsM2)
+    }
+
+    invisible()
+} # end of 'print.metrV' function.
 
 distob <- function(X,Y, distfun="distmapfun", ...) {
    # X and Y are objects output from 'solutionset'.
@@ -133,8 +287,8 @@ distmapfun <- function(x, ...) {
    return( distmap(x, ...)$v)
 } # end of 'distmapfun' function.
 
-locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep"), alpha=0.1, k=4, distfun="distmapfun", ...) {
-   out <- LocListSetup(which.stats, nthresh=1)
+locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep"), alpha=0.1, k=4, distfun="distmapfun", a=NULL, ...) {
+   out <- LocListSetup(a=a, which.stats, nthresh=1)
    bb <- bounding.box(as.rectangle(X), as.rectangle(Y))
    X <- rebound(X, bb)
    Y <- rebound(Y, bb)
@@ -166,8 +320,12 @@ locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep
    return( out)
 }
 
-LocListSetup <- function(which.stats= c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom", "minsep"), nthresh=1, np=1, nk=1, nalpha=1) {
+LocListSetup <- function(a, which.stats= c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom", "minsep"),
+			    nthresh=1, np=1, nk=1, nalpha=1) {
+
    out <- list()
+   attributes(out) <- a
+
    q <- nthresh
    outvec <- numeric(q)+NA
    if( "baddeley" %in% which.stats) out$baddeley <- matrix( NA, np, q)
@@ -182,30 +340,32 @@ LocListSetup <- function(which.stats= c("baddeley", "hausdorff", "ph", "mhd", "m
 } # end of 'LocListSetup' function.
 
 summary.locmeasures2d <- function(object, ...) {
-   x <- get( object$prep.obj)
+   x <- attributes(object)
    u <- x$thresholds
-   if( !is.null( x$qs)) lu <- x$qs
+   if(!is.null( x$qs)) lu <- x$qs
    else if( all( u[,1] == u[,2])) lu <- as.character( u[,1])
    else lu <- paste( "mod thresh ", u[,1], ", vx thresh ", u[,2], sep="")
    k <- x$k
    p <- x$p
    a <- x$alpha
-   cat("Comparison between model ", x$data.name[2], " and verification ", x$data.name[1], ":\n")
+   print(x$msg)
+   cat("\n", "Comparison for:\n")
+   print(x$data.name)
    cat("Threshold(s) is (are):\n")
-   print( lu)
+   print(lu)
    if( !is.null( object$baddeley)) {
 	y <- object$baddeley
-	rownames( y) <- paste( "p = ", as.character( p), "; ", sep="")
-	colnames( y) <-  lu
+	rownames(y) <- paste( "p = ", p, "; ", sep="")
+	colnames(y) <-  lu
 	cat("Baddeley Delta Metric with c = ", x$bdconst, "\n")
-	print( y)
+	print(y)
    }
    if( !is.null( object$hausdorff)) {
 	y <- object$hausdorff
 	y <- matrix( y, nrow=1)
-	colnames( y) <- lu
+	colnames(y) <- lu
 	cat("\n", "Hausdorff distance\n")
-	print( y)
+	print(y)
    }
    if( !is.null( object$ph)) {
 	y <- object$ph
@@ -243,4 +403,15 @@ summary.locmeasures2d <- function(object, ...) {
         print( y)
    }
    invisible()
-}
+} # end of 'summary.locmeasures2d' function.
+
+print.locmeasures2d <- function(x, ...) {
+    a <- attributes(x)
+    print(a$msg)
+    cat("Comparison for: \n")
+    print(a$data.name)
+
+    print(summary(x, ...))
+
+    invisible()
+} # end of 'print.locmeasures2d' function.

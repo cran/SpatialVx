@@ -1,5 +1,7 @@
 \name{spatMLD}
 \alias{spatMLD}
+\alias{spatMLD.default}
+\alias{spatMLD.SpatialVx}
 \alias{fit.spatMLD}
 \alias{summary.spatMLD}
 \alias{plot.spatMLD}
@@ -10,18 +12,26 @@ Test for Equal Predictive Ability on Average Over a Regularly Gridded Space
 Test for equal predictive ability (for two forecast models) on average over a regularly gridded space using the method of Hering and Genton (2011).
 }
 \usage{
-spatMLD(x, y1, y2, lossfun = "corrskill", trend = "ols", loc = NULL, maxrad = 20,
-    dx = 1, dy = 1, zero.out = FALSE, ...)
+spatMLD(x, ...)
+
+\method{spatMLD}{default}(x, ..., xhat1, xhat2, lossfun = "corrskill",
+    trend = "ols", loc = NULL, maxrad = 20, dx = 1, dy = 1,
+    zero.out = FALSE)
+
+\method{spatMLD}{SpatialVx}(x, ..., time.point = 1, model = c(1, 2),
+    lossfun = "corrskill", trend = "ols", maxrad = 20, dx = 1, dy = 1,
+    zero.out = FALSE)
 
 fit.spatMLD(object, start.list = NULL)
 
 \method{summary}{spatMLD}(object, ...)
 
-\method{plot}{spatMLD}(x, ...)
+\method{plot}{spatMLD}(x, ..., icol = c("gray", tim.colors(64)),
+    loc.byrow = TRUE)
 }
 \arguments{
-  \item{x,y1,y2}{
-\code{spatMLD}: m by n matrices defining the (gridded) verification set where \code{y1} and \code{y2} are the two forecast models being compared.  \code{plot.spatMLD}: \code{x} is a list returned by \code{spatMLD}.
+  \item{x,xhat1, xhat2}{
+\code{spatMLD}: m by n matrices defining the (gridded) verification set where \code{xhat1} and \code{xhat2} are the two forecast models being compared.  \code{plot.spatMLD}: \code{x} is a list returned by \code{spatMLD}.
 }
   \item{object}{
  \code{fit.spatMLD} this is the output returned by \code{spatMLD}.  \code{summary.spatMLD}: list object returned by \code{spatMLD} or \code{fit.spatMLD}.
@@ -39,6 +49,10 @@ numeric giving the maximum radius for finding variogram differences per the \cod
 }
   \item{zero.out}{logical, should the variogram be computed only over non-zero values of the process?  If TRUE, a modified version of \code{vgram.matrix} is used (\code{variogram.matrix}).}
   \item{start.list}{list with components: \code{s} and \code{r}, which give initial estimates for sqrt(sill) and range parameters of the exponential variogram, resp.}
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+    \item{model}{numeric indicating which forecast model to select for the analysis.}
+	\item{loc.byrow}{logical, when creating matrices of lon and lat coordiantes, should this be done by row (TRUE) or by column (FALSE)?}
+    \item{icol}{(optional) color scheme.}
   \item{\dots}{
 \code{spatMLD}: optional additional arguments to \code{lossfun}.  Not used by the summary or plot functions.
 }
@@ -74,7 +88,7 @@ The above test assumes constant spatial trend.  It is possible to remove any spa
 
 The actual test statistic is computed by the \code{summary} function.  Isotropy can be checked by the plot in the lower right panel of the result of the \code{plot} method function.  The function \code{nls} is used to fit the variogram model.
 
-For application to precipitation fields, and introduction to the image warp (coming soon) and distance map loss functions, see Gilleland (2012).
+For application to precipitation fields, and introduction to the image warp (coming soon) and distance map loss functions, see Gilleland (2013).
 
 }
 \value{
@@ -93,7 +107,7 @@ summary.spatMLD invisibly returns the same list object as above with additional 
   \item{p.value}{list object with components: two.sided--the two-sided alternative hypothesis--, less--the one-sided alternative hypothesis that the true value mu(D) < 0--and greater--the one-sided alternative hypothesis that mu(D) > 0--, p-values under the assumption of standard normality of the test statistic.}
 }
 \references{
-Gilleland, E. (2012) Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  \emph{Mon. Wea. Rev.}, \bold{141}, (1), 340--355.
+Gilleland, E. (2013) Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  \emph{Mon. Wea. Rev.}, \bold{141}, (1), 340--355.
 
 Hering, A. S. and Genton, M. G. (2011) Comparing spatial predictions.  \emph{Technometrics} \bold{53}, (4), 414--425.
 }
@@ -118,7 +132,7 @@ look3 <- sim.rf( obj)*2 + 5
 look3[ look3 < 0] <- 0 
 look3 <- zapsmall( look3)
 
-res <- spatMLD(x=look, y1=look2, y2=look3, lossfun="abserrloss", maxrad=8)
+res <- spatMLD(x=look, xhat1=look2, xhat2=look3, lossfun="abserrloss", maxrad=8)
 res <- fit.spatMLD(res)
 res <- summary(res)
 plot(res)
@@ -127,7 +141,13 @@ plot(res)
 data(pert000)
 data(pert004)
 data(pert006)
-look <- spatMLD(x=pert000, y1=pert004, y2=pert006, lossfun="abserrloss", maxrad=8)
+data(ICPg240Locs)
+
+hold <- make.SpatialVx(pert000, list(pert004, pert006), loc=ICPg240Locs,
+    projection=TRUE, map=TRUE, field.type="Precipitation", units="mm/h",
+    data.name=c("ICP Perturbed Cases", "pert000", "pert004", "pert006"))
+
+look <- spatMLD(hold, lossfun="abserrloss", maxrad=8)
 look <- fit.spatMLD(look)
 plot(look)
 summary(look)

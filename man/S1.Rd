@@ -1,6 +1,10 @@
 \name{S1}
 \alias{S1}
+\alias{S1.default} 
+\alias{S1.SpatialVx}
 \alias{ACC}
+\alias{ACC.default}
+\alias{ACC.SpatialVx}
 \title{
 S1 Score, Anomaly Correlation
 }
@@ -8,19 +12,34 @@ S1 Score, Anomaly Correlation
 Calculate the S1 score and anomaly correlation for a verification set.
 }
 \usage{
-S1(X, Y, gradFUN = "KernelGradFUN", ...)
-ACC(X, Y, Xclim = NULL, Yclim = NULL)
+S1(x, ...)
+
+\method{S1}{default}(x, ..., xhat, gradFUN = "KernelGradFUN")
+
+\method{S1}{SpatialVx}(x, ..., xhat, gradFUN = "KernelGradFUN",
+    time.point = 1, model = 1)
+
+ACC(x, ...)
+
+\method{ACC}{default}(x, ..., xhat, xclim = NULL, xhatclim = NULL)
+
+\method{ACC}{SpatialVx}(x, ..., xclim = NULL, xhatclim = NULL,
+    time.point = 1, model = 1)
 }
 \arguments{
-  \item{X,Y}{
+  \item{x,xhat}{
   m by n matrices giving the verification and forecast fields, resp.
+
+For \code{S1.SpatialVx} and \code{ACC.SpatialVx}, \code{x} is an object of class \dQuote{SpatialVx}.
 }
-  \item{Xclim,Yclim}{m by n matrices giving the climatologies for \code{X} and \code{Y}, resp.  If NULL, the result is simply a usual correlation.}
+  \item{xclim, xhatclim}{m by n matrices giving the climatologies for \code{X} and \code{Y}, resp.  If NULL, the result is simply a usual correlation.}
   \item{gradFUN}{
 character identifying a function used to calculate the gradient fields for \code{X} and \code{Y}.  The default \code{KernelGradFUN} is to use a Laplacian of Gaussian kernel.
 }
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
+    \item{model}{numeric indicating which forecast model to select for the analysis.}
   \item{\dots}{
-optional arguments to the \code{gradFUN} function.  In the case of the default, the kernel can be changed (e.g., if only \dQuote{laplacian} is desired), and optional arguments to the \code{kernel2dmeitsjer} function (in this case, \code{nx}, \code{ny} and \code{sigma}).
+optional arguments to the \code{gradFUN} function.  In the case of the default, the kernel can be changed (e.g., if only \dQuote{laplacian} is desired), and optional arguments to the \code{kernel2dmeitsjer} function (in this case, \code{nx}, \code{ny} and \code{sigma}).  Not used by \code{ACC}.
 }
 }
 \details{
@@ -50,6 +69,25 @@ Eric Gilleland
 \examples{
 data(UKobs6)
 data(UKfcst6)
-S1(UKobs6,UKfcst6)
+
+S1(UKobs6, xhat=UKfcst6)
+ACC(UKobs6, xhat=UKfcst6)
+
+\dontrun{
+data(obs0426)
+data(wrf4ncar0425)
+data(ICPg240Locs)
+
+hold <- make.SpatialVx(obs0426, wrf4ncar0425, loc=ICPg240Locs,
+    projection=TRUE, map=TRUE,
+    field.type="Precipitation", units="mm/h",
+    data.name=c("ICP NSSL/SPC Spring 2005 Cases",
+        "obs0426", "wrf4ncar0425"))
+
+plot(hold, set.pw=TRUE)
+
+S1(hold)
+ACC(hold)
+}
 }
 \keyword{ math }
