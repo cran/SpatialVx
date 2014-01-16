@@ -76,8 +76,9 @@ data(geom001)
 data(geom000)
 data(ICPg240Locs)
 hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
-    loc=ICPg240Locs, projection=TRUE, map=TRUE, field.type="Precipitation",
-    units="mm/h", data.name=c("Geometric", "geom000", "geom001"))
+    loc=ICPg240Locs, projection=TRUE, map=TRUE, loc.byrow = TRUE,
+    field.type="Precipitation", units="mm/h",
+    data.name=c("Geometric", "geom000", "geom001"))
 
 look <- upscale2d(hold, quantiles=c(0.25, 0.5, 0.75),
     levels=c(1, 3, 9, 17, 33, 65, 129, 257),

@@ -318,9 +318,10 @@ summary.clusterer <- function(object, ...) {
    invisible(out)
 } # end of 'summary.clusterer' function.
 
-plot.clusterer <- function(x, ..., set.pw=FALSE, icol=c("gray", tim.colors(64)), horizontal=FALSE, loc.byrow=TRUE) {
+plot.clusterer <- function(x, ..., set.pw=FALSE, icol=c("gray", tim.colors(64)), horizontal=FALSE) {
 
     a <- attributes(x)
+    loc.byrow <- a$loc.byrow
 
     if(!is.logical(set.pw)) {
 	if(!is.numeric(set.pw) || length(set.pw) != 2) stop("plot.clusterer: invalid set.pw argument.")

@@ -75,8 +75,14 @@ A separate image warping pacakge is in the works, and functionality will be incl
 
 Currently, there is some functionality for performing the analyses introduced in Davis et al. (2006,2009), including the merge/match algorithm of Gilleland et al (2008), as well as the SAL technique of Wernli et al (2008, 2009).  In particular, see:
 
-\code{FeatureFunPrep}, \code{FeatureSuite}, \code{FeatureMatchAnalyzer},
-\code{saller}, \code{deltamm}, \code{convthresh}
+Functions to identify features: \code{convthresh}, \code{threshfac}, \code{threshsizer}
+
+Functions to match/merge features: \code{centmatch}, \code{deltamm}
+
+Functions to diagnose features and/or compare matched features:
+
+    \code{FeatureAxis}, \code{FeatureComps}, \code{FeatureMatchAnalyzer}, \code{FeatureProps}
+
 
 The cluster analysis methods of Marzban and Sandgathe (2006; 2008) have been added.  The former method was written from scratch by Eric Gilleland 
 

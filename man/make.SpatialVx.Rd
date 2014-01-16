@@ -14,7 +14,7 @@ A list object containing the verification sets of spatial verification and forec
 make.SpatialVx(X, Xhat, thresholds = NULL,
     loc = NULL, projection = FALSE, subset = NULL,
     time.vals = NULL, reg.grid = TRUE, map = FALSE,
-    field.type = "", units = "",
+    loc.byrow = FALSE, field.type = "", units = "",
     data.name = c("X", "Xhat"),
     q = c(0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.9, 0.95),
     qs = NULL)
@@ -22,7 +22,7 @@ make.SpatialVx(X, Xhat, thresholds = NULL,
 \method{hist}{SpatialVx}(x, ..., time.point = 1, model = 1)
 
 \method{plot}{SpatialVx}(x, ..., set.pw = FALSE, time.point = 1, model = 1,
-                 col, zlim, horizontal = TRUE, loc.byrow = TRUE)
+                 col, zlim, horizontal = TRUE)
 
 \method{print}{SpatialVx}(x, ...)
 
@@ -72,7 +72,7 @@ character vector describing the quantiles used.  Again, only used if \code{thres
   \item{model}{numeric indicating which forecast model to select for the analysis.}
    \item{col, zlim, horizontal}{optional arguments to \code{image}, and/or \pkg{fields} functions \code{poly.image} and \code{image.plot}}
     \item{x, object}{list object of class \dQuote{SpatialVx}.}
-    \item{loc.byrow}{logical giving the position for the color legend scale (TRUE, bottom; FALSE, vertical on right side).}
+    \item{loc.byrow}{logical determining whether to set up the location matrices using \code{byrow} = TRUE or FALSE (for use with \code{poly.image}.}
 \item{\dots}{\code{hist} method: optional arguments to \code{hist}.
 
 \code{plot} method: if \code{time.point} is a function, then these allow for optional arguments to this function to be passed.
@@ -114,7 +114,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{hoods2d}}
+\code{\link{hoods2d}}, \code{\link{poly.image}}
 }
 \examples{
 data(UKobs6)
@@ -216,7 +216,7 @@ rm(wrf2caps, wrf4ncar, wrf4ncep)
 data(ICPg240Locs)
 
 ICPreal <- make.SpatialVx(st2, fcst, thresholds=c(0.1, 20.1),
-    loc=ICPg240Locs, projection=TRUE,
+    loc=ICPg240Locs, projection=TRUE, loc.byrow = TRUE,
     time.vals=c(2005042600, 2005051300, 2005051400, 2005051800,
         2005051900, 2005052500, 2005060100, 2005060300, 2005060400),
     map=TRUE, field.type="Precipitation", units="mm/h",

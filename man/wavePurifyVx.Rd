@@ -15,7 +15,7 @@ wavePurifyVx(x, y, object = NULL, climate = NULL, which.stats =
                  time.point = 1, model = 1, verbose = FALSE, ...)
 
 \method{plot}{wavePurifyVx}(x, ..., set.pw = FALSE, col, zlim, horizontal = TRUE, 
-    loc.byrow = TRUE, type = c("stats", "fields"))
+    type = c("stats", "fields"))
 
 \method{summary}{wavePurifyVx}(object, ...)
 }
@@ -39,7 +39,6 @@ If \code{object} is used, then this argument is ignored.  Otherwise, it is used 
   \item{verbose}{logical, should progress information (including total run time) be printed to the screen?}
   \item{set.pw}{logical, should a panel of plots be determined and set by the function (generally ill advised).}
    \item{col, zlim, horizontal}{optional arguments to \code{image}, and/or \pkg{fields} functions \code{poly.image} and \code{image.plot}}
-   \item{loc.byrow}{logical, only used if field is a projection, this determines how the locations should be put into matrices.}
    \item{type}{character string stating whether to plot the resulting statistics or the original fields along with their de-noised counter parts.}
   \item{\dots}{
 For \code{wavePurifyVx}, optional additional arguments to \code{denoise.dwt.2d} (or \code{denoise.modwt.2d}) from package \pkg{waveslim}.  Note that if the argument \code{J} is not passed, then it will be determined as J=log2(min(m,n)).  If the fields are dyadic, then the usual DWT is used, otherwise the maximal overlap DWT is used instead.  For the plot and summary method functions, these are not used.
@@ -114,7 +113,8 @@ summary(look)
 data(pert004)
 data(pert000)
 hold <- make.SpatialVx( pert000, pert004, thresholds=c(1,10,50), loc=ICPg240Locs,
-    projection=TRUE, map=TRUE, field.type="Precipitation", units="mm/h",
+    projection=TRUE, map=TRUE, loc.byrow = TRUE,
+    field.type="Precipitation", units="mm/h",
     data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
 plot(hold, set.pw=TRUE)
 look <- wavePurifyVx(object=hold, return.fields=TRUE, verbose=TRUE)

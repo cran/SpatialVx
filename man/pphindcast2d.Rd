@@ -89,7 +89,7 @@ data(geom000)
 data(ICPg240Locs)
 
 hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
-    loc=ICPg240Locs, projection=TRUE, map=TRUE,
+    loc=ICPg240Locs, projection=TRUE, map=TRUE, loc.byrow = TRUE,
     data.name=c("Geometric", "geom000", "geom001"),
     field.type="Precipitation", units="mm/h")
 

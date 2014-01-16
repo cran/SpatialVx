@@ -24,7 +24,7 @@ clusterer(X, Y = NULL, ...)
     trans = "identity", verbose = FALSE)
 
 \method{plot}{clusterer}(x, ..., set.pw = FALSE, icol = c("gray", tim.colors(64)), 
-    horizontal = FALSE, loc.byrow = TRUE)
+    horizontal = FALSE)
 
 \method{plot}{summary.clusterer}(x, ...)
 
@@ -49,7 +49,6 @@ clusterer(X, Y = NULL, ...)
     \item{set.pw}{logical, should a panel of plots be determined and set by the function.}
     \item{icol}{color vector for image plots of fields after applying the threshold(s).}
     \item{horizontal}{logical, should the image plot color legend be placed horizontally or vertically?  Only for image plot sof the fields.}
-    \item{loc.byrow}{logical, only used if field is a projection, this determines how the locations should be put into matrices.}
   \item{verbose}{logical, should progress information be printed to the screen?}
   \item{\dots}{optional arguments to the \code{hclust} function.  In the case of the \code{summary} method function, \code{z} and/or \code{sigma} giving a numeric value used to find the cut-off given by median + z*sigma for detemining matched objects (see Marzban and Sandgathe 2006) where defaults of 1 and the standard deviation of minimum inter-cluster distances are used, and \code{silent} (logical should information be printed to the screen (FALSE) or not (TRUE); default is to print to the screen.  In the case of the \code{plot} method functions, these are optional arguments to the \code{summary} method function.}
 }

@@ -128,7 +128,7 @@ data(geom000)
 data(geom001)
 data(ICPg240Locs)
 hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.1,50.1), 
-            projection=TRUE, map=TRUE, loc=ICPg240Locs,
+            projection=TRUE, map=TRUE, loc=ICPg240Locs, loc.byrow = TRUE,
 	    field.type="Precipitation", units="in/100",
             data.name=c("ICP Geometric Cases", "geom000", "geom001"))
 hold2 <- locmeasures2d(hold, k=c(4, 0.975), alpha=c(0.1,0.9))

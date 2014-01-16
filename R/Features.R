@@ -1,177 +1,6 @@
-FeatureSuite <- function(object, fun.object, time.point=1, model=1, verbose=FALSE) {
-    if( verbose) begin.time <- Sys.time()
-
-    a <- attributes(object)
-
-    ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(object, model=model)
-    else dat <- datagrabber(object)
-
-    X <- dat$X
-    Xhat <- dat$Xhat
-    ## End: Get the data sets
-
-    xdim <- a$xdim
-    Yim <- im(Xhat)
-    Xim <- im(X)
-    out <- list()
-    attributes(out) <- a
-
-    if(verbose) cat("\n", "Calling feature identification function ", fun.object$identify$fun, "\n")
-    feats <- do.call(fun.object$identify$fun, c(list(object=object), fun.object$identify$args))
-    out$features <- feats
-
-    if( !is.null(fun.object$merge)) {
-
-      if( verbose) cat("\n", "Merging features within fields with ", fun.object$merge$fun, "\n")
-      feats2 <- do.call(fun.object$merge$fun, c( list(x=feats, object=object), fun.object$merge$args))
-      out$merges <- feats2
-
-    } else feats2 <- NULL
-
-    if(!is.null(fun.object$match)) {
-
-      if( verbose) cat("\n", "Matching features between fields with ", fun.object$match$fun, "\n")
-      matches <- do.call(fun.object$match$fun, c(list(x=feats, y=feats2, object=object), fun.object$match$args))
-      out$matches <- matches
-
-    } else matches <- NULL
-
-    if( verbose) cat("\n", "Analyzing features with ", fun.object$analysis$fun, "\n")
-    out$results <- do.call(fun.object$analysis$fun,
-			c(list(x=feats, y=feats2, matches=matches, object=object), fun.object$analysis$args))
-    out$fun.obj <- fun.object
-
-    dn <- a$data.name
-    if(length(dn) == a$nforecast + 2) dn <- dn[-(1:2)]
-    else dn <- dn[-1]
-
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    if(length(a$data.name) == a$nforecast + 2) attr(out, "data.name") <- c(a$data.name[1:2], dn[model.num])
-    else attr(out, "data.name") <- c(a$data.name[1], dn[model.num])
-
-    if( verbose) print(Sys.time() - begin.time)
-    attr(out, "time.point") <- time.point
-    attr(out, "model") <- model
-    class(out) <- "FeatureSuite"
-    return(out)
-} # end of 'FeatureSuite' function.
-
-summary.FeatureSuite <- function(object,...) {
-
-    args <- list(...)
-    if(is.null(args$silent)) silent <- FALSE
-    else silent <- args$silent
-    interest <- args$interest
-    con <- args$con
-    FUN <- object$fun.obj
-    PREP <- attributes(object)
-    
-    if(!silent) {
-	if(length(PREP$data.name) == 3) {
-	    vxname <- PREP$data.name[2]
-	    fcstname <- PREP$data.name[3]
-	} else {
-	    vxname <- PREP$data.name[1]
-            fcstname <- PREP$data.name[2]
-	}
-
-        cat("\n", PREP$msg, "\n")
-        cat("\n", "Features identified by function: ", FUN$identify$fun, "\n")
-        cat("\n", "Number of Features identified in ", vxname, " = ", length(object$features$X.feats), "\n")
-        cat("\n", "Number of Features identified in ", fcstname, " = ", length(object$features$Y.feats), "\n")
-        cat("\n", "\n")
-        if(!is.null(object$merges)) {
-	    cat("Objects merged using function: ", FUN$merge$fun, "\n")
-	    cat("\n", "Number of Features identified in ", vxname, " after merging = ", length(object$merges$X.feats), "\n")
-	    cat("\n", "Number of Features identified in ", fcstname, " after merging = ", length(object$merges$Y.feats), "\n")
-        }
-        if(!is.null(object$matches)) {
-	    cat("\n", "Objects matched via function: ", FUN$match$fun, "\n")
-	    cat("\n", "Number of matched objects = ", dim(object$matches$mm.new.labels$mm)[1], "\n")
-        }
-    } # end of if '!silent' stmts.
-
-    PREP$names <- NULL
-    out <- list()
-    attributes(out) <- PREP
-    out$feature.summary <- summary(object$features, silent=silent)
-    out$analysis.summary <- summary(object$results, silent=silent, interest=interest, con=con)
-    invisible(out)
-} # end of 'summary.FeatureSuite' function.
-
-print.FeatureSuite <- function(x, ...) {
-    a <- attributes(x)
-    if(!is.null(a$msg)) cat(a$msg)
-    if(!is.null(a$data.name)) {
-	cat("\n", "Features for:\n")
-	print(a$data.name)
-	dn <- a$data.name
-	if(length(dn)==3) dn <- dn[-1]
-        cat(length(x$features$X.feats), " ", dn[1], " features found.\n")
-	cat(length(x$features$Y.feats), " ", dn[2], " features found.\n")
-    } else {
-	cat(length(x$features$X.feats), " verification features found.\n")
-        cat(length(x$features$Y.feats), " forecast features found.\n")
-    }
-    invisible()
-} # end of 'print.FeatureSuite' function.
-
-plot.FeatureSuite <- function(x, ...) {
-   FUN <- x$fun.obj
-   PREP <- attributes(x)
-
-    if(length(PREP$data.name) == 3) {
-        vxname <- PREP$data.name[2]
-        fcstname <- PREP$data.name[3]
-    } else {
-        vxname <- PREP$data.name[1]
-        fcstname <- PREP$data.name[2]
-    }
-
-   # par(mfrow=c(2,2))
-   # zl <- range(c(c(X),c(Y)),finite=TRUE)
-   # image(X, main=PREP$data.name[1], col=c("grey",tim.colors(64)), zlim=zl, axes=FALSE)
-   # image(Y, main=PREP$data.name[2], col=c("grey",tim.colors(64)), zlim=zl, axes=FALSE)
-   # image.plot(X, col=c("grey",tim.colors(64)), zlim=zl, legend.only=TRUE)
-   if(!is.null(x$matches)) plot(x$matches, no.label=TRUE, plot.set=TRUE)
-   else if(!is.null(x$merges)) plot(x$merges)
-   else plot(x$features)
-   plot(x$results)
-} # end of 'plot.FeatureSuite' function.
-
-FeatureFunPrep <- function(identfun=NULL, identfun.args=NULL,
-			mergefun=NULL, mergefun.args=NULL,
-			matchfun=NULL, matchfun.args=NULL,
-			analysisfun=NULL, analysisfun.args=NULL) {
-   out <- list()
-   if(!is.null(identfun)) out$identify <- list(fun=identfun, args=identfun.args)
-   if(!is.null(mergefun)) out$merge <- list(fun=mergefun, args=mergefun.args)
-   if(!is.null(matchfun)) out$match <- list(fun=matchfun, args=matchfun.args)
-   if(!is.null(analysisfun)) out$analysis <- list(fun=analysisfun, args=analysisfun.args)
-   return( out)
-} # end of 'FeatureFunPrep' function.
-
-# FeatureSuitePrep <- function(Vx.name, Fcst.name, loc=NULL, units=NULL) {
-#    out <- list()
-#    data.name <- c(Vx.name, Fcst.name)
-#    names(data.name) <- c("verification","forecast")
-#    out$data.name <- data.name
-#    Y <- get( Fcst.name)
-#    X <- get( Vx.name)
-#    xdim <- dim( X)
-#    out$xdim <- xdim
-#    out$loc <- loc
-#    out$units <- units
-#    class( out) <- "FeaturesSuitePrep"
-#    return( out)
-# } # end of 'FeatureSuitePrep' function.
-
-convthresh <- function(object, smoothfun="disk2dsmooth", smoothpar=1, smoothfunargs=NULL, thresh=1e-8, idfun="disjointer", zero.down=FALSE, time.point=1, model=1, ...) {
+convthresh <- function(object, smoothfun = "disk2dsmooth", smoothpar = 1,
+    smoothfunargs = NULL, thresh = 1e-8, idfun = "disjointer", zero.down = FALSE,
+    time.point = 1, model = 1, ...) {
    
     a <- attributes(object)
 
@@ -247,9 +76,11 @@ convthresh <- function(object, smoothfun="disk2dsmooth", smoothpar=1, smoothfuna
 
     class(out) <- "features"
     return(out)
+
 } # end of 'convthresh' function.
 
-threshsizer <- function(object, thresh=1e-8, Ncontig=50, idfun="disjointer", time.point=1, model=1, ...) {
+threshsizer <- function(object, thresh = 1e-8, Ncontig = 50, idfun = "disjointer",
+    time.point = 1, model = 1, ...) {
 
     a <- attributes(object)
 
@@ -333,9 +164,11 @@ threshsizer <- function(object, thresh=1e-8, Ncontig=50, idfun="disjointer", tim
 
     class(out) <- "features"
     return(out)
+
 } # end of 'threshsizer' function.
 
 summary.features <- function(object,...) {
+
     args <- list(...)
     a <- attributes(object)
 
@@ -373,7 +206,7 @@ summary.features <- function(object,...) {
 
     for(i in 1:n) {
 
-      tmp <- FeatureProps(X[[i]], Im=Im1, which.props=wpr)
+      tmp <- FeatureProps(X[[i]], Im=Im1, which.props=wpr, loc = a$loc)
       holdX[i,1:2] <- c(tmp$centroid$x, tmp$centroid$y)
       holdX[i,3] <- tmp$area
       if(!is.null(c(tmp$axis$OrientationAngle$MajorAxis))) holdX[i,4] <- c(tmp$axis$OrientationAngle$MajorAxis)
@@ -384,7 +217,7 @@ summary.features <- function(object,...) {
 
     for(i in 1:m) {
 
-      tmp <- FeatureProps(Y[[i]], Im=Im2, which.props=wpr)
+      tmp <- FeatureProps(Y[[i]], Im=Im2, which.props=wpr, loc = a$loc)
       holdY[i,1:2] <- c(tmp$centroid$x, tmp$centroid$y)
       holdY[i,3] <- tmp$area
       if(!is.null(c(tmp$axis$OrientationAngle$MajorAxis))) holdY[i,4] <- c(tmp$axis$OrientationAngle$MajorAxis)
@@ -428,27 +261,33 @@ print.features <- function(x, ...) {
     invisible()
 } # end of 'print.features' function.
 
-plot.features <- function(x, ..., set.pw=FALSE, loc.byrow=TRUE, horizontal=TRUE) {
+plot.features <- function(x, ..., type = c("both", "obs", "model")) {
 
-    if(!is.logical(set.pw)) {
-	if(is.numeric(set.pw) && length(set.pw) == 2) par(mfrow=set.pw, oma=c(0,0,2,0))
-	else stop("plot.features: invalid set.pw argument.")
-    } else if(!set.pw) par(oma=c(0,0,2,0))
-    else if(set.pw) par(mfrow=c(1,2), oma=c(0,0,2,0))
+    type <- tolower(type)
+    type <- match.arg(type)
+
+    if(type == "both") par(mfrow = c(1,2), oma = c(0,0,2,0))
 
     a <- attributes(x)
+    loc.byrow <- a$loc.byrow
 
     if(length(a$data.name) == 3) {
+
         vxname <- a$data.name[2]
         fcstname <- a$data.name[3]
+
     } else {
+
         vxname <- a$data.name[1]
         fcstname <- a$data.name[2]
+
     }
 
     X <- x$X.labeled
     Y <- x$Y.labeled
     m <- max(c(c(X),c(Y)),na.rm=TRUE)
+
+    icol <- c("white", rainbow(m))
     zl <- c(0,m)
 
     domap <- a$map
@@ -456,8 +295,10 @@ plot.features <- function(x, ..., set.pw=FALSE, loc.byrow=TRUE, horizontal=TRUE)
     xd <- a$xdim
 
     if(domap) {
+
 	locr <- apply(a$loc, 2, range, finite=TRUE)
 	ax <- list(x=pretty(round(a$loc[,1], digits=2)), y=pretty(round(a$loc[,2], digits=2)))
+
     }
 
     if(proj) loc <- list(x=matrix(a$loc[,1], xd[1], xd[2], byrow=loc.byrow),
@@ -467,63 +308,109 @@ plot.features <- function(x, ..., set.pw=FALSE, loc.byrow=TRUE, horizontal=TRUE)
 
 	if(proj) {
 
-	    map(xlim=locr[,1], ylim=locr[,2], type="n")
-	    axis(1, at=ax$x, labels=ax$y)
-	    axis(2, at=ax$y, labels=ax$y)
-	    poly.image(loc$x, loc$y, X, col=c("white", rainbow(m)), add=TRUE, xaxt="n", yaxt="n", zlim=zl)
-	    map(add=TRUE, lwd=1.5)
-	    map(add=TRUE, database="state")
-	    title(vxname)
+	    if(is.element(type, c("both", "obs"))) {
 
-	    map(xlim=locr[,1], ylim=locr[,2], type = "n")
-	    axis(1, at=ax$x, labels=ax$y)
-	    axis(2, at=ax$y, labels=ax$y)
-            poly.image(loc$x, loc$y, Y, col=c("white", rainbow(m)), add=TRUE, xaxt="n", yaxt="n", zlim=zl)
-            map(add=TRUE, lwd=1.5)
-            map(add=TRUE, database="state")
-	    title(fcstname)
+	        map(xlim=locr[,1], ylim=locr[,2], type="n")
+	        axis(1, at=ax$x, labels=ax$x)
+	        axis(2, at=ax$y, labels=ax$y)
+
+	        poly.image(loc$x, loc$y, X, col=icol, add=TRUE, xaxt="n", yaxt="n", zlim=zl)
+
+	        map(add=TRUE, lwd=1.5)
+	        map(add=TRUE, database="state")
+	        title(vxname)
+
+	    }
+
+	    if(is.element(type, c("both", "model"))) {
+
+	        map(xlim=locr[,1], ylim=locr[,2], type = "n")
+	        axis(1, at=ax$x, labels=ax$x)
+	        axis(2, at=ax$y, labels=ax$y)
+
+                poly.image(loc$x, loc$y, Y, col = icol, add=TRUE, xaxt="n", yaxt="n", zlim=zl)
+
+                map(add=TRUE, lwd=1.5)
+                map(add=TRUE, database="state")
+	        title(fcstname)
+
+	    }
 
 	} else {
 
-	    map(xlim=locr[,1], ylim=locr[,2], type="n")
-	    axis(1, at=ax$x, labels=ax$y)
-	    axis(2, at=ax$y, labels=ax$y)
-	    image(as.image(X, nx=xd[1], ny=xd[2], x=a$loc), col=c("white", rainbow(m)), add=TRUE,
-		xaxt="n", yaxt="n", zlim=zl)
-	    map(add=TRUE, lwd=1.5)
-            map(add=TRUE, database="state")
-	    title(vxname)
+	    if(is.element(type, c("both", "obs"))) {
 
-	    map(xlim=locr[,1], ylim=locr[,2], type="n")
-	    axis(1, at=ax$x, labels=ax$y)
-	    axis(2, at=ax$y, labels=ax$y)
-	    image(as.image(Y, nx=xd[1], ny=xd[2], x=a$loc), col=c("white", rainbow(m)), add=TRUE,
-		xaxt="n", yaxt="n", zlim=zl)
-	    map(add=TRUE, lwd=1.5)
-            map(add=TRUE, database="state")
+	        map(xlim=locr[,1], ylim=locr[,2], type="n")
+	        axis(1, at=ax$x, labels=ax$x)
+	        axis(2, at=ax$y, labels=ax$y)
 
-	    title(fcstname)
+	        image(as.image(X, nx=xd[1], ny=xd[2], x=a$loc), col = icol, add=TRUE,
+		    xaxt="n", yaxt="n", zlim=zl)
+
+	        map(add=TRUE, lwd=1.5)
+                map(add=TRUE, database="state")
+	        title(vxname)
+
+	    }
+
+	    if(is.element(type, c("both", "model"))) {
+
+	        map(xlim=locr[,1], ylim=locr[,2], type="n")
+	        axis(1, at=ax$x, labels=ax$x)
+	        axis(2, at=ax$y, labels=ax$y)
+
+	        image(as.image(Y, nx=xd[1], ny=xd[2], x=a$loc), col = icol, add=TRUE,
+		    xaxt="n", yaxt="n", zlim=zl)
+
+	        map(add=TRUE, lwd=1.5)
+                map(add=TRUE, database="state")
+
+	        title(fcstname)
+
+	    }
 
 	}
     } else {
 
 	if(proj) {
 
-	    poly.image(loc$x, loc$y, X, col=c("white", rainbow(m)), main=vxname, xaxt="n", yaxt="n", zlim=zl)
-	    poly.image(loc$x, loc$y, Y, col=c("white", rainbow(m)), main=fcstname, xaxt="n", yaxt="n", zlim=zl)
+	    if(is.element(type, c("both", "obs"))) {
+
+	        poly.image(loc$x, loc$y, X, col = icol, main=vxname, xaxt="n", yaxt="n", zlim=zl)
+
+	    }
+
+	    if(is.element(type, c("both", "model"))) {
+
+	        poly.image(loc$x, loc$y, Y, col = icol, main=fcstname, xaxt="n", yaxt="n", zlim=zl)
+
+	    }
 
 	} else {
 
-            image(X, col=c("white", rainbow(m)), main=vxname, xaxt="n", yaxt="n", zlim=zl)
-            image(Y, col=c("white", rainbow(m)), main=fcstname, xaxt="n", yaxt="n", zlim=zl)
+	    if(is.element(type, c("both", "obs"))) {
+
+                image(X, col = icol, main=vxname, xaxt="n", yaxt="n", zlim=zl)
+
+	    }
+
+	    if(is.element(type, c("both", "model"))) {
+
+                image(Y, col = icol, main=fcstname, xaxt="n", yaxt="n", zlim=zl)
+
+	    }
 
 	}
     }
 
-    image.plot(Y, col=c("white", rainbow(m)), zlim=zl, legend.only=TRUE, horizontal=horizontal)
+    image.plot(Y, col = icol, zlim=zl, legend.only=TRUE, ...)
 
-    title("")
-    mtext(a$msg, line=0.05, outer=TRUE)
+    if(type == "both" && !is.null(a$msg)) {
+
+        title("")
+        mtext(a$msg, line=0.05, outer=TRUE)
+
+    }
 
     invisible()
 
@@ -544,12 +431,12 @@ plot.summary.features <- function(x, ...) {
    if(k == 5) par(mfrow=c(2,2))
    else par(mfrow=c(4,2))
    
-   hist(X[,"area"], col="darkblue", breaks="FD", main="Verification \nFeature Area", xlab="area")
-   hist(Y[,"area"], col="darkorange", breaks="FD", main="Forecast \nFeature Area", xlab="area")
+   hist(X[,"area"], col = "darkblue", breaks="FD", main="Verification \nFeature Area", xlab="area")
+   hist(Y[,"area"], col = "darkorange", breaks="FD", main="Forecast \nFeature Area", xlab="area")
 
    if(goodX & goodY) {
 
-	plot(X[,"OrientationAngle"], X[,"AspectRatio"], pch=19, col="darkblue",
+	plot(X[,"OrientationAngle"], X[,"AspectRatio"], pch=19, col = "darkblue",
 	    xlab="Major Axis Orientation Angle", ylab="Aspect Ratio")
 
    	points(Y[,"OrientationAngle"], Y[,"AspectRatio"], pch=19, col="darkorange")
@@ -668,18 +555,19 @@ threshfac <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL
 
     class(out) <- "features"
     return(out)
+
 } # end of 'threshfac' function.
 
-saller <- function(object, x, y=NULL, matches=NULL, d=NULL, time.point=1, model=1) {
+saller <- function(x, d=NULL, time.point=1, model=1, distfun = "rdist", ...) {
 
     out <- list()
-    a <- attributes(object)
+    a <- attributes(x)
     if(!is.null(a$names)) a$names <- NULL
     attributes(out) <- a
     xdim <- a$xdim 
 
-    if(is.null(y)) tmp <- x
-    else tmp <- y
+    tmp <- x
+
     y <- tmp$Y.feats
     x <- tmp$X.feats
 
@@ -689,10 +577,10 @@ saller <- function(object, x, y=NULL, matches=NULL, d=NULL, time.point=1, model=
     binY <- solutionset(binY > 0)
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(object, model=model)
-    else dat <- datagrabber(object)
+    if(!missing(time.point) && !missing(model)) dat <- datagrabber(tmp, time.point=time.point, model=model)
+    else if(!missing(time.point)) dat <- datagrabber(tmp, time.point=time.point)
+    else if(!missing(model)) dat <- datagrabber(tmp, model=model)
+    else dat <- datagrabber(tmp)
 
     X <- dat$X
     Y <- dat$Xhat
@@ -706,7 +594,7 @@ saller <- function(object, x, y=NULL, matches=NULL, d=NULL, time.point=1, model=
 
     # Location
     if(is.null(d)) d <- max(a$xdim, na.rm=TRUE)
-    num <- centdist(binY,binX)
+    num <- centdist(binY,binX, distfun = distfun, loc = a$loc, ...)
     L1 <- num/d
     intRamt <- function(id,x) return(sum(x[id$m],na.rm=TRUE))
     RnMod <- as.numeric(unlist(lapply(y, intRamt, x=Y)))
@@ -747,9 +635,11 @@ saller <- function(object, x, y=NULL, matches=NULL, d=NULL, time.point=1, model=
 
     class(out) <- "saller"
     return(out)
+
 } # end of 'saller' function.
 
 print.saller <- function(x, ...) {
+
     a <- attributes(x)
     cat(a$msg, "\n")
     print(a$data.name)
@@ -757,10 +647,13 @@ print.saller <- function(x, ...) {
     b <- c(x$S, x$A, x$L)
     names(b) <- c("S", "A", "L")
     print(b)
+
     invisible(b)
+
 } # end of 'print.saller' function.
 
 summary.saller <- function(object,...) {
+
    # args <- list(...)
     a <- attributes(object)
     print(a$msg)
@@ -769,562 +662,615 @@ summary.saller <- function(object,...) {
     cat("\n", "Structure Component (S): ", object$S, "\n")
     cat("\n", "Amplitude Component (A): ", object$A, "\n")
     cat("\n", "Location Component (L): ", object$L, "\n")
+
     invisible()
+
 } # end of 'summary.saller' function.
 
 plot.saller <- function(x, ...) {
+
    invisible() 
+
 } # end of 'plot.saller' function.
 
-centdist <- function(x,y) {
-   xcen <- centroid.owin(x)
-   ycen <- centroid.owin(y)
-   return(sqrt((xcen$x - ycen$x)^2 + (xcen$y - ycen$y)^2))
+centdist <- function(x,y, distfun = "rdist", loc = NULL, ...) {
+
+    # xcen <- centroid.owin(x)
+    # ycen <- centroid.owin(y)
+
+    xcen <- FeatureProps(x = x, which.props = "centroid", loc = loc)
+    ycen <- FeatureProps(x = y, which.props = "centroid", loc = loc)
+
+    x1 <- matrix(c(xcen$centroid$x, xcen$centroid$y), 1, 2)
+    x2 <- matrix(c(ycen$centroid$x, ycen$centroid$y), 1, 2)
+
+    out <- c(do.call(distfun, c(list(x1 = x1, x2 = x2), list(...))))
+
+    # return(sqrt((xcen$x - ycen$x)^2 + (xcen$y - ycen$y)^2))
+    return(out)
+
 } # end of 'centdist' function.
 
-deltamm <- function(object, x, y = NULL, max.delta=Inf, time.point=1, model=1, verbose=FALSE, ...) {
-
-    if( verbose) begin.time <- Sys.time()
-    out <- list()
-    if(!missing(object)) {
-	a <- attributes(object)
-	attributes(out) <- a
-    }
-
-    if(is.null(y)) {
-      # No merging has been performed already.
-      Y <- x$Y.feats
-      X <- x$X.feats
-    } else {
-      # For 'FeatureSuite' wrapper function, this is if merging is first performed.
-      # Included here in case it is desired to run through this method twice to get
-      # better results.
-      Y <- y$Y.feats
-      X <- y$X.feats
-    }
-    xdim <- dim( Y[[1]][["m"]])
-
-    m <- length( Y)
-    n <- length( X)
-    mn <- m*n
-    Upsilon <- Psi <- Ksi <- matrix(NA,m,n)
-
-    if( verbose) cat("\n", "Finding Upsilon matrix with delta between each individual object across fields.\n")
-    for( i in 1:m) {
-	if(verbose) cat(i, "\n")
-	for( j in 1:n) {
-	   if(verbose) cat(j, " ")
-	   Upsilon[i,j] <- deltametric(Y[[i]], X[[j]], ...)
-	   if(verbose & (j==n)) cat("\n", "\n")
-	} # end of for 'j' loop.
-    } # end of for 'i' loop.
-	
-    if( verbose) cat("\n", "Upsilon found.\n")
-    jk <- t( apply( Upsilon, 1, order))
-    il <- apply( Upsilon, 2, order)
-
-    if( verbose) cat("\n", "Finding Psi matrix.\n")
-    for( i in 1:m) {
-	if(verbose) cat(i, "\n")
-	k <- jk[i,]
-	k <- unique(k)
-	for( j in 1:length(k)) {
-	   if(verbose) cat(j, " ")
-           if( j==1) Xtmp <- X[[k[j]]]
-           else Xtmp <- union.owin( Xtmp, X[[k[j]]])
-           Psi[i,j] <- deltametric( Y[[i]], Xtmp, ...)
-	   if(verbose & (j==n)) cat("\n", "\n")
-        } # end of for 'j' loop.
-    } # end of for 'i' loop.
-    if( verbose) cat("\n", "Psi matrix found.\n")
-
-    if( verbose) cat("\n", "Finding Ksi matrix.\n")
-    for(j in 1:n) {
-	if(verbose) cat(j, "\n")
-	k <- il[,j]
-	k <- unique(k)
-        for( i in 1:length(k)) {
-	   if(verbose) cat(i, " ")
-           if( i==1) Ytmp <- Y[[k[i]]]
-           else Ytmp <- union.owin( Ytmp, Y[[k[i]]])
-           Ksi[i,j] <- deltametric( Ytmp, X[[j]], ...)
-	   if(verbose & (i==m)) cat("\n", "\n")
-        } # end of for 'i' loop.
-    } # end of for 'j' loop.
-    if( verbose) cat("\n", "Ksi matrix found.\n")
-
-    mo <- 1:m
-    vo <- 1:n
-    movo <- cbind( rep(mo,n), rep(vo,each=m))
-    movo <- rbind( movo, movo, movo)
-
-    hooklist <- list()
-    # Set up first mn components of the list giving the individual objects for each field.
-    for(i in 1:mn) {
-	tmphook <- list()
-	tmphook$f <- movo[i,1]
-	tmphook$vx  <- movo[i,2]
-	hooklist[[i]] <- tmphook
-    } # end of for 'i' loop.
-
-    # Set up hooklist for the Psi matrix containing mergings of forecast field.
-    for(i in (mn+1):(2*mn)) {
-	tmphook <- list()
-	fi <- movo[i,1]
-	vi <- movo[i,2]
-	tmphook$f <- fi
-	tmphook$vx <- jk[fi,1:vi]
-	hooklist[[i]] <- tmphook
-    } # end of for 'i' loop.
-
-    # Set up hooklist for the Ksi matrix containing mergings of verification field.
-    for(i in (2*mn+1):(3*mn)) {
-        tmphook <- list()
-        fi <- movo[i,1]
-        vi <- movo[i,2]
-        tmphook$f <- il[1:fi,vi]
-        tmphook$vx <- vi
-        hooklist[[i]] <- tmphook
-    } # end of for 'i' loop.
-
-    bigQ <- array( NA, dim=c(m,n,3))
-    Indy <- 1:(3*mn)
-    bigQ[,,1] <- Upsilon
-    bigQ[,,2] <- Psi
-    bigQ[,,3] <- Ksi
-    out$Q <- bigQ
-    bigQ <- c(bigQ)
-    iter <- 1
-    mm <- list()
-    if( any( bigQ <= max.delta)) {
-	   if( verbose) cat("\n", "Looping through Q= {Upsilon,Psi,Ksi} to find estimated best merges and matches.\n")
-	   while((length(mo)>0) & (length(vo)>0) & (iter <= 3*mn)) {
-	      if(verbose) cat(iter, " ")
-	      minQ <- min(bigQ[Indy], na.rm=TRUE)
-	      if(is.na(minQ)) {
-		warning("deltamm: minimum Q is NA.  Stopping loop now.")
-		break
-	      }
-	      if(minQ > max.delta) break
-	      else {
-	         id <- Indy[bigQ[Indy]==minQ]
-	         if(length(id)>1) id <- id[1]
-		 else if(length(id)==0) break
-		 fobj <- hooklist[[id]][["f"]]
-		 vxobj <- hooklist[[id]][["vx"]]
-	         mm[[iter]] <- cbind(fobj, vxobj)
-		 colnames(mm[[iter]]) <- NULL
-		 findusedIndy <- numeric(0)
-	         for(i in Indy) {
-			if(any(is.element(hooklist[[i]][["f"]],fobj)) | any(is.element(hooklist[[i]][["vx"]],vxobj))) findusedIndy <- c(findusedIndy, i)
-		 } # end of for 'i' loop.
-		 findusedIndy <- unique(findusedIndy)
-		 Indy <- Indy[!is.element(Indy,findusedIndy)]
-		 # bigQ <- bigQ[!is.element(Indy,findusedIndy)]
-		 fobj <- unique(fobj)
-		 vxobj <- unique(vxobj)
-		 mo <- mo[!is.element(mo,fobj)]
-		 vo <- vo[!is.element(vo,vxobj)]
-	      } # end of if else break bc minQ too big stmts.
-	      iter <- iter+1
-	   } # end of while mo and vo both still have values loop.
-    } # end of if any delta's are small enough stmts.
-
-    if(verbose) cat("\n", "Finished merging and matching.  Finishing up bookeeping.\n")
-    ol <- length( mm)
-    frunmatched <- mo
-    vxunmatched <- vo
-
-    # put things back in the same form as they were entered in case another pass is desired.
-    out$X.feats <- out$Y.feats <- list()
-    for( i in 1:ol) {
-	mo <- unique( mm[[i]][,1])
-	vo <- unique( mm[[i]][,2])
-	lmo <- length( mo)
-	lvo <- length( vo)
-	out$Y.feats[[i]] <- Y[[mo[1]]]
-	if( lmo > 1) for( j in 2:lmo) out$Y.feats[[i]] <- union.owin( Y[[mo[j]]], out$Y.feats[[i]])
-	out$X.feats[[i]] <- X[[vo[1]]]
-	if( lvo > 1) for( j in 2:lvo) out$X.feats[[i]] <- union.owin( X[[vo[j]]], out$X.feats[[i]])
-    } # end of for 'i' loop.
- 
-    if( length(frunmatched)>0) {
-	newfrunmatched <- (ol+1):(ol+length( frunmatched))
-	for( i in newfrunmatched) out$Y.feats[[i]] <- Y[[i]]
-    } else newfrunmatched <- numeric(0)
-
-    if( length(vxunmatched)>0) {
-	newvxunmatched <- (ol+1):(ol+length( vxunmatched))
-	for( i in newvxunmatched) out$X.feats[[i]] <- X[[i]]
-    } else newvxunmatched <- numeric(0)
-    out$mm.old.labels <- list( mm=matrix( unlist( mm), ncol=2, byrow=TRUE), unmatched=list(fcst=frunmatched, vx=vxunmatched))
-    out$mm.new.labels <- list( mm=cbind(1:ol,1:ol), unmatched=list(fcst=newfrunmatched, vx=newvxunmatched))
-
-    Xlab <- Ylab <- matrix(0, xdim[1], xdim[2])
-    for( i in 1:length( out$Y.feats)) Ylab[ out$Y.feats[[i]][["m"]]] <- i
-    for( j in 1:length( out$X.feats)) Xlab[ out$X.feats[[j]][["m"]]] <- j
-    out$X.labeled <- Xlab
-    out$Y.labeled <- Ylab
-
-    if(!missing(object)) {
-
-        attr(out, "time.point") <- time.point
-        attr(out, "model") <- model
-
-        if(length(a$data.name) == a$nforecast + 2) {
-            dn <- a$data.name[-(1:2)]
-            vxname <- a$data.name[1:2]
-        } else {
-            dn <- a$data.name[-1]
-            vxname <- a$data.name[1]
-        }
-        if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-        else model.num <- model
-
-        attr(out, "data.name") <- c(vxname, dn[model.num])
-
-    } # end of if '!missing(object)' stmts.
-
-    class(out) <- "matched"
-
-    if( verbose) print( Sys.time() - begin.time)
-    return( out)
-} # end of 'deltamm' function. 
-
-plot.matched <- function(x,..., set.pw=FALSE, horizontal=TRUE, loc.byrow=TRUE) {
+plot.matched <- function(x, ..., type = c("both", "obs", "model")) {
 
     a <- attributes(x)
+    loc.byrow <- a$loc.byrow
 
     args <- list(...)
 
-    z1 <- x$X.labeled
-    z2 <- x$Y.labeled
+    type <- tolower(type)
+    type <- match.arg(type)
+
+    matches <- x$matches
+    if(!is.null(x$implicit.merges)) mer <- x$implicit.merges
+    else mer <- x$merges
+
+    xdim <- dim(x$X.labeled)
+
+    # Need to fill in values for X and Xhat
+    # where integers correspond to the first n
+    # matched objects and n + 1 for all unmatched
+    # objects.
+
+    if(any(dim(matches) == 0)) {
+
+	n <- 0
+
+	X <- x$X.labeled
+	X[X > 0] <- 1
+
+	Xhat <- x$Y.labeled
+	Xhat[Xhat > 0] <- 1
+
+	icol <- c("white", "gray")
+
+    } else {
+
+	X <- Xhat <- matrix(0, xdim[1], xdim[2])
+
+        if(is.null(mer)) { 
+
+	    n <- dim(matches)[1]
+
+	    for(i in 1:n) {
+
+		k <- matches[i,"Observed"]
+		j <- matches[i, "Forecast"]
+
+		look <- x$X.feats[[ k ]]
+		look <- look$m
+
+		X[look] <- i
+
+		look <- x$Y.feats[[ j ]]
+		look <- look$m
+
+		Xhat[look] <- i
+
+	    } # end of for 'i' loop.
+
+        } else {
+
+	    n <- length(mer)
+
+	    for(i in 1:n) {
+
+		mi <- mer[[i]] # mi is like matches.
+
+		for(jj in 1:dim(mi)[1]) {
+
+		    k <- mi[jj, "Observed"]
+		    j <- mi[jj, "Forecast"]
+
+		    look <- x$X.feats[[ k ]]
+		    look <- look$m
+
+		    X[look] <- i
+
+		    look <- x$Y.feats[[ j ]]
+		    look <- look$m
+
+		    Xhat[look] <- i
+
+		}
+
+	    } # end of for 'i' loop.
+
+        } # end of if else 'implicit.merges/merges' stmts.
+
+	oun <- x$unmatched$X
+	unolen <- length(oun)
+	fcun <- x$unmatched$Xhat
+	unflen <- length(fcun)
+
+	if(unolen > 0) {
+
+	    for(i in 1:unolen) {
+
+		look <- x$X.feats[[ oun[i] ]]
+		look <- look$m
+
+		X[look] <- n + 1
+
+	    } # end of for 'i' loop.
+
+	} # end of if any unmatched observed features stmt.
+
+	if(unflen > 0) {
+
+	    for(i in 1:unflen) {
+
+		look <- x$Y.feats[[ fcun[i] ]]
+		look <- look$m
+
+		Xhat[look] <- n + 1
+
+	    } # end of for 'i' loop.
+
+	} # end of if any unmatched forecast features stmt.
+
+	icol <- c("white", rainbow(n), "gray")
+
+    } # end of if no matches stmt.
 
     if(!is.null(a$data.name)) {
 
-	dn <- a$data.name
+        dn <- a$data.name
 
-	if(length(dn) == 3) {
+        if(length(dn) == 3) {
 
-	    vxname <- dn[2]
-	    fcstname <- dn[3]
+            vxname <- dn[2]
+            fcstname <- dn[3]
 
-	} else {
+        } else {
 
-	    vxname <- dn[1]
-	    fcstname <- dn[2]
+            vxname <- dn[1]
+            fcstname <- dn[2]
 
-	}
+        }
 
-	z1.name <- paste(vxname, "\nFeature Field", sep="")
-	z2.name <- paste(fcstname, "\nFeature Field", sep="")
+        X.name <- paste(vxname, "\nFeature Field", sep="")
+        Xhat.name <- paste(fcstname, "\nFeature Field", sep="")
 
     } else {
 
-	    z1.name <- "Verification\nFeature Field"
-	    z2.name <- "Forecast\nFeature Field"
+            X.name <- "Verification\nFeature Field"
+            Xhat.name <- "Forecast\nFeature Field"
 
     } # end of if '!is.null(a$data.name)' stmts.
 
-    numMatched <- dim( x$mm.new.labels$mm)[1]
+    if(type == "both") par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
 
-    if(length(x$mm.new.labels$unmatched$vx)>0) z1[z1>numMatched] <- numMatched+1
-    if(length(x$mm.new.labels$unmatched$fcst)>0) z2[z2>numMatched] <- numMatched+1 
-    N <- max(c(length(x$X.feats), length(x$Y.feats)), na.rm=TRUE)
-
-    if(!is.logical(set.pw) && is.numeric(set.pw)) {
-
-        if(length(set.pw) != 2) stop("plot.matched: invalid set.pw argument.")
-
-	par(mfrow=set.pw, oma=c(0,0,2,0))
-    } else if(set.pw) par(mfrow=c(1,2), oma=c(0,0,2,0))
-    else if(!is.null(a$msg)) par(oma=c(0,0,2,0))
-
-    if(is.null(a$projection)) proj <- FALSE
+    if (is.null(a$projection)) proj <- FALSE
     else proj <- a$projection
 
-    if(is.null(a$map)) domap <- FALSE
+    if (is.null(a$map)) domap <- FALSE
     else domap <- a$map
 
-    if(!is.null(a$xdim)) xd <- a$xdim
-    else xd <- dim(z1)
+    if(proj) loc <- list(x = matrix(a$loc[, 1], xdim[1], xdim[2], byrow = loc.byrow), 
+            		y = matrix(a$loc[, 2], xdim[1], xdim[2], byrow = loc.byrow))
 
-    if(proj) loc <- list(x=matrix(a$loc[,1], xd[1], xd[2], byrow=loc.byrow),
-		    y=matrix(a$loc[,2], xd[1], xd[2], byrow=loc.byrow))
-    
-    if(domap) {
-	locr <- apply(a$loc, 2, range, finite=TRUE)
-	ax <- list(x=pretty(round(a$loc[,1], digits=2)), y=pretty(round(a$loc[,2], digits=2)))
-    }
+    zl <- c(0, n + 1)
 
     if(domap) {
+
+        locr <- apply(a$loc, 2, range, finite = TRUE)
+
+        ax <- list(x = pretty(round(a$loc[, 1], digits = 2)), 
+            	   y = pretty(round(a$loc[, 2], digits = 2)))
 
 	if(proj) {
 
-	    map(xlim=locr[,1], ylim=locr[,2], type="n")
-	    axis(1, at=ax$x, labels=ax$x)
-	    axis(2, at=ax$y, labels=ax$y)
-	    poly.image(loc$x, loc$y, z1, add=TRUE, col=c("white", rainbow(N)), zlim=c(0,N))
-	    map(add=TRUE, lwd=1.5)
-	    map(add=TRUE, database="state")
-	    title(z1.name)
+	   if(is.element(type, c("both", "obs"))) {
 
-	    map(xlim=locr[,1], ylim=locr[,2], type="n")
-	    axis(1, at=ax$x, labels=ax$x)
-	    axis(2, at=ax$y, labels=ax$y)
-	    poly.image(loc$x, loc$y, z2, add=TRUE, col=c("white", rainbow(N)), zlim=c(0,N))
-	    map(add=TRUE, lwd=1.5)
-            map(add=TRUE, database="state")
-            title(z2.name)
+	        map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
+
+                axis(1, at = ax$x, labels = ax$x)
+                axis(2, at = ax$y, labels = ax$y)
+
+                poly.image(loc$x, loc$y, X, add = TRUE, col = icol, zlim = zl)
+                map(add = TRUE, lwd = 1.5)
+                map(add = TRUE, database = "state")
+                title(X.name)
+
+	    }
+
+	    if(is.element(type, c("both", "model"))) {
+
+                map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
+                axis(1, at = ax$x, labels = ax$x)
+                axis(2, at = ax$y, labels = ax$y)
+
+                poly.image(loc$x, loc$y, Xhat, add = TRUE, col = icol, zlim = zl)
+                map(add = TRUE, lwd = 1.5)
+                map(add = TRUE, database = "state")
+                title(Xhat.name) 
+
+	    }
 
 	} else {
 
-	    map(xlim=locr[,1], ylim=locr[,2], type="n")
-	    axis(1, at=ax$x, labels=ax$x)
-	    axis(2, at=ax$y, labels=ax$y)
-	    image(as.image(z1, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE), col=c("white", rainbow(N)),
-		zlim=c(0,N), add=TRUE)
-	    map(add=TRUE, lwd=1.5)
-            map(add=TRUE, database="state")
-            title(z1.name)
+	    if(is.element(type, c("both", "obs"))) {
 
-	    map(xlim=locr[,1], ylim=locr[,2], type="n")
-	    axis(1, at=ax$x, labels=ax$x)
-	    axis(2, at=ax$y, labels=ax$y)
-	    image(as.image(z2, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE), col=c("white", rainbow(N)),
-                zlim=c(0,N), add=TRUE)
-	    map(add=TRUE, lwd=1.5)
-            map(add=TRUE, database="state")
-            title(z2.name)
+	        map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
+                axis(1, at = ax$x, labels = ax$x)
+                axis(2, at = ax$y, labels = ax$y)
 
-	}
+                image(as.image(X, nx = xdim[1], ny = xdim[2], x = a$loc, na.rm = TRUE),
+		    col = icol, zlim = zl, add = TRUE)
+                map(add = TRUE, lwd = 1.5)
+                map(add = TRUE, database = "state")
+                title(X.name)
+
+	    }
+
+	    if(is.element(type, c("both", "model"))) {
+
+                map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
+                axis(1, at = ax$x, labels = ax$x)
+                axis(2, at = ax$y, labels = ax$y)
+
+                image(as.image(Xhat, nx = xdim[1], ny = xdim[2], x = a$loc, na.rm = TRUE),
+		    col = icol, zlim = zl, add = TRUE)
+                map(add = TRUE, lwd = 1.5)
+                map(add = TRUE, database = "state")
+                title(Xhat.name)
+
+	    }
+
+	} # end of if else 'proj' stmt.
+
     } else {
 
-	if(proj) {
+	if (proj) {
 
-	    poly.image(loc$x, loc$y, z1, add=TRUE, col=c("white", rainbow(N)), zlim=c(0,N))
-	    title(z1.name)
+	    if(is.element(type, c("both", "obs"))) {
 
-	    poly.image(loc$x, loc$y, z2, add=TRUE, col=c("white", rainbow(N)), zlim=c(0,N))
-	    title(z2.name)
+                poly.image(loc$x, loc$y, X, add = TRUE, col = icol, zlim = zl)
+                title(X.name)
 
-	} else {
+	    }
 
-            image(z1, col=c("white", rainbow(N)), zlim=c(0,N), main=z1.name)
-            image(z2, col=c("white", rainbow(N)), zlim=c(0,N), main=z2.name)
+	    if(is.element(type, c("both", "model"))) {
+ 
+                poly.image(loc$x, loc$y, Xhat, add = TRUE, col = icol, zlim = zl)
+                title(Xhat.name)
 
-	}
-    }
-    image.plot(z1, col=c("white", rainbow(N)), zlim=c(0,N), legend.only=TRUE, horizontal=horizontal)
+	    }
+
+        } else {
+
+	    if(is.element(type, c("both", "obs"))) {
+
+                image(X, col = icol, zlim = zl, main = X.name)
+
+	    }
+
+	    if(is.element(type, c("both", "model"))) {
+
+                image(Xhat, col = icol, zlim = zl, main = Xhat.name)
+
+	    }
+
+        } # end of if else 'proj' stmt.
+
+
+    } # end of if else 'domap' stmts.
+
+    image.plot(X, col = icol, zlim = zl, legend.only = TRUE, ...)
 
     if(!is.null(a$msg)) {
+
 	title("")
-	mtext(a$msg, line=0.05, outer=TRUE)
+	mtext(a$msg, line = 0.05, outer = TRUE)
+
     }
 
     invisible()
+
 } # end of 'plot.matched' function.
 
-# interester <- function(object, which.comps=c("cent.dist","angle.diff","area.ratio","int.area","bdelta","haus","ph","mhd","med","msd","fom","minsep"),
-# 			interest=1, sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", angle.thresh=0.8, verbose=FALSE, ...) {
-#    out <- list()
-#    if(length(interest)==1) interest <- rep(interest, length(which.comps))
-#    if(is.null(names(interest))) names(interest) <- which.comps
-#    if(verbose) begin.tiid <- Sys.time()
-#    if(is.null(object$Y.feats)) {
-# 	y <- object$X.feats
-# 	out$comparison.type <- "within"
-#    } else {
-# 	y <- object$Y.feats
-# 	out$comparison.type <- "between"
-#    }
-#    x <- object$X.feats
-#    m <- length(y)
-#    n <- length(x)
-#    res <- matrix(NA, n, m)
-#    if(verbose) cat("\n", "Finding interest for ", m*n, " pairs of features.\n")
-#    if(is.element("bearing",which.comps)) {
-# 	which.comps <- which.comps[which.comps != "bearing"]
-# 	warning("interester: bearing is not computed for interest calculations.")
-#    }
-#    if(is.element("angle.diff",which.comps)) {
-# 	angle.conf.x <- numeric(n)
-# 	angle.conf.y <- numeric(m)
-# 	for( i in 1:n) {
-# 	   ar <- FeatureAxis(x[[i]])$aspect.ratio
-# 	   if(ar > angle.thresh) angle.conf.x[i] <- 1
-# 	} # end of for 'i' loop.
-# 	for( j in 1:m) {
-# 	   ar <- FeatureAxis(x[[j]])$aspect.ratio
-#            if(ar > angle.thresh) angle.conf.y[j] <- 1
-# 	} # end of for 'j' loop.
-#    }
-#    for(i in 1:n) {
-# 	if(verbose) cat(i, "\n")
-# 	for(j in 1:m) {
-# 	   if(verbose) cat(j, " ")
-# 	   int <- interest
-# 	   if(is.element("angle.diff",which.comps)) int["angle.diff"] <- int["angle.diff"]*angle.conf.x[i]*angle.conf.y[j]
-# 	   tmp <- FeatureComps(X=x[[i]], Y=y[[j]], which.comps=which.comps, sizefac=sizefac, alpha = alpha, k = k, p = p, c = c, distfun = distfun, ...)
-# 	   res[i,j] <- unlist(tmp)[which.comps]*int[which.comps]
-# 	} # end of for 'j' loop.
-#    } # end of for 'i' loop.
-#    if(verbose) cat("\n")
-#    if(verbose) print(Sys.time() - begin.tiid)
-#    return(res)
-# } # end of 'interester' function.
+print.matched <- function(x, ...) {
 
-centmatch <- function(object, x, y=NULL, criteria=1, const=14, time.point=1, model=1, verbose=FALSE) {
+    a <- attributes(x)
+    print(x$match.message)
 
-    out <- list()
-    if(!missing(object)) {
-	a <- attributes(object)
-	attributes(out) <- a
+    print(x$match.type)
+
+    if(!is.null(x$criteria)) {
+	
+	if(x$criteria == 1) cat("Distance criteria based on sum of the object sizes.\n")
+	else if(x$criteria == 2) cat("Distance criteria based on the average of the object sizes.\n")
+	else if(x$criteria == 3) cat("Distance criteria based on a constant threshold given by ", x$const, "\n")
+
     }
 
-    if(is.null(y)) {
-	xdim <- dim(x$X.labeled)
-	Y <- x$Y.feats
-	X <- x$X.feats
-    } else {
-	xdim <- dim(y$X.labeled)
-	X <- y$X.feats
-	Y <- y$Y.feats
+    cat("Matched objects.\n")
+    print(x$matches)
+
+    cat("Unmatched Objects.\n")
+    print(x$unmatched)
+
+    if(!is.null(x$implicit.merges)) {
+
+	cat("Objects are not merged, but implicitly defined merges would be:\n")
+
+	for(i in 1:length(x$implicit.merges)) {
+
+	    cat("New object ", i, ":\n")
+	    print(x$implicit.merges[[i]])
+
+	}
+
     }
+
+    invisible()
+
+} # end of 'print.matched' function.
+
+centmatch <- function(x, criteria = 1, const = 14, distfun = "rdist", areafac = 1,
+    verbose = FALSE, ...) {
+
+    if(class(x) != "features") stop("centmatch: invalid object, x or y type.")
+
+    out <- x
+
+    out$match.message <- "Matching based on centroid distances using centmatch function."
+    out$match.type <- "centmatch"
+
+    out$criteria <- criteria
+    if(criteria == 3) out$const <- const
+    else out$const <- NULL
+
+    a <- attributes(x)
+
+    if(distfun == "rdist.earth") {
+
+	loc <- a$loc
+	if(is.null(loc)) warning("Using rdist.earth, but lon/lat coords are not available. Can pass them as an attribute to x called loc.")
+
+    } else loc <- NULL
+
+    xdim <- dim(x$X.labeled)
+
+    # Get the list of "owin" class objects defining individual features
+    # for each field.
+    Y <- x$Y.feats
+    X <- x$X.feats
+
 
     m <- length(Y)
     n <- length(X)
+
     if(criteria != 3) {
+
       Ax <- numeric(n)
       Ay <- numeric(m)
+
     }
 
+    # matrix to hold the centroid distances between each pair of m model and n observed objects.
     Dcent  <- matrix(NA,m,n)
 
     if(verbose) {
+
 	if(criteria != 3) cat("\n", "Looping through each feature in each field to find the centroid differences.\n")
 	else cat("\n", "Looping through each feature in each field to find the areas and centroid differences.\n")
+
     }
+
     for(i in 1:m) {
+
 	if(verbose) cat(i, "\n")
+
 	if(criteria != 3) {
-	   tmpy <- FeatureProps(x=Y[[i]], which.props=c("centroid", "area"))
+
+	   tmpy <- FeatureProps(x=Y[[i]], which.props=c("centroid", "area"), areafac = areafac, loc = loc)
 	   Ay[i] <- sqrt(tmpy$area)
-	} else tmpy <- FeatureProps(x=Y[[i]], which.props="centroid")
+
+	} else tmpy <- FeatureProps(x=Y[[i]], which.props="centroid", areafac = areafac, loc = loc)
+
 	ycen <- tmpy$centroid
+
 	for(j in 1:n) {
+
 	   if(verbose) cat(j, " ")
 	   if(criteria != 3) {
-		tmpx <- FeatureProps(x=X[[j]], which.props=c("centroid", "area"))
+
+		tmpx <- FeatureProps(x=X[[j]], which.props=c("centroid", "area"), areafac = areafac, loc = loc)
 	   	Ax[j] <- sqrt(tmpx$area)
-	   } else tmpx <- FeatureProps(x=X[[j]], which.props="centroid")
+
+	   } else tmpx <- FeatureProps(x=X[[j]], which.props="centroid", areafac = areafac, loc = loc)
+
 	   xcen <- tmpx$centroid
-	   Dcent[i,j] <- sqrt((xcen$x - ycen$x)^2 + (xcen$y - ycen$y)^2)
+	   # Dcent[i,j] <- sqrt((xcen$x - ycen$x)^2 + (xcen$y - ycen$y)^2)
+	   Dcent[i, j] <- do.call(distfun, c(list(x1 = matrix(c(xcen$x, xcen$y), 1, 2),
+					    x2 = matrix(c(ycen$x, ycen$y), 1, 2), ...)))
+
 	} # end of for 'j' loop.
+
 	if(verbose) cat("\n")
+
     } # end of for 'i' loop.
+
     if(criteria != 3) {
+
 	Ay <- matrix( rep(Ay,n), m, n)
    	Ax <- matrix( rep(Ax,m), m, n, byrow=TRUE)
+
     }
+
     if(criteria == 1) Dcomp <- Ay + Ax
     else if(criteria == 2) Dcomp <- (Ax + Ay)/2
     else if(criteria == 3) Dcomp <- matrix(const,m,n)
     else stop("centmatch: criteria must be 1, 2 or 3.")
-    Dcomp <- Dcent < Dcomp
 
-    fmatches <- matrix(NA,m,2)
-    if(verbose) cat("Final loops to determine matches.\n")
-    for(i in 1:m) {
-	if(verbose) cat(i, "\n")
-	id <- Dcomp[i,]
-	z <- Dcent[i,]
-	if(sum(id, na.rm=TRUE) > 1) hold <- (1:n)[z==min(z,na.rm=TRUE)]
-	else if(any(id)) hold <- (1:n)[id]
-	else hold <- NA
-	fmatches[i,] <- c(i, hold)
-    } # end of for 'i' loop.
+    DcompID <- Dcent < Dcomp
 
-    out$mm.old.labels <- list()
-    mm <- fmatches[!is.na(fmatches[,2]),]
-    out$mm.old.labels$mm <- mm
-    out$mm.old.labels$unmatched <- list(fcst=(1:m)[is.na(fmatches[,2])], vx=(1:n)[!is.element(1:n,fmatches[,2])])
-    ol <- dim(fmatches[!is.na(fmatches[,2]),])[1]
-    out$mm.new.labels <- list()
+    any.matched <- any(DcompID)
 
-    if(length(ol)>0) {
-	out$mm.new.labels$mm <- cbind(1:ol,1:ol)
-        if(m>ol) funmatched <- (1:m)[ol:m]
-   	else funmatched <- numeric(0)
-   	if(n>ol) vxunmatched <- (1:n)[ol:n]
-   	else vxunmatched <- numeric(0)
-	X.feats <- Y.feats <- list()
-        if(ol >= 1) {
-          for(i in 1:ol) {
-            X.feats[[i]] <- X[[mm[i,2]]]
-            Y.feats[[i]] <- Y[[mm[i,1]]]
-          } # end of for 'i' loop.
-     	} # end of if any matches stmts.
-	unm <- length(funmatched)
-   	unvx <- length(vxunmatched)
-   	if(unm>0) for(i in (ol+1):(ol+unm-1)) Y.feats[[i]] <- Y[[funmatched[i]]]
-   	if(unvx>0) for(i in (ol+1):(ol+unvx-1)) X.feats[[i]] <- X[[vxunmatched[i]]]
+    FobjID <- matrix( rep(1:m, n), m, n)
+    OobjID <- t(matrix( rep(1:n, m), n, m))
+
+    fmatches <- cbind(c(FobjID)[DcompID], c(OobjID)[DcompID])
+
+    # Check for multiple object pairs.
+    pcheck <- paste(fmatches[,1], fmatches[,2], sep="-")
+    dupID <- duplicated(pcheck)
+    fmatches <- fmatches[!dupID,]
+
+    # Now, put the objects in order according to the forecast objects.
+    oID <- order(fmatches[,1])
+    fmatches <- fmatches[oID,]
+
+    colnames(fmatches) <- c("Forecast", "Observed")
+
+    out$matches <- fmatches
+
+    if(any.matched) {
+
+	funmatched <- (1:m)[!is.element(1:m, fmatches[,1])]
+	vxunmatched <- (1:n)[!is.element(1:n, fmatches[,2])]
+
+	# Find implicit merges.  That is, objects from one field
+	# can be matched multiple times to objects in the other field.
+	# While these are not to be considered merged, it might make
+	# sense to consider them merged.  Defining those merges here
+	# should make things easier later (e.g., when plotting) uses.
+
+	matchlen <- dim(fmatches)[1]
+	fuq <- unique(fmatches[,1])
+	flen <- length(fuq)
+	ouq <- unique(fmatches[,2])
+	olen <- length(ouq)
+
+	if(matchlen == flen && matchlen > olen) {
+
+	    if(verbose) cat("Multiple observed features are matched to one or more forecast feature(s).  Determining implicit merges.\n")
+
+	} else if(matchlen > flen && matchlen == olen) {
+
+	    if(verbose) cat("Multiple forecast features are matched to one or more observed feature(s).  Determining implicit merges.\n")
+
+	} else if(matchlen > flen && matchlen > olen) {
+
+	    if(verbose) cat("Multiple matches have been found between features in each field.  Determining implicit merges.\n")
+
+	} else if(matchlen == flen && matchlen == olen) {
+
+	    if(verbose) cat("No multiple matches were found.  Thus, no implicit merges need be considered.\n")
+
+	} # end of if else which fields have multiple matches stmts.
+
+	implicit.merges <- MergeIdentifier(fmatches)
+
     } else {
-	out$mm.new.labels$mm <- NULL
-	X.feats <- X
-	Y.feats <- Y
+
+	if(verbose) cat("No objects matched.\n")
+
+	implicit.merges <- NULL
+
 	funmatched <- 1:m
 	vxunmatched <- 1:n
+
     }
 
-    out$mm.new.labels$unmatched <- list(fcst=funmatched, vx=vxunmatched)
-    out$X.feats <- X.feats
-    out$Y.feats <- Y.feats
-    Xlab <- Ylab <- matrix(0, xdim[1], xdim[2])
-    for(i in 1:length(X.feats)) Xlab[X.feats[[i]][["m"]]] <- i
-    for(i in 1:length(Y.feats)) Ylab[Y.feats[[i]][["m"]]] <- i
-    out$X.labeled <- Xlab
-    out$Y.labeled <- Ylab
+    out$unmatched <- list(X = vxunmatched, Xhat = funmatched)
 
-    if(!missing(object)) {
-        attr(out, "time.point") <- time.point
-        attr(out, "model") <- model
+    out$implicit.merges <- implicit.merges
 
-        if(length(a$data.name) == a$nforecast + 2) {
-            dn <- a$data.name[-(1:2)]
-            vxname <- a$data.name[1:2]
-        } else {
-            dn <- a$data.name[-1]
-            vxname <- a$data.name[1]
-        }
-        if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-        else model.num <- model
-
-        attr(out, "data.name") <- c(vxname, dn[model.num])
-    }
+    out$criteria.values <- Dcomp
+    out$centroid.distances <- Dcent
 
     class(out) <- "matched"
     return(out)
+
 } # end of 'centmatch' function.
 
-FeatureProps <- function(x, Im=NULL, which.props=c("centroid", "area", "axis", "intensity"), areafac=1, q=c(0.25, 0.90), ...) {
+MergeIdentifier <- function(x) {
+    
+    if(any(dim(x) == 0)) return(NULL)
+
+    matchlen <- dim(x)[1]
+    
+    fuq <- unique(x[,1])
+    ouq <- unique(x[,2])
+
+    flen <- length(fuq)
+    olen <- length(ouq)
+
     out <- list()
-    if(is.element("centroid", which.props)) out$centroid <- centroid.owin(x)
+
+    if(matchlen == flen && matchlen > olen) for(i in 1:olen) out[[ i ]] <- x[ x[,2] == ouq[ i ], , drop = FALSE]
+    else if(matchlen > flen && matchlen == olen) for(i in 1:flen) out[[ i ]] <- x[ x[,1] == fuq[ i ], , drop = FALSE]
+    else if(matchlen > flen && matchlen > olen) {
+
+        if(matchlen > 1) {
+
+            idx <- integer(matchlen) + NA
+            idx[1] <- 1
+
+            for(i in 2:matchlen) {
+
+                idF <- x[1:(i - 1), 1] == x[i, 1]
+                idO <- x[1:(i - 1), 2] == x[i, 2]
+
+                if(any(idF)) idx[i] <- idx[ (1:(i - 1))[idF] ][1]
+                else if(any(idO)) idx[i] <- idx[ (1:(i - 1))[idO] ][1]
+                else idx[i] <- max(idx[1:(i - 1)], na.rm = TRUE) + 1
+
+            } # end of for 'i' loop.
+
+        } else return(NULL) # just in case...
+
+        for(j in 1:max(idx, na.rm = TRUE)) out[[ j ]] <- x[ idx == j, , drop = FALSE]
+    
+    } else if(matchlen == flen && matchlen == olen) return(NULL)
+
+    return(out)
+
+} # end of 'MergeIdentifier' function.
+
+FeatureProps <- function(x, Im = NULL, which.props = c("centroid", "area", "axis", "intensity"),
+    areafac = 1, q = c(0.25, 0.90), loc = NULL, ...) {
+
+    out <- list()
+
+    if(is.element("centroid", which.props)) {
+
+	if(is.null(loc)) {
+
+	    xd <- dim(x$m)
+	    loc <- cbind(rep(1:xd[1], xd[2]), rep(1:xd[2], each = xd[1]))
+
+ 	}
+
+	xcen <- mean(loc[c(x$m), 1], na.rm = TRUE)
+	ycen <- mean(loc[c(x$m), 2], na.rm = TRUE)
+	out$centroid <- list(x = xcen, y = ycen)
+	# out$centroid <- centroid.owin(x)
+
+    }
+
     if(is.element("area", which.props)) out$area <- sum(colSums(x$m, na.rm=TRUE), na.rm=TRUE)*areafac
     if(is.element("axis", which.props)) out$axis <- FeatureAxis(x=x,fac=areafac, ...)
     if(is.element("intensity", which.props)) {
+
 	ivec <- matrix(NA, ncol=length(q), nrow=1)
 	colnames(ivec) <- as.character(q)
 	ivec[1,] <- quantile(c(Im[x$m]), probs=q)
 	out$intensity <- ivec
+
     }
+
     return(out)
+
 } # end of 'FeatureProps' function.
 
 FeatureComps <- function(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ratio",
 					     "int.area", "bdelta", "haus", "ph", "mhd",
 					     "med", "msd", "fom", "minsep", "bearing"),
-		sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", deg=TRUE, aty="compass", ...) {
+		sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", deg=TRUE, aty="compass", loc = NULL, ...) {
 
    id1 <- is.element(c("cent.dist", "angle.diff", "area.ratio", "int.area", "bearing"), which.comps)
    if(any(id1)) {
@@ -1337,39 +1283,58 @@ FeatureComps <- function(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ra
    if(any(id2)) list2 <- c("ph", "mhd", "med", "msd", "fom", "minsep")[id2]
 
    if(any(id1)) {
-	Xsingle.props <- FeatureProps(x=X, which.props=list1, areafac=sizefac^2)
-	Ysingle.props <- FeatureProps(x=Y, which.props=list1, areafac=sizefac^2)
+
+	Xsingle.props <- FeatureProps(x=X, which.props=list1, areafac=sizefac^2, loc = loc)
+	Ysingle.props <- FeatureProps(x=Y, which.props=list1, areafac=sizefac^2, loc = loc)
+
    }
 
-   if(any(id2)) out <- locperf(X=X, Y=Y, which.stats=list2, alpha=alpha, k=k, distfun=distfun, ...)
-   else out <- list()
+   if(any(id2)) {
+
+	# Xim <- as.im(X)
+        # Xim <- solutionset(X == 1)
+
+	# Yim <- as.im(Y)
+        # Yim <- solutionset(Y == 1)
+
+	out <- locperf(X=X, Y=Y, which.stats=list2, alpha=alpha, k=k, distfun=distfun, ...)
+
+   } else out <- list()
 
    if(is.element("cent.dist", which.comps)) {
+
 	Xcent.x <- Xsingle.props$centroid$x
 	Xcent.y <- Xsingle.props$centroid$y
 	Ycent.x <- Ysingle.props$centroid$x
 	Ycent.y <- Ysingle.props$centroid$y
 	out$cent.dist <- sqrt( (Ycent.x - Xcent.x)^2 + (Ycent.y - Xcent.y)^2)*sizefac
+
    } # end of if do centroid distance stmt.
 
    if(is.element("angle.diff", which.comps)) {
+
 	phiX <- Xsingle.props$axis$OrientationAngle$MajorAxis*pi/180
 	phiY <- Ysingle.props$axis$OrientationAngle$MajorAxis*pi/180
 	out$angle.diff <- abs(atan2(sin(phiX-phiY),cos(phiX-phiY))*180/pi)
+
    } # end of if do angle difference stmts.
 
    if(any(is.element(c("area.ratio","int.area"), which.comps))) {
+
 	Xa <- Xsingle.props$area
         Ya <- Ysingle.props$area
+
    } # end of if do any area calculations stmt.
 
    if(is.element("area.ratio", which.comps)) out$area.ratio <- min(Xa,Ya)/max(Xa,Ya)
 
    if(is.element("int.area", which.comps)) {
+
 	denom <- (Xa + Ya)/2
 	XY <- intersect.owin(X,Y)
-	XYa <- FeatureProps(XY, which.props="area", areafac=sizefac^2)$area
+	XYa <- FeatureProps(XY, which.props="area", areafac=sizefac^2, loc = loc)$area
 	out$int.area <- XYa/denom
+
    } # end of if do area ratio stmt.
 
    if(is.element("bearing", which.comps)) out$bearing <- bearing(cbind(Ysingle.props$centroid$x,Ysingle.props$centroid$y),
@@ -1378,7 +1343,9 @@ FeatureComps <- function(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ra
 
    if(is.element("bdelta", which.comps)) out$bdelta <- deltametric(X,Y, p=p, c=c)
    if(is.element("haus", which.comps)) out$haus <- deltametric(X,Y,p=Inf,c=Inf)
+
    return(out)
+
 } # end of 'FeatureComps' function.
 
 FeatureAxis <- function(x, fac=1, flipit=FALSE, twixt=FALSE) {
@@ -1458,14 +1425,74 @@ summary.FeatureAxis <- function(object, ...) {
    invisible()
 } # end of 'summary.FeatureAxis' function.
 
-FeatureMatchAnalyzer <- function(x, y=NULL, matches=NULL, object=NULL,
-    which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
+FeatureMatchAnalyzer <- function(x, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
+                    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"), 
+		    sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", ...) {
+
+    UseMethod("FeatureMatchAnalyzer", x)
+
+} # end of 'FeatureMatchAnalyzer' function.
+
+FeatureMatchAnalyzer.matched <- function(x, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
+                    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
+                    sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", ...) {
+
+    class(x) <- paste(class(x), x$match.type, sep = ".")
+    UseMethod("FeatureMatchAnalyzer", x)
+
+} # end of 'FeatureMatchAnalyzer.matched' function.
+
+
+FeatureMatchAnalyzer.matched.centmatch <- function(x, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
+                    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"), 
+                    sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", ...) {
+
+    a <- attributes(x)
+    a$names <- NULL
+
+    n <- dim(x$matches)[1]
+
+    if(n > 0) {
+	
+        out <- list()
+	attributes(out) <- a
+
+	loc <- a$loc
+
+	Xfeats <- x$X.feats
+	Yfeats <- x$Y.feats
+
+	for(i in 1:n) {
+
+	    j <- x$matches[i, "Forecast"]
+	    k <- x$matches[i, "Observed"]
+	    out[[i]] <- FeatureComps(Y=Yfeats[[ j ]], X=Xfeats[[ k ]], which.comps=which.comps,
+                                        sizefac=sizefac, alpha=alpha, k=k, p=p, c=c, distfun=distfun, loc = loc, ...)
+
+	} # end of for 'i' loop.
+
+    } else {
+
+	out <- "No matches found"
+	attributes(out) <- a
+
+    }
+
+    class(out) <- "FeatureMatchAnalyzer"
+    return(out)
+
+} # end of 'FeatureMatchAnalyzer.matched.centmatch' function.
+
+FeatureMatchAnalyzer.matched.deltamm <- function(x, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
 		    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
-    sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", ...) {
+    		    sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", ...,
+    		    y=NULL, matches=NULL, object=NULL) {
 
     if(!is.null(matches)) obj <- matches
     else if(!is.null(y)) obj <- y
     else obj <- x
+
+    loc <- attributes(obj)$loc
 
     Yfeats <- obj$Y.feats
     Xfeats <- obj$X.feats
@@ -1478,23 +1505,28 @@ FeatureMatchAnalyzer <- function(x, y=NULL, matches=NULL, object=NULL,
 
         out <- list()
         for(i in 1:n) out[[i]] <- FeatureComps(Y=Yfeats[[i]], X=Xfeats[[i]], which.comps=which.comps,
-					sizefac=sizefac, alpha=alpha, k=k, p=p, c=c, distfun=distfun, ...)
+					sizefac=sizefac, alpha=alpha, k=k, p=p, c=c, distfun=distfun, loc = loc, ...)
     }
 
     class(out) <- "FeatureMatchAnalyzer"
     return(out)
-} # end of 'FeatureMatchAnalyzer' function.
+
+} # end of 'FeatureMatchAnalyzer.matched.deltamm' function.
 
 print.FeatureMatchAnalyzer <- function(x, ...) {
+
     if(is.list(x)) {
+
         n <- length(x)
         hold <- x[[1]]
         m <- length(hold)
         cn <- names(hold)
 
         for(i in 1:n) {
+
 	    l <- unlist(lapply(x[[i]], length))
 	    if(any(l==0)) x[[i]][[(1:m)[l==0]]] <- NA
+
         } # end of for 'i' loop.
 
         out <- c(unlist(x))
@@ -1502,12 +1534,17 @@ print.FeatureMatchAnalyzer <- function(x, ...) {
         out <- matrix(out, n, m, byrow=TRUE)
         colnames(out) <- cn
         print(out)
+
         invisible(out)
+
     } else {
+
 	attributes(x) <- NULL
 	print(c(x))
 	invisible()
+
     }
+
 } # end of 'print.FeatureMatchAnalyzer' function.
 
 summary.FeatureMatchAnalyzer <- function(object, ...) {
@@ -1576,9 +1613,10 @@ summary.FeatureMatchAnalyzer <- function(object, ...) {
 
 plot.FeatureMatchAnalyzer <- function(x, ..., type=c("all", "ph", "mhd", "med", "msd", "fom", "minsep",
 					"cent.dist", "angle.diff", "area.ratio", "int.area", "bearing",
-					"bdelta", "haus"), set.pw=FALSE) {
+					"bdelta", "haus")) {
 
     if(is.list(x)) {
+
         type <- tolower(type)
         type <- match.arg(type)
 
@@ -1592,22 +1630,19 @@ plot.FeatureMatchAnalyzer <- function(x, ..., type=c("all", "ph", "mhd", "med", 
 	}
 
         if(type == "all") {
-            if((n > 1) && set.pw) {
-    	        if(n==2) par(mfrow=c(1,2),oma=c(0,0,2,0))
-    	        else if(n==3 | n==4) par(mfrow=c(2,2),oma=c(0,0,2,0))
-    	        else if(n==5 | n==6) par(mfrow=c(2,3),oma=c(0,0,2,0))
-    	        else if(n==7 | n==8) par(mfrow=c(2,4),oma=c(0,0,2,0))
-    	        else if(n==9) par(mfrow=c(3,3),oma=c(0,0,2,0))
-    	        else if(n==10 | n==11 | n==12) par(mfrow=c(3,4),oma=c(0,0,2,0))
-    	        else par(mfrow=c(4,4),oma=c(0,0,2,0))
-            } else par(oma=c(0,0,2,0))
+
+            if(!is.null(a$msg)) par(oma=c(0,0,2,0))
     
             for(i in 1:n) {
+
                 if(is.element(colnames(y)[i], c("angle.diff","bearing"))) {
+
                     if(colnames(y)[i] == "angle.diff") t1 <- "Angle Difference"
                     else t1 <- "Bearing from Xhat to X\n obj. centroids (ref. = north)"
                     circ.plot(rad(y[,i]), main=t1, shrink=1.5)
+
     	        } else {
+
                     if(colnames(y)[i] == "ph") t1 <- "Partial Hausdorff \nDistance"
                     else if(colnames(y)[i] == "mhd") t1 <- "Modified Hausdorff \nDistance"
                     else if(colnames(y)[i] == "med") t1 <- "Mean Error Distance"
@@ -1620,9 +1655,13 @@ plot.FeatureMatchAnalyzer <- function(x, ..., type=c("all", "ph", "mhd", "med", 
                     else if(colnames(y)[i] == "bdelta") t1 <- "Baddeley\'s Delta Metric"
                     else if(colnames(y)[i] == "haus") t1 <- "Hausdorff Distance"
                     barplot(y[,i], main=t1, ...)
+
     	        }
+
             } # end of for 'i' loop.
+
         } else {
+
 	    if(type=="ph") t1 <- "Partial Hausdorff \nDistance"
             else if(type == "mhd") t1 <- "Modified Hausdorff \nDistance"
             else if(type == "med") t1 <- "Mean Error Distance"
@@ -1641,10 +1680,13 @@ plot.FeatureMatchAnalyzer <- function(x, ..., type=c("all", "ph", "mhd", "med", 
 
 	    if(is.element(type, c("angle.diff", "bearing"))) circ.plot(rad(y[,i]), main=t1, shrink=1.5)
 	    else barplot(y[,i], main=t1, ...)
+
         }
 
-            if(!is.null(a$msg) && set.pw) mtext(a$msg, line=0.05, outer=TRUE)
     } # end of if 'is.list(x)' stmts. 
+
+    if(!is.null(a$msg)) mtext(a$msg, line=0.05, outer=TRUE)
+
     invisible()
 
 } # end of 'plot.FeatureMatchAnalyzer' function.

@@ -79,7 +79,7 @@ data(wrf4ncar0425)
 data(ICPg240Locs)
 
 hold <- make.SpatialVx(obs0426, wrf4ncar0425, loc=ICPg240Locs,
-    projection=TRUE, map=TRUE,
+    projection=TRUE, map=TRUE, loc.byrow = TRUE,
     field.type="Precipitation", units="mm/h",
     data.name=c("ICP NSSL/SPC Spring 2005 Cases",
         "obs0426", "wrf4ncar0425"))

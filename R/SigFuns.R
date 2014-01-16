@@ -179,7 +179,7 @@ plot.LocSig <- function(x, loc=NULL, nx=NULL, ny=NULL, ...){
   invisible(output)
 }
 
-plot.EBS <- function(x, ..., set.pw=FALSE, loc.byrow=TRUE, col, horizontal) {
+plot.EBS <- function(x, ..., set.pw=FALSE, col, horizontal) {
 
     if(missing(col)) col <- c("gray", tim.colors(64))
     if(missing(horizontal)) horizontal <- TRUE
@@ -191,6 +191,7 @@ plot.EBS <- function(x, ..., set.pw=FALSE, loc.byrow=TRUE, col, horizontal) {
     ZciR <- x$block.boot.results$Upper - x$block.boot.results$Lower
 
     a <- attributes(x)
+    loc.byrow <- a$loc.byrow
     xd <- a$xdim
 
     if(is.null(a$subset)) {

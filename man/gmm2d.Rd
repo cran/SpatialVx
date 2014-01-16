@@ -22,7 +22,7 @@ gmm2d(x, ...)
     threshold = NULL, initFUN = "initGMM", verbose = FALSE)
 
 \method{plot}{gmm2d}(x, ..., col = c("gray", tim.colors(64)),
-    zlim = c(0, 1), horizontal = TRUE, loc.byrow = TRUE)
+    zlim = c(0, 1), horizontal = TRUE)
 
 \method{predict}{gmm2d}(object, ..., x)
 
@@ -59,7 +59,6 @@ logical, should progress information be printed to the screen?
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
     \item{model}{numeric indicating which forecast model to select for the analysis.}
 	\item{col, zlim, horizontal}{optional arguments to \pkg{fields} function(s) \code{poly.image}, \code{image.plot}.}
-    \item{loc.byrow}{logical, when creating matrices of lon/lat coordinates, should this be done by row (TRUE) or by column (FALSE)?}
   \item{\dots}{
 In the case of \code{gmm2d}: optional arguments to \code{initFUN}.  In the case of \code{plot}: not used.  In the case of \code{predict}: N by 2 matrix of grid point locations on which to predict the probability from the 2-d GMM model.  In the case of \code{summary}: this can include the arguments: \code{silent}, logical stating whether to print summaries to the screen (FALSE) or not (TURE), \code{e1}, \code{e2}, ..., \code{e5}, giving alternative weights in calculating the overall error (Eq 15 in Lakshmanan and Kain, 2010, but see details section below).
 }
@@ -157,7 +156,7 @@ data(pert004)
 data(ICPg240Locs)
 
 hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
-    map=TRUE, projection=TRUE,
+    map=TRUE, projection=TRUE, loc.byrow = TRUE,
     field.type="Precipitation", units="mm/h",
     data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
 

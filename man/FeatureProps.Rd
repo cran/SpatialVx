@@ -8,7 +8,7 @@ Calculate properties for an identified feature.
 }
 \usage{
 FeatureProps(x, Im = NULL, which.props = c("centroid", "area", "axis", "intensity"),
-    areafac = 1, q = c(0.25, 0.9), ...)
+    areafac = 1, q = c(0.25, 0.9), loc = NULL, ...)
 }
 \arguments{
   \item{x}{
@@ -26,6 +26,7 @@ numeric, in determining the lengths of the axes, they are multiplied by a factor
   \item{q}{
 numeric vector of values between 0 and 1 inclusive giving the quantiles for determining the intensity of the feature.
 }
+   \item{loc}{optional argument giving a two-column matrix of grid locations for finding the centroid.  If NULL, indices based on the dimension of x are used.}
   \item{\dots}{
 additional arguments to \code{FeatureAxis}.
 }
@@ -49,7 +50,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{FeatureAxis}}, \code{\link{owin}}, \code{\link{convexhull}}, \code{\link{sma}}, \code{\link{as.psp}}, \code{\link{angles.psp}}, \code{\link{rotate.owin}}, \code{\link{rotate.psp}}, \code{\link{bounding.box}}, \code{\link{midpoints.psp}}, \code{\link{lengths.psp}}, \code{\link{infline}}, \code{\link{clip.infline}}, \code{\link{deltamm}}, \code{\link{FeatureSuite}}, \code{\link{convthresh}}, \code{\link{disjointer}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{solutionset}}
+\code{\link{FeatureAxis}}, \code{\link{owin}}, \code{\link{convexhull}}, \code{\link{sma}}, \code{\link{as.psp}}, \code{\link{angles.psp}}, \code{\link{rotate.owin}}, \code{\link{rotate.psp}}, \code{\link{bounding.box}}, \code{\link{midpoints.psp}}, \code{\link{lengths.psp}}, \code{\link{infline}}, \code{\link{clip.infline}}, \code{\link{deltamm}}, \code{\link{convthresh}}, \code{\link{disjointer}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{solutionset}}
 }
 \examples{
 data(ExampleSpatialVxSet)

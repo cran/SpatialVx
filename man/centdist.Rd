@@ -1,29 +1,37 @@
 \name{centdist}
 \alias{centdist}
 \title{
-Centroid Distance Between Two owin Objects
+Centroid Distance Between Two Identified Objects
 }
 \description{
-Find the centroid distance between two \dQuote{owin} objects.
+Find the centroid distance between two identified objects/features.
 }
 \usage{
-centdist(x, y)
+
+centdist(x, y, distfun = "rdist", loc = NULL, ...)
+
 }
+
 \arguments{
-  \item{x,y}{objects of class \dQuote{owin} (package \pkg{spatstat}) containing binary images of features of interest.
+
+  \item{x,y}{objects of class \dQuote{owin} (package \pkg{spatstat}) containing binary images of features of interest.}
+  \item{distfun}{character string naming a distance function that should take arguments \code{x1} and \code{x2} as 1 by 2 matrices, and return a single numeric value.  Default uses the \pkg{fields} function, \code{rdist}, where the fields function \code{rdist.earth} is an obvious alternative.}
+  \item{loc}{two-column matrix giving the location values for which to calculate the centroids.  If NULL, indices according to the dimension of the fields are used.}
+  \item{\dots}{optional arguments to \code{distfun}.}
+
 }
-}
+
 \details{
-This is a simple wrapper function that calls centroid.owin from package spatstat for each of x and y (to get their centroids), and then finds the (Euclidean) distance between them.  If (xc1, xc2) is the centroid position for x, and (yc1, yc2) is the centroid position for y, then sqrt((xc1 - yc1)^2 + (xc2 - yc2)^2) is returned.
+This is a simple function that calculates the centroid for each of x and y (to get their centroids), and then finds the distance between them according to \code{distfun}.  The centroids are calculated using \code{FeatureProps}.
 }
 \value{
-numeric giving the centroid (Euclidean) distance.
+numeric giving the centroid distance.
 }
 \author{
 Eric Gilleland
 }
 \seealso{
-\code{\link{centroid.owin}}, \code{\link{as.im}}, \code{\link{solutionset}}, \code{\link{FeatureMatchAnalyzer}}, \code{\link{FeatureComps}}
+\code{\link{FeatureProps}}, \code{\link{as.im}}, \code{\link{solutionset}}, \code{\link{FeatureMatchAnalyzer}}, \code{\link{FeatureComps}}
 }
 \examples{
 x <- y <- matrix(0, 10, 12)

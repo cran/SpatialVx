@@ -1,6 +1,10 @@
 \name{SpatialVx-internal}
 \alias{datagrabber}
 \alias{datagrabber.SpatialVx}
+\alias{datagrabber.features}
+\alias{datagrabber.matched}
+\alias{FeatureMatchAnalyzer.matched}
+\alias{MergeIdentifier}
 \alias{hoods2dPrep}
 \alias{hoods2dSetUpLists}
 \alias{KernelGradFUN}

@@ -35,8 +35,7 @@ mowaverify2d(X, ..., Clim = NULL, wavelet.type = "haar", J = 4)
 
 \method{plot}{waverify2d}(x, ..., main1 = "X", main2 = "Y", main3 = "Climate", 
     which.plots = c("all", "dwt2d", "details", "energy", "mse", 
-        "rmse", "acc"), separate = FALSE, col, horizontal = TRUE, 
-    loc.byrow = TRUE)
+        "rmse", "acc"), separate = FALSE, col, horizontal = TRUE)
 
 \method{print}{waverify2d}(x, ...)
 }
@@ -66,7 +65,6 @@ logical, should the Shannon entropy be calculated for the wavelet decomposition?
    \item{which.plots}{character vector describing which plots to make.  The default is to make all of them.  \dQuote{dwt2d} option uses \code{plot.dwt2d} from \pkg{waveslim}.  \dQuote{details} option makes image plots of the detail fields on which the various statistics are calculated.  The rest of the options give line plots showing the statistics.}
   \item{separate}{logical, should the plots be on their own devices (TRUE) or should some of them be put onto a single multi-panel device (FALSE, default)?}
     \item{col}{optional argument specifying the \code{col} argument in calls to functions like \code{image}.  Default is a concatenation of gray with \code{time.colors(64)}.}
-    \item{loc.byrow}{logical, if the grids are projections, then \code{poly.image} will be called instead of \code{image}.  In this case, the locations are put into matrices of lon and matrices of lat where the matrices are formed from the columns of \code{loc} (as taken from the attribute).  In this case, \code{loc.byrow} is used for the \code{byrow} argument in the call to \code{matrix}.}
     \item{horizontal}{logical, should the legend on image plots be horizontal (TRUE, placed at the bottom of the plot) or vertical (FALSE, placed at the right side of the plot)?}
   \item{verbose}{logical, should progress information be printed to the screen, including total run time?
 }
@@ -164,9 +162,10 @@ plot(look, which.plots="energy")
 # Using a "SpatialVx" object.
 data(ICPg240Locs)
 hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
-            projection=TRUE, map=TRUE, field.type="Precipitation",
-            units="mm/h",
-            data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
+    projection=TRUE, map=TRUE, loc.byrow = TRUE,
+    field.type="Precipitation", units="mm/h",
+    data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
+
 look <- mowaverify2d(hold, verbose=TRUE)
 
 plot(look, which.plots="details")

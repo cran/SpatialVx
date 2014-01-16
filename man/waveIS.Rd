@@ -100,7 +100,7 @@ data(pert004)
 data(pert000)
 
 hold <- make.SpatialVx( pert000, pert004, thresholds=c(1,10,50),
-    loc=ICPg240Locs, projection=TRUE, map=TRUE,
+    loc=ICPg240Locs, projection=TRUE, map=TRUE, loc.byrow = TRUE,
     field.type="Precipitation", units="mm/h",
     data.name=c("Perturbed ICP", "pert000", "pert004"))
 
