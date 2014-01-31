@@ -112,7 +112,13 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{convthresh}}, \code{\link{disjointer}}, \code{\link{deltametric}}, \code{\link{owin}}, \code{\link{tess}}, \code{\link{tiles}}, \code{\link{connected}}
+To identify features: \code{\link{convthresh}}, \code{\link{threshfac}}, \code{\link{threshsizer}}
+
+To force merges (implicit or otherwise): \code{\link{MergeForce}}, 
+
+Other functions used to identify features within the above mentioned functions (all from \pkg{spatstat}):
+
+\code{\link{disjointer}}, \code{\link{deltametric}}, \code{\link{owin}}, \code{\link{tess}}, \code{\link{tiles}}, \code{\link{connected}}
 }
 \examples{
 x <- y <- matrix(0, 100, 100)
@@ -132,7 +138,11 @@ image.plot(look$Y.labeled)
 
 look2 <- deltamm(look)
 
+FeatureTable(look2)
+
 look3 <- centmatch(look)
+
+FeatureTable(look3)
 
 \dontrun{
 data(pert000)

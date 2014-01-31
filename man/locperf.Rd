@@ -59,8 +59,14 @@ The Hausdorff distance for a finite grid is given by max( max( d(x,B); x in A), 
 For computational efficiency, the distance transform method is used via \code{distmap} from package \pkg{spatstat} for calculating d(x,A) x in the raster.
 }
 \value{
-\code{locperf} returns a list object with components depending on \code{which.stats}: one or more of the following, each of which is a single numeric.
-\item{ph }{numeric giving the value of the partial }
+\code{locperf} returns a list object with components depending on \code{which.stats}: one or more of the following, each of which is a single numeric, except as indicated.
+  \item{bdelta}{matrix or numeric depending on p and number of thresholds.}
+  \item{haus}{numeric giving the Hausdorff distances for each threshold.}
+  \item{ph }{matrix or numeric, depending on k and number of thresholds, giving the value of the partial Hausdorff distance for each threshold.}
+  \item{mhd}{numeric giving the value of the modified Hausdorff distance for each threshold.}
+  \item{med,msd}{numeric giving the value of the mean error/square error distance for each threshold.}
+  \item{fom}{matrix or numeric, depending on alpha and number of thresholds, giving the value of Pratt his Figure of Merit for each threshold.}
+  \item{minsep}{numeric giving the value of the minimum boundary separation distance for each threshold.}
 
 \code{distob} returns a single numeric.
 

@@ -674,7 +674,7 @@ summary.waveIS <- function(object,...) {
    xdim <- a$xdim
    dyadic <- all(floor(log2(xdim))==ceiling(log2(xdim)))
    if(dyadic) level.names <- paste("2^",J-(1:J),sep="")
-   else level.names <- as.character(a$levels)
+   else level.names <- as.character(1:J)
 
    rownames(MSE) <- rownames(EnVx) <- rownames(SS) <- rownames(MSEperc) <- 
 	rownames(EnFcst) <- rownames(EnVx.perc) <- rownames(EnFcst.perc) <- 
@@ -714,17 +714,18 @@ plot.waveIS <- function(x, main1="X", main2="Y", which.plots=c("all", "mse", "ss
    thresholds <- a$qs
    q <- length(thresholds)
 
-   if(!is.null(a$levels)) {
-	levels <- a$levels
-	if(is.null(level.label)) level.label <- "scale/level"
-   } else {
+#   if(!is.null(a$levels)) {
+#	levels <- a$levels
+#	if(is.null(level.label)) level.label <- "scale/level"
+#   } else {
 	dyadic <- all(floor(log2(xdim))==ceiling(log2(xdim)))
 	if(dyadic) levels <- paste("2^", J-(1:J), sep="")
 	else {
 	   levels <- 1:J
 	   if(is.null(level.label)) level.label <- "Level"
 	}
-   }
+#   }
+
    if(any(is.element(c("all","mse"),which.plots))) {
 	par(mfrow=c(2,1), mar=c(5.1,4.1,4.1,5.1))
 	image(x$MSE, col=c("grey",tim.colors(64)), main=paste("MSE (", main1, " vs ", main2, ")", sep=""), xlab=level.label,

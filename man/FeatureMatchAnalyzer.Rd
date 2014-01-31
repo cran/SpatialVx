@@ -6,6 +6,7 @@
 \alias{print.FeatureMatchAnalyzer}
 \alias{summary.FeatureMatchAnalyzer}
 \alias{FeatureComps}
+\alias{distill.FeatureComps}
 \title{
 Analyze Features of a Verification Set
 }
@@ -41,10 +42,14 @@ FeatureComps(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.a
     "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
     sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", deg = TRUE,
     aty = "compass", loc = NULL, ...)
+
+\method{distill}{FeatureComps}(x, ...)
 }
 \arguments{
   \item{x,y,matches}{
 \code{x}, \code{y} and \code{matches} are list objects with components as output by \code{deltamm} or similar function.  Only one is used, and it first checks for \code{matches}, then \code{y}, and finally \code{x}.  It expects a component named \code{mm.new.labels} that gives the number of matched objects.  In the case of the \code{plot} and \code{print} method functions, \code{x} is a list object as returned by \code{FeatureMatchAnalyzer}.
+
+\code{distill}: output from \code{FeatureComps}.
 }
   \item{X,Y}{list object giving a pixel image as output from \code{solutionset} from package \pkg{spatstat} for the verification and forecast fields, resp.  These arguments are passed directly to the \code{locperf} function.}
   \item{object}{
@@ -75,12 +80,16 @@ character naming a distance functions to use in calculating the various binary i
     \item{loc}{two-column matrix giving location coordinates for centroid distance.  If NULL, uses an indices based on the dimension of the field.}
   \item{\dots}{
 Additional arguments to \code{deltametric} from package \pkg{spatstat}.  In case of the \code{summary} method function, additional optional arguments may be passed, which include \code{silent} (logical, should the information be printed to the screen or not?), \code{interest} (numeric vector defining an interest value for calculating total interest for each matched object, if NULL, this is not performed), \code{con} (name of function that takes three arguments, the first two are matrices whose rows are objects and columns are matched feature properties, where the former is a matrix of matched feature property values (e.g., angle difference) and the latter is a matrix of interest values determined by the \code{interest} argument (whereby each row is identical), the third argument to \code{con} must be called \code{which.comps}, and it gives the short-form feature property names (i.e., same as which.comps argument); see details section).  In the case of the \code{plot} method function, these are optional arguments to the function \code{barplot}.
+
+Not used by \code{distill}.
 }
 }
 \details{
 \code{FeatureMatchAnalyzer} operates on objects of class \dQuote{matched}.  It is set up to calculate the values discussed in sec. 4 of Davis et al. (2006) for a single verification set (i.e., mean and standard deviation are not computed because it is only a single case).  If criteria is 1, then features separated by a distance D < the sum of the sizes of the two features (size of a feature is defined as the square root of its area) are considered a match.  If criteria is 2, then a match is made if D < the average of the sizes of the two features.  Finally, criteria 3 decides a match as being anything less than a pre-determined constant.
 
 \code{FeatureComps} is the primary function called by \code{FeatureMatchAnalyzer}, and is designed as a more stand-alone type of function.  Several of the measures that can be calculated are simply the binary image measures/metrics available via, e.g., \code{locperf}.  It calculates comparisons between two matched features (i.e., between the verification and forecast fields).
+
+\code{distill} reduces a \dQuote{FeatureComps} list object to a named numeric vector containing (in this order) the components that exist from "cent.dist", "angle.diff", "area.ratio", "int.area", "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", and "minsep".  This is used, for example, by \code{interester}, which is why the order is important.
 
 The \code{summary} method function for \code{FeatureMatchAnalyzer} allows for passing a function, con, to determine confidence for each interest value.  The idea being to set the interest to zero when the particular interest value does not make sense.  For example, angle difference makes no sense if both objects are circles.  Currently, no functions are included in this package for actually doing this, and so the functionality itself has not been tested. 
 
@@ -98,10 +107,6 @@ FeatureMatchAnalyzer returns a list of list objects.  The specific components de
    \item{bearing}{numeric giving the bearing from the forecast object centroid to the observed object centroid.}
 The summary method for FeatureMatchAnalyzer invisibly returns a matrix with the same information, but where each matched object is a row and each column is the specific statistic.  Or, if optional interest argument is passed, a list with components:
 
-\item{match.properties}{above mentioned matrix.}
-\item{object.interest}{numeric vector giving the total interest for each feature.}
-\item{interest.values}{numeric vector giving the interest values used (i.e., as passed through argument interest.}
-
 \code{print} returns a named vector invisibly.
 }
 \references{
@@ -111,7 +116,13 @@ Davis, C. A., Brown, B. G. and Bullock, R. G. (2006) Object-based verification o
 Eric Gilleland
 }
 \seealso{
-\code{\link{locperf}}, \code{\link{convthresh}}, \code{\link{deltamm}}, \code{\link{deltametric}}, \code{\link{bearing}}
+Functions to identify features: \code{\link{convthresh}}, \code{\link{threshfac}}, \code{\link{threshsizer}}
+
+Functions to merge and/or match objects: \code{\link{deltamm}}, \code{\link{centmatch}}, \code{\link{MergeForce}}
+
+Functions to compute feature properties: \code{\link{locperf}}, \code{\link{deltametric}}, \code{\link{bearing}}
+
+Function to calculate fuzzy logic interest values: \code{\link{interester}}
 }
 \examples{
 data(ExampleSpatialVxSet)

@@ -11,14 +11,14 @@ locmeasures2dPrep <- function(object, k=NULL, alpha=0.1, bdconst=NULL, p=2) {
 
 } # end of 'locmetric2dPrep' function.
 
-locmeasures2d <- function(object, which.stats=c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom"),
+locmeasures2d <- function(object, which.stats=c("bdelta", "haus", "ph", "mhd", "med", "msd", "fom"),
         distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ...) {
 
     UseMethod("locmeasures2d", object)
 
 } # end of 'locmeasures2d' function.
 
-locmeasures2d.default <- function(object, which.stats=c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom"),
+locmeasures2d.default <- function(object, which.stats=c("bdelta", "haus", "ph", "mhd", "med", "msd", "fom"),
         distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ..., Y, thresholds=NULL) {
 
     args <- list(...)
@@ -30,7 +30,7 @@ locmeasures2d.default <- function(object, which.stats=c("baddeley", "hausdorff",
     return(out)
 } # end of 'locmeasures2d.default' function.
 
-locmeasures2d.SpatialVx <- function(object, which.stats=c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom"),
+locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "ph", "mhd", "med", "msd", "fom"),
 	distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ..., time.point=1, model=1) {
 
     object <- locmeasures2dPrep(object=object, k=k, alpha=alpha, bdconst=bdconst, p=p)
@@ -90,12 +90,12 @@ locmeasures2d.SpatialVx <- function(object, which.stats=c("baddeley", "hausdorff
 	Ix <- solutionset(x.id>=thresholds[threshold,1])
 	Iy <- solutionset(y.id>=thresholds[threshold,2])
 
-	if( "baddeley" %in% which.stats) for(p in 1:np) { 
+	if( "bdelta" %in% which.stats) for(p in 1:np) { 
 			tmpDelta <- try(deltametric(Iy,Ix,p=a$p[p], c=a$bdconst, ...))
-			if(class(tmpDelta) != "try-error") out$baddeley[p, threshold] <- tmpDelta
+			if(class(tmpDelta) != "try-error") out$bdelta[p, threshold] <- tmpDelta
 			} # end of for 'p' loop.
 
-	if( "hausdorff" %in% which.stats) out$hausdorff[threshold] <- deltametric(Iy,Ix,p=Inf,c=Inf, ...)
+	if( "haus" %in% which.stats) out$haus[threshold] <- deltametric(Iy,Ix,p=Inf,c=Inf, ...)
 
 	if( "ph" %in% which.stats) for( k in 1:nk) out$ph[k,threshold] <- locperf(X=Ix, Y=Iy, which.stats="ph", k=a$k[k],
 											distfun=distfun, distfun.params)$ph
@@ -388,7 +388,7 @@ locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep
 
 } # end of 'locperf' function.
 
-LocListSetup <- function(a, which.stats= c("baddeley", "hausdorff", "ph", "mhd", "med", "msd", "fom", "minsep"),
+LocListSetup <- function(a, which.stats= c("bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep"),
 			    nthresh=1, np=1, nk=1, nalpha=1) {
 
    out <- list()
@@ -396,8 +396,8 @@ LocListSetup <- function(a, which.stats= c("baddeley", "hausdorff", "ph", "mhd",
 
    q <- nthresh
    outvec <- numeric(q)+NA
-   if( "baddeley" %in% which.stats) out$baddeley <- matrix( NA, np, q)
-   if( "hausdorff" %in% which.stats) out$hausdorff <- outvec
+   if( "bdelta" %in% which.stats) out$bdelta <- matrix( NA, np, q)
+   if( "haus" %in% which.stats) out$haus <- outvec
    if( "ph" %in% which.stats) out$ph <- matrix( NA, nk, q)
    if( "mhd" %in% which.stats) out$mhd <- outvec
    if( "med" %in% which.stats) out$med <- outvec
@@ -421,15 +421,15 @@ summary.locmeasures2d <- function(object, ...) {
    print(x$data.name)
    cat("Threshold(s) is (are):\n")
    print(lu)
-   if( !is.null( object$baddeley)) {
-	y <- object$baddeley
+   if( !is.null( object$bdelta)) {
+	y <- object$bdelta
 	rownames(y) <- paste( "p = ", p, "; ", sep="")
 	colnames(y) <-  lu
 	cat("Baddeley Delta Metric with c = ", x$bdconst, "\n")
 	print(y)
    }
-   if( !is.null( object$hausdorff)) {
-	y <- object$hausdorff
+   if( !is.null( object$haus)) {
+	y <- object$haus
 	y <- matrix( y, nrow=1)
 	colnames(y) <- lu
 	cat("\n", "Hausdorff distance\n")

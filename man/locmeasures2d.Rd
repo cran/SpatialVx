@@ -11,15 +11,15 @@ Binary Image Measures
 Calculate some binary image measures between two fields.
 }
 \usage{
-locmeasures2d(object, which.stats = c("baddeley", "hausdorff", "ph", 
+locmeasures2d(object, which.stats = c("bdelta", "haus", "ph", 
     "mhd", "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
     k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ...)
 
-\method{locmeasures2d}{default}(object, which.stats = c("baddeley", "hausdorff", "ph", 
+\method{locmeasures2d}{default}(object, which.stats = c("bdelta", "haus", "ph", 
     "mhd", "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
     k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ..., Y, thresholds=NULL)
 
-\method{locmeasures2d}{SpatialVx}(object, which.stats = c("baddeley", "hausdorff", "ph", 
+\method{locmeasures2d}{SpatialVx}(object, which.stats = c("bdelta", "haus", "ph", 
     "mhd", "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
     k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ..., time.point = 1, 
     model = 1)
@@ -62,9 +62,9 @@ The Hausdorff distance between two sets A and B contained in the finite grid is 
 
 Calculates one or more of the following binary image measures:
 
-\dQuote{baddeley} Baddeley delta metric (Baddeley, 1992a,b; Gilleland, 2011; Schwedler and Baldwin, 2011)
+\dQuote{bdelta} Baddeley delta metric (Baddeley, 1992a,b; Gilleland, 2011; Schwedler and Baldwin, 2011)
 
-\dQuote{hausdorff} Hausdorff distance (Baddeley, 1992b; Schwedler and Baldwin, 2011)
+\dQuote{haus} Hausdorff distance (Baddeley, 1992b; Schwedler and Baldwin, 2011)
 
 \dQuote{ph} Partial Hausdorff distance (Schwedler and Baldwin, 2011).  See the help file for \code{locperf}.
 
@@ -80,8 +80,8 @@ These distances are summaries in and of themselves, so the summary method functi
 }
 \value{
 A list with at least one of the following components depending on the argument which.stats
-\item{baddeley }{p by q matrix giving the Baddeley delta metric for each desired value of p (rows) and each threshold (columns)}
-\item{hausdorff}{numeric vector giving the Hausdorff distance for each threshold}
+\item{bdelta }{p by q matrix giving the Baddeley delta metric for each desired value of p (rows) and each threshold (columns)}
+\item{haus}{numeric vector giving the Hausdorff distance for each threshold}
 \item{ph}{k by q matrix giving the partial Hausdorff distance for each k-th largest value (rows) and each threshold (columns)}
 \item{mhd}{numeric vector giving the modified Hausdorff distance for each threshold.}
 \item{med}{numeric vector giving the mean error distance.}
