@@ -11,7 +11,7 @@ Calculate the major and minor axes of a feature and various other properties suc
 \usage{
 FeatureAxis(x, fac = 1, flipit = FALSE, twixt = FALSE)
 
-\method{plot}{FeatureAxis}(x, ...)
+\method{plot}{FeatureAxis}(x, ..., zoom = FALSE)
 
 \method{summary}{FeatureAxis}(object, ...)
 
@@ -30,6 +30,7 @@ numeric, in determining the lengths of the axes, they are multiplied by a factor
   \item{twixt}{
 logical, should the major axis angle be forced to be between +/- 90 degrees?
 }
+   \item{zoom}{logical, should the object be plotted on its bounding box (TRUE) or on the original grid (FALSE, default)?  Useful if the feature is too small to be seen well on the original gid.}
    \item{\dots}{For \code{plot.FeatureAxis} these are additional arguments to the \code{plot} function.  Not used by \code{summary.FeatureAxis}.}
 }
 \details{

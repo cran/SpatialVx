@@ -71,9 +71,9 @@ Thanks to Caren Marzban for supplying his optical flow code for this package (it
 
 A separate image warping pacakge is in the works, and functionality will be included here probably with some wrapper functions specific to spatial forecast verification needs.
 
-2c. Features-based methods: These methods are also sometimes called object-based methods, and have many similarities to techniques used in Object-Based Image Analysis (OBIA), a relatively new research area that has emerged primarily as a result of advances in earth observations sensors and GIScience (Blaschke et al., 2008).  It is attempted to identify individual features within a field, and subsequently analyze the fields on a feature-by-feature basis.  This may involve intensity error information in addition to location-specific error information.  Additionally, contingency table verifcation statistics can be found using new definitions for hits, misses and false alarms (correct negatives are more difficult to asses, but can also be done).
+2c. Features-based methods: These methods are also sometimes called object-based methods (the term \dQuote{features} is used in this package in order to differentiate from an R object), and have many similarities to techniques used in Object-Based Image Analysis (OBIA), a relatively new research area that has emerged primarily as a result of advances in earth observations sensors and GIScience (Blaschke et al., 2008).  It is attempted to identify individual features within a field, and subsequently analyze the fields on a feature-by-feature basis.  This may involve intensity error information in addition to location-specific error information.  Additionally, contingency table verifcation statistics can be found using new definitions for hits, misses and false alarms (correct negatives are more difficult to asses, but can also be done).
 
-Currently, there is some functionality for performing the analyses introduced in Davis et al. (2006,2009), including the merge/match algorithm of Gilleland et al (2008), as well as the SAL technique of Wernli et al (2008, 2009).  In particular, see:
+Currently, there is functionality for performing the analyses introduced in Davis et al. (2006,2009), including the merge/match algorithm of Gilleland et al (2008), as well as the SAL technique of Wernli et al (2008, 2009).  Some functionality for composite analysis (Nachamkin, 2004) is provided by way of placing individual features onto a relative grid so that each shares the same centroid.  Shape analysis is partially supported by way of functions to identify boundary points (Micheas et al. 2007; Lack et al. 2010).  In particular, see:
 
 Functions to identify features: \code{convthresh}, \code{threshfac}, \code{threshsizer}
 
@@ -83,6 +83,7 @@ Functions to diagnose features and/or compare matched features:
 
     \code{FeatureAxis}, \code{FeatureComps}, \code{FeatureMatchAnalyzer}, \code{FeatureProps}
 
+See \code{compositer} for setting up composited objects, and see \code{hiw} for some shape analysis functionality.
 
 The cluster analysis methods of Marzban and Sandgathe (2006; 2008) have been added.  The former method was written from scratch by Eric Gilleland 
 
@@ -189,6 +190,8 @@ Harris, D., Foufoula-Georgiou, E., Droegemeier, K. K. and Levit, J. J. (2001)  M
 
 Hering, A. S. and Genton, M. G. (2011) Comparing spatial predictions.  \emph{Technometrics} \bold{53}, (4), 414--425.
 
+Lack, S., Limpert, G. L. and Fox, N. I. (2010) An object-oriented multiscale verification scheme. \emph{Wea. Forecasting}, \bold{25}, 79--92, DOI: 10.1175/2009WAF2222245.1
+
 Lakshmanan, V. and Kain, J. S. (2010) A Gaussian Mixture Model Approach to Forecast Verification. \emph{Wea. Forecasting}, \bold{25} (3), 908--920.
 
 Livezey, R. E. and Chen, W. Y. (1983) Statistical field significance and its determination by Monte Carlo techniques.  \emph{Mon. Wea. Rev.}, \bold{111}, 46--59.
@@ -204,6 +207,10 @@ Marzban, C. and Sandgathe, S. (2009) Verification with variograms.  \emph{Wea. F
 Marzban, C. and Sandgathe, S. (2010) Optical flow for verification.  \emph{Wea. Forecasting}, \bold{25}, 1479--1494, doi:10.1175/2010WAF2222351.1.
 
 Mesinger, F. (2008) Bias adjusted precipitation threat scores.  \emph{Adv. Geosci.}, \bold{16}, 137--142.
+
+Micheas, A. C., Fox, N. I., Lack, S. A. and Wikle, C. K. (2007) Cell identification and verification of QPF ensembles using shape analysis techniques. \emph{J. of Hydrology}, \bold{343}, 105--116.
+
+Nachamkin, J. E. (2004) Mesoscale verification using meteorological composites. \emph{Mon. Wea. Rev.}, \bold{132}, 941--955.
 
 Roberts, N. M. and Lean, H. W. (2008) Scale-selective verification of rainfall accumulations from high-resolution forecasts of convective events.  \emph{Mon. Wea. Rev.}, \bold{136}, 78--97. doi:10.1175/2007MWR2123.1.
 

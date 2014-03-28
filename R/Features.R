@@ -1343,6 +1343,7 @@ FeatureComps <- function(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ra
 } # end of 'FeatureComps' function.
 
 FeatureAxis <- function(x, fac=1, flipit=FALSE, twixt=FALSE) {
+
    out <- list()
    # out$feature.name <- as.character(substitute(x))
    if( flipit) x <- flipxy(x)
@@ -1391,18 +1392,30 @@ FeatureAxis <- function(x, fac=1, flipit=FALSE, twixt=FALSE) {
    out$sma.fit <- axfit
    class(out) <- "FeatureAxis"
    return(out)
+
 } # end of 'FeatureAxis' function.
 
-plot.FeatureAxis <- function(x, ...) {
+plot.FeatureAxis <- function(x, ..., zoom = FALSE) {
    args <- list(...)
-   plot( x$z, col="darkblue", main="", ...)
+   if(!zoom) plot( x$z, col="darkblue", main="", ...)
+   else {
+
+	z <- x$z
+	bb <- bounding.box(z)
+	z <- rebound(z, rect = bb)
+	plot(z, col="darkblue", main="", ...)
+
+   }
+
    plot( x$chull, add=TRUE)
    plot( x$MajorAxis, add=TRUE, col="yellow", lwd=1.5)
    plot( x$MajorAxis, add=TRUE, lty=2, lwd=1.5)
    plot( x$MinorAxis, add=TRUE, col="yellow", lwd=1.5)
    plot( x$MinorAxis, add=TRUE, lty=2, lwd=1.5)
    plot( x$MidPoint, add=TRUE, col="darkorange")
+
    invisible()
+
 } # end of 'plot.FeatureAxis' function.
 
 summary.FeatureAxis <- function(object, ...) {

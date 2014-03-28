@@ -340,28 +340,43 @@ function(X, Xhat, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", "b
    ##
    out <- list()
    xdim <- dim( Xhat)
+
    if( "mse" %in% which.stats) {
-        if( is.null( subset)) {
-         Nxy <- sum( colSums( !is.na( Xhat) & !is.na( X), na.rm=TRUE), na.rm=TRUE)
-         out$mse <- sum( colSums( (Xhat - X)^2, na.rm=TRUE), na.rm=TRUE)/Nxy
+
+        if(is.null(subset)) {
+
+            Nxy <- sum( colSums( !is.na( Xhat) & !is.na( X), na.rm=TRUE), na.rm=TRUE)
+            out$mse <- sum( colSums( (Xhat - X)^2, na.rm=TRUE), na.rm=TRUE)/Nxy
+
         } else {
-           out$mse <- mean( (c(Xhat)[ subset] - c(X)[subset])^2, na.rm=TRUE)
+
+            out$mse <- mean((c(Xhat)[ subset] - c(X)[subset])^2, na.rm=TRUE)
+
         }
+
    } # end of if do MSE.
-   if( any( is.element(c("bias", "ts", "ets", "pod", "far", "f", "hk", "bcts", "bcets"), which.stats))) {
-	if( !is.logical( Xhat)) Xhat <- as.logical( Xhat)
-	if( !is.logical( X)) X <- as.logical( X)
-	if( is.null( subset)) {
-	   hits <- sum( colSums( matrix( Xhat & X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
-	   miss <- sum( colSums( matrix( !Xhat & X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
-	   fa   <- sum( colSums( matrix( Xhat & !X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
-	   if( any( c("ets", "f", "hk") %in% which.stats)) cn <- sum( colSums( matrix( !Xhat & !X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
+
+   if( any(is.element(c("bias", "ts", "ets", "pod", "far", "f", "hk", "bcts", "bcets"), which.stats))) {
+
+	if(!is.logical(Xhat)) Xhat <- matrix(c(as.logical(Xhat)), xdim[ 1 ], xdim[ 2 ])
+	if(!is.logical(X)) X <- matrix(c(as.logical(X)), xdim[ 1 ], xdim[ 2 ])
+
+	if(is.null(subset)) {
+
+	   hits <- sum(colSums(matrix(Xhat & X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
+	   miss <- sum(colSums(matrix(!Xhat & X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
+	   fa   <- sum(colSums(matrix(Xhat & !X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
+	   if(any(c("ets", "f", "hk") %in% which.stats)) cn <- sum(colSums(matrix(!Xhat & !X, xdim[1], xdim[2]), na.rm=TRUE), na.rm=TRUE)
+
 	} else {
+
 	   hits <- sum( c(Xhat)[subset] & c(X)[subset], na.rm=TRUE)
            miss <- sum( !c(Xhat)[subset] & c(X)[subset], na.rm=TRUE)
            fa   <- sum( c(Xhat)[subset] & !c(X)[subset], na.rm=TRUE)
            if( any( c("ets", "f", "hk") %in% which.stats)) cn <- sum( !c(Xhat)[subset] & !c(X)[subset], na.rm=TRUE)
+
 	}
+
 	if( "bias" %in% which.stats) {
 	   if( (hits + fa == 0) & (hits + miss == 0)) out$bias <- 1
 	   else if( hits + miss == 0) out$bias <- (hits + fa)/(1e-8)
