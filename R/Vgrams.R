@@ -154,7 +154,7 @@ distmaploss <- function(x,y, threshold=0, const=Inf, ...) {
    y <- im(y)
    x <- solutionset(x >= threshold[2])
    y <- solutionset(y >= threshold[1])
-   bb <- bounding.box(as.rectangle(x), as.rectangle(y))
+   bb <- boundingbox(as.rectangle(x), as.rectangle(y))
    x <- rebound(x, bb)
    y <- rebound(y, bb)
    dy <- distmap(y, ...)$v

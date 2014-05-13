@@ -2,6 +2,7 @@
 \alias{hiw}
 \alias{distill.hiw}
 \alias{plot.hiw}
+\alias{print.hiw}
 \alias{summary.hiw}
 
 \title{
@@ -13,12 +14,15 @@ Shape analysis for spatial forecast verification (hiw is OE for shape; yields Mn
 }
 
 \usage{
-hiw(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5/8, 2/3, 3/4), ...)
+hiw(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5/8, 2/3, 3/4),
+    verbose = FALSE, ...)
 
 \method{distill}{hiw}(x, ...)
 
 \method{plot}{hiw}(x, ..., which = c("X", "Xhat"), ftr.num = 1, zoom = TRUE, 
     seg.col = "darkblue")
+
+\method{print}{hiw}(x, ...)
 
 \method{summary}{hiw}(object, ..., silent = FALSE)
 
@@ -35,6 +39,7 @@ hiw(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5/8, 2/3, 3/4
   \item{A}{
 numeric vector of angles for which to apply shape analysis.  Note that this vector will be rounded to 6 digits.  If values are less than that, might be prudent to add 1e-6 to them.
 }
+  \item{verbose}{logical, should progress information be printed to the screen?}
   \item{which}{character string naming whether to plot a feature from the obsevation field (default) or the forecast field.}
   \item{ftr.num}{integer stating which feature number to plot.}
   \item{zoom}{logical, should the feature be plotted within its original domain, or a blow-up of the feature (default)?}
@@ -99,7 +104,7 @@ hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
     field.type="Geometric Objects Pretending to be Precipitation",
     units="mm/h", data.name=c("ICP Geometric Cases", "geom000", "geom001"))
 
-look <- threshsizer(hold)
+look <- threshsizer(hold, thresh = 2, Ncontig = 200)
 
 look <- hiw(look)
 

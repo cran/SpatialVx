@@ -306,7 +306,7 @@ locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep
 
    out <- LocListSetup(a=a, which.stats, nthresh=1)
 
-   bb <- bounding.box(as.rectangle(X), as.rectangle(Y))
+   bb <- boundingbox(as.rectangle(X), as.rectangle(Y))
    X <- rebound(X, bb)
    Y <- rebound(Y, bb)
    # dY <- distmap(Y, ...)

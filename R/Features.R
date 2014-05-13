@@ -1352,36 +1352,39 @@ FeatureAxis <- function(x, fac=1, flipit=FALSE, twixt=FALSE) {
    out$chull <- ch
    pts <- unname(cbind(ch$bdry[[1]][["x"]], ch$bdry[[1]][["y"]]))
    out$pts <- pts
-   axfit <- sma(y~x, data.frame(x=pts[,1],y=pts[,2]))
+   axfit <- sma(y~x, data.frame(x = pts[,1], y = pts[,2]))
    axis.x <- c(axfit$from[[1]], axfit$to[[1]])
    a <- axfit$coef[[1]][1,1]
    b <- axfit$coef[[1]][2,1]
-   axis.y <- a + b*axis.x
+   axis.y <- a + b * axis.x
 
    if(any(c(is.na(axis.x),is.na(axis.y)))) return(NULL)
    axwin <- owin(xrange=range(axis.x), yrange=range(axis.y))
-   MajorAxis <- as.psp(data.frame(x0=axis.x[1], y0=axis.y[1], x1=axis.x[2], y1=axis.y[2]),window=axwin)
+   MajorAxis <- as.psp(data.frame(x0 = axis.x[1], y0 = axis.y[1], x1 = axis.x[2], y1 = axis.y[2]), window = axwin)
 
    theta <- angles.psp(MajorAxis)
    if((0 <= theta) & (theta <= pi/2)) theta2 <- pi/2 - theta
-   else theta2 <- 3*pi/2 - theta
+   else theta2 <- 3 * pi/2 - theta
    tmp <- rotate(ch,theta2)
-   tmp <- bounding.box(tmp)
+   tmp <- boundingbox(tmp)
    l <- tmp$xrange[2] - tmp$xrange[1]
-   theta <- theta*180/pi
+   theta <- theta * 180/pi
+
    if(twixt) {
+
 	if((theta > 90) & (theta <= 270)) theta <- theta - 180
    	else if((theta > 270) & (theta <= 360)) theta <- theta - 360
+
    } # end of if force theta to be between +/- 90 degrees.
 
    MidPoint <- midpoints.psp(MajorAxis)
 
-   r <- lengths.psp(MajorAxis)*fac
+   r <- lengths.psp(MajorAxis) * fac
 
-   phi <- angles.psp(rotate(MajorAxis,pi/2))
+   phi <- angles.psp(rotate(MajorAxis, pi/2))
 
-   MinorAxis <- as.psp(data.frame(xmid=MidPoint$x, ymid=MidPoint$y, length=l/fac, angle=phi),window=axwin)
-   phi <- phi*180/pi
+   MinorAxis <- as.psp(data.frame(xmid = MidPoint$x, ymid = MidPoint$y, length = l / fac, angle = phi), window = axwin)
+   phi <- phi * 180/pi
 
    out$MajorAxis <- MajorAxis
    out$MinorAxis <- MinorAxis
@@ -1401,7 +1404,7 @@ plot.FeatureAxis <- function(x, ..., zoom = FALSE) {
    else {
 
 	z <- x$z
-	bb <- bounding.box(z)
+	bb <- boundingbox(z)
 	z <- rebound(z, rect = bb)
 	plot(z, col="darkblue", main="", ...)
 

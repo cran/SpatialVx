@@ -105,7 +105,7 @@ deltamm <- function(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...
     # need to find a bounding box for the entire set of features.
 
     # Find the bounding box for the union of all of the feature fields.
-    # For some reason, this is not working with bounding.box directly.
+    # For some reason, this is not working with boundingbox directly.
     # So, doing it manually.
 
     if(verbose) cat("Finding a bounding box for the entire set of features.\n")
@@ -119,8 +119,8 @@ deltamm <- function(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...
     Xbb <- lapply(Xbb, as.owin)
     Ybb <- lapply(Ybb, as.owin)
 
-    Xbb <- lapply(Xbb, bounding.box)
-    Ybb <- lapply(Ybb, bounding.box)
+    Xbb <- lapply(Xbb, boundingbox)
+    Ybb <- lapply(Ybb, boundingbox)
 
     # There should not be any null components, but
     # just in case ...
@@ -140,7 +140,7 @@ deltamm <- function(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...
     Xbb <- owin(X.xrg, X.yrg)
     Ybb <- owin(Y.xrg, Y.yrg)
 
-    bb <- bounding.box(Xbb, Ybb)
+    bb <- boundingbox(Xbb, Ybb)
 
     if(verbose) {
 

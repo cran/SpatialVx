@@ -1,4 +1,4 @@
-hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5/8, 2/3, 3/4), ...) {
+hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5/8, 2/3, 3/4), verbose = FALSE, ...) {
 
     if(any(A < 0) || any(A > pi)) stop("hiw: A must give angles in radians between 0 and pi.")
 
@@ -13,6 +13,8 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
     if(simplify < 0 || is.infinite(simplify)) stop("hiw: invalid simplify argument.")
 
     out <- x
+
+    if(verbose) cat("Converting features to polygon objects.\n")
     
     if(is.na(simplify) || simplify == 0) {
 
@@ -27,11 +29,19 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 
     } # end of if else 'simplify' object before doing shape analysis stmts.
 
-    opoly <- lapply(opoly, as.psp)
-    mpoly <- lapply(mpoly, as.psp)
+    if(verbose) cat("Polygon objects created.\n")
 
+    # opoly <- lapply(opoly, as.psp)
+    # mpoly <- lapply(mpoly, as.psp)
+    if(verbose) cat("Finding the edges of each feature in each field.\n")
+    opoly <- lapply(opoly, edges)
+    mpoly <- lapply(mpoly, edges)
+    if(verbose) cat("Edges found.\n")
+
+    if(verbose) cat("finding the centroids of each feature in each field.\n")
     ocen <- lapply(obs, centroid.owin)
     mcen <- lapply(mod, centroid.owin)
+    if(verbose) cat("Centroids found.\n")
 
     ocen <- cbind(c(unlist(lapply(ocen, function(x) return(x$x)))),
 		c(unlist(lapply(ocen, function(x) return(x$y)))))
@@ -43,7 +53,9 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
     ol <- rep(d, length(obs))
     ml <- rep(d, length(mod))
 
-    ifun <- function(id, x, xmid, ymid, l, a) {
+    ifun <- function(id, x, xmid, ymid, l, a, vb) {
+
+	if(vb) cat(id, " ")
 
 	X <- x[[ id ]]
 	N <- length(a)
@@ -132,7 +144,8 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 
                 # Vertical line situation.  
                 Dy <- dy[ ind ]
-                if((Dy[1] > 0 & Dy[2] < 0) || (Dy[1] < 0 & Dy[2] > 0)) out <- c(1, 1)
+		if(length(Dy) == 1) out[1] <- 1
+		else if((Dy[1] > 0 & Dy[2] < 0) || (Dy[1] < 0 & Dy[2] > 0)) out <- c(1, 1)
                 else {
 
                     ind2 <- len == min(len)
@@ -144,7 +157,8 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
             } else if(all(h)) {
 
                 Dx <- dx[ ind ]
-                if((Dx[1] > 0 & Dx[2] < 0) || (Dx[1] < 0 & Dx[2] > 0)) out <- c(1, 1)
+		if(length(Dx) == 1) out[1] <- 1
+                else if((Dx[1] > 0 & Dx[2] < 0) || (Dx[1] < 0 & Dx[2] > 0)) out <- c(1, 1)
                 else {
 
                     ind2 <- len == min(len)
@@ -207,8 +221,8 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 
 		    # crossings are not on opposite sides of the centroid.
 
-		    lmin <- l3 == min(l3)
-                    lmax <- l3 == max(l3)
+		    lmin <- l3 == min(l3, na.rm = TRUE)
+                    lmax <- l3 == max(l3, na.rm = TRUE)
 
 		    ind2 <- ind[ lmin ][ 1 ]
 		    ind2 <- c(ind2, ind[ lmax ][ 1 ])
@@ -219,15 +233,15 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 
 		    if(any(qi) & any(qiii)) {
 
-			lmax1 <- max(l3[ qi ])
-			lmax2 <- max(l3[ qiii ])
+			lmax1 <- max(l3[ qi ], na.rm = TRUE)
+			lmax2 <- max(l3[ qiii ], na.rm = TRUE)
 
 			ind2 <- c(ind[ (l3 == lmax1) & qi ][ 1 ], ind[ (l3 == lmax2) & qiii ][ 1 ])
 
 		    } else if(any(qii) & any(qiv)) {
 
-			lmax1 <- max(l3[ qii ])
-			lmax2 <- max(l3[ qiv ])
+			lmax1 <- max(l3[ qii ], na.rm = TRUE)
+			lmax2 <- max(l3[ qiv ], na.rm = TRUE)
 
 			ind2 <- c(ind[ (l3 == lmax1) & qii ][ 1 ], ind[ (l3 == lmax2) & qiv ][ 1 ])
 
@@ -235,8 +249,8 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 
 			upside <- dy[ ind ] > 0
 			downside <- dy[ ind ] < 0
-			lmax1 <- max(l3[ upside ])
-			lmax2 <- max(l3[ downside ])
+			lmax1 <- max(l3[ upside ], na.rm = TRUE)
+			lmax2 <- max(l3[ downside ], na.rm = TRUE)
 
 			ind2 <- c(ind[ (l3 == lmax1) & upside ][ 1 ], ind[ (l3 == lmax2) & downside ][ 1 ])
 
@@ -244,8 +258,8 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 
 			rightside <- dx[ ind ] > 0
 			leftside <- dx[ ind ] < 0
-			lmax1 <- max(l3[ rightside ])
-			lmax2 <- max(l3[ leftside ])
+			lmax1 <- max(l3[ rightside ], na.rm = TRUE)
+			lmax2 <- max(l3[ leftside ], na.rm = TRUE)
 
 			ind2 <- c(ind[ (l3 == lmax1) & rightside ][ 1 ], ind[ (l3 == lmax2) & leftside ][ 1 ])
 
@@ -284,8 +298,16 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 
     } # end of internal 'ifun' function.
 
-    oseg <- apply(matrix(1:length(obs), ncol = 1), 1, ifun, x = opoly, xmid = ocen[,1], ymid = ocen[,2], l = ol, a = A)
-    mseg <- apply(matrix(1:length(mod), ncol = 1), 1, ifun, x = mpoly, xmid = mcen[,1], ymid = mcen[,2], l = ml, a = A)
+    if(verbose) {
+
+	cat("Finding where lines from centroid to boundary along specified angles intersect with the boundary.\n")
+	cat("Observed features.\n")
+
+    }
+    oseg <- apply(matrix(1:length(obs), ncol = 1), 1, ifun, x = opoly, xmid = ocen[,1], ymid = ocen[,2], l = ol, a = A, vb = verbose)
+    if(verbose) cat("\nForecast features.\n")
+    mseg <- apply(matrix(1:length(mod), ncol = 1), 1, ifun, x = mpoly, xmid = mcen[,1], ymid = mcen[,2], l = ml, a = A, vb = verbose)
+    if(verbose) cat("Intersection points found.\n")
 
     thfun <- function(x) {
 
@@ -301,8 +323,10 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 
     } # end of internal 'thfun' function.
 
+    if(verbose) cat("Doing some bookeeping.\n")
     otheta <- lapply(oseg, thfun)
     mtheta <- lapply(mseg, thfun)
+    if(verbose) cat("Books are in order.\n")
 
     # For the lengths, if the feature is not convex, and a line segment crosses in two places on the
     # same side of the centroid, need to make one of the radial segments (the shorter one) negative.
@@ -320,8 +344,10 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 
     } # end of internal 'lfun' function.
 
+    if(verbose) cat("Calculating the lengths of every line segment.\n")
     obsr <- lapply(oseg, lfun)
     modr <- lapply(mseg, lfun)
+    if(verbose) cat("Lengths have been calculated.\n")
 
     # Also need the intensities.  This is the easy part.
     intfun <- function(id, x, y) {
@@ -337,8 +363,10 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 
     } # end of internal 'intfun' function.
 
+    if(verbose) cat("Finding the intensity information (mean, min and max).\n")
     oint <- apply(matrix(1:length(obs), ncol = 1), 1, intfun, x = x$X, y = obs)
     mint <- apply(matrix(1:length(mod), ncol = 1), 1, intfun, x = x$Xhat, y = mod)
+    if(verbose) cat("Intensity information found.\n")
 
     out$radial.segments <- list(X = oseg, Xhat = mseg)
 
@@ -602,12 +630,29 @@ plot.hiw <- function(x, ..., which = c("X", "Xhat"), ftr.num = 1, zoom = TRUE, s
     } # end of if else 'zoom' stmts.
 
     plot(yseg, add = TRUE, col = seg.col)
-    # crs <- crossing.psp(yseg, as.psp(ypoly))
-    # plot(crs, add = TRUE)
 
     invisible()
 
 } # end of 'plot.hiw' function.
+
+print.hiw <- function(x, ...) {
+
+    print(x$identifier.function)
+    print(x$identifier.label)
+
+    print(x$radial.segments)
+
+    print(x$centers)
+
+    print(x$intensities)
+
+    print(x$angles)
+
+    print(x$lengths)
+
+    invisible()
+
+} # end of 'print.hiw' function.
 
 # helmerter <- function(n) {
 # 
