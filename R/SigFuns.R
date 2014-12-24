@@ -361,6 +361,9 @@ summary.spatbiasFS <- function(object, ...) {
 } # end of 'summary.spatbiasFS' function.
 
 plot.spatbiasFS <- function(x, ...) {
+
+# TO DO: Try to make a better plot (without using as.image).
+
    msg <- paste("Mean Error: ", x$data.name[2], " vs ", x$data.name[1], sep="")
    # X <- get(x$data.name[1])
    # Y <- get(x$data.name[2])

@@ -1506,11 +1506,11 @@ FeatureMatchAnalyzer.matched.deltamm <- function(x, which.comps=c("cent.dist", "
     Yfeats <- obj$Y.feats
     Xfeats <- obj$X.feats
 
-    if(is.null(obj$mm.new.labels$mm)) {
+    if(dim(obj$matches)[ 1 ] == 0) {
 	# stop("FeatureAnalyzer: This function requires matches!")
 	out <- "No matches found"
     } else {
-        n <- dim(obj$mm.new.labels$mm)[1]
+        n <- dim(obj$matches)[1]
 
         out <- list()
         for(i in 1:n) out[[i]] <- FeatureComps(Y=Yfeats[[i]], X=Xfeats[[i]], which.comps=which.comps,

@@ -1,16 +1,16 @@
-d6dfdaa0681f829dfcedcca7b9fc9769 *DESCRIPTION
+a41a15056c9ed1b42d037e244b42f6f4 *DESCRIPTION
 4f3f2bdb6a338ddd242d6670bb6a0059 *NAMESPACE
 139e0db288714cf40951a9a2521b9154 *R/CA.R
 9865d7ef26f358d780da2107e55382fb *R/DataObjects.R
 1df1b302515d5a9be33cc950dae0d05a *R/FeatureTable.R
-c87d0de0ebb21792d74699d8784f6b12 *R/Features.R
+c180ac728422b5e957ea12b6bbd527fb *R/Features.R
 f1312349c9fc48bcd866222577c97c95 *R/Geom.R
 d979eb24d8c3b4dfcd845c7ae6b2718a *R/Hoods2d.R
 41269a1f227fb3336274c1c780ab8006 *R/LocMeasures.R
 39d009814467ba01d3bc1b34fe23382f *R/MergeForce.R
 b9ef56829ceb9882dab57b2f4d5497b2 *R/Misc.R
 df3b66b5c82311e5bf9b52db428a5a23 *R/OF.R
-75f9160ea59962f77cc18fd59d907eb7 *R/SigFuns.R
+34ed0cd20cc00beee2ccd6fc73f2612a *R/SigFuns.R
 c92fabaecf923e2bc4550e473a0fc00b *R/Vgrams.R
 8dcada8543c7537b079b09c2066b0d63 *R/combiner.R
 351e9e96ef7e0feebfc8d808ef4c3b51 *R/compositer.R
@@ -18,6 +18,7 @@ c92fabaecf923e2bc4550e473a0fc00b *R/Vgrams.R
 21b9035dafb51a081e500906d6470023 *R/functionals.R
 e3362553097fe493900eefc7bd8d97d6 *R/gmm.R
 09ec9aa94ec9f94fecfa88f392b94081 *R/hiw.R
+17f9498a671929be70a364836417a7a0 *R/imomenter.R
 4385f96a96032e1633358c9ac643c043 *R/interester.R
 1b0ac071b36811428537d05870f611db *R/waverify.R
 1964270408fe842e62ddfdcd6a78ea05 *data/ExampleSpatialVxSet.rda
@@ -95,6 +96,7 @@ dc8702584468a8dece9e31a2f894efe1 *man/GeoBoxPlot.Rd
 a22ca6ced2ba288b34e9d04e1da29ae6 *man/LocSig.Rd
 e6eaebe5f344cf05498a9ad12a4e762f *man/MCdof.Rd
 f8c31ee46ddd5849371b24e80a01ff29 *man/MergeForce.Rd
+a3b22eaee36de0ec299a01c4a9ffbd48 *man/Mij.Rd
 8249ddda02e06df4c1bc7dc07d70fbfc *man/OF.Rd
 b4ac1a3e2cddc74e4baafafc99de1759 *man/S1.Rd
 a929357877abeac24ed1fe3f115218de *man/Sindex.Rd
@@ -118,6 +120,7 @@ f1adb369941bd2a0251088da29befcdb *man/hiw.Rd
 6a867c102e64dba7638b2acd2cad9971 *man/hoods2d.Rd
 b9ad2e609ff5b8b109e6fc6f1e239440 *man/hoods2dPlot.Rd
 b0f6de8dc41c55404918402561c974d3 *man/hump.Rd
+f9c97c118e13b678cfcd7e636adedd3c *man/imomenter.Rd
 51ff8aa52f94b0bf7872b51ea884f1a0 *man/interester.Rd
 1793ea78c95760a335f64ab79389596a *man/locmeasures2d.Rd
 6328ed396e738f937cdc97b677003357 *man/locperf.Rd
