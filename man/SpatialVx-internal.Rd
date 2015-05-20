@@ -13,6 +13,8 @@
 \alias{MakeClusterList}
 \alias{makeEmptyWave}
 \alias{makeWaveNames}
+\alias{QlossRigid}
+\alias{QcorrRigid}
 \alias{inside}
 \alias{CI.fun}
 \alias{sig.coverage}

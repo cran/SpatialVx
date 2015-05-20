@@ -46,7 +46,7 @@ Upscaling is performed via neighborhood smoothing.  Here, a boxcar kernel is con
    \item{bias,ts,ets }{numeric matrices giving the frequency bias, ts and ets for each neighborhood size (rows) and threshold (columns).}
 }
 \references{
-Ebert, E. E. (2008) Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. doi:10.1002/met.25 Available at \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
+Ebert, E. E. (2008) Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. doi:10.1002/met.25
 
 Yates, E., Anquetin, S., Ducrocq, V., Creutin, J.-D., Ricard, D. and Chancibault, K. (2006) Point and areal validation of forecast precipitation fields.  \emph{Meteorol. Appl.}, \bold{13}, 1--20.
 

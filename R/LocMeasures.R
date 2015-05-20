@@ -287,10 +287,10 @@ distob <- function(X,Y, distfun="distmapfun", ...) {
    #
    # Otherwise, it returns zero if neither X nor Y contain any events, and max( dim(X))
    # if only one contains no events.
-   nX <- sum(colSums(X$m, na.rm=TRUE),na.rm=TRUE)
-   nY <- sum(colSums(Y$m, na.rm=TRUE), na.rm=TRUE)
+   nX <- sum(colSums(as.matrix( X ), na.rm=TRUE),na.rm=TRUE)
+   nY <- sum(colSums(as.matrix( Y ), na.rm=TRUE), na.rm=TRUE)
    if( nX==0 & nY==0) return(0)
-   else if( nX==0 | nY==0) return(max(dim(X$m), na.rm=TRUE))
+   else if( nX==0 | nY==0) return( max( dim( as.matrix( X ) ), na.rm=TRUE) )
    else out <- locperf( X=X, Y=Y, which.stats="med", distfun=distfun, ...)$med
    return(out)
 }
@@ -312,23 +312,23 @@ locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep
    # dY <- distmap(Y, ...)
    dY <- do.call(distfun, list(x=Y, ...))
 
-    if(!any(Y$m)) {
+    if(!any( as.matrix( Y ))) {
 
 	dY <- unique(c(dY))
 	dYcheck <- FALSE
 
     } else dYcheck <- TRUE
 
-    if(!any(X$m)) dXcheck <- FALSE
+    if(!any( as.matrix( X ))) dXcheck <- FALSE
     else dXcheck <- TRUE
 
    if(any(c("med", "msd", "fom", "minsep") %in% which.stats)) {
 
-	if(dYcheck) Z <- dY[X$m]
-	else if(any(X$m)) {
+	if(dYcheck) Z <- dY[as.matrix( X )]
+	else if(any(as.matrix( X ))) {
 
-	    Z <- X$m
-	    Z[X$m] <- dY
+	    Z <- as.matrix( X )
+	    Z[as.matrix( X )] <- dY
 
 	} else Z <- 0
 
@@ -340,9 +340,10 @@ locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep
 
 	if( "fom" %in% which.stats) {
 
-	    if(dYcheck && dXcheck) N <- max( sum( colSums(X$m, na.rm=TRUE), na.rm=TRUE), sum( colSums(Y$m, na.rm=TRUE), na.rm=TRUE), na.rm=TRUE)
-	    else if(dYcheck && !dXcheck) N <- sum( colSums(Y$m, na.rm=TRUE), na.rm=TRUE)
-	    else if(!dYcheck && dXcheck) N <- sum( colSums(X$m, na.rm=TRUE), na.rm=TRUE)
+	    if(dYcheck && dXcheck) N <- max( sum( colSums( as.matrix( X ), na.rm=TRUE), na.rm=TRUE),
+						sum( colSums( as.matrix( Y ), na.rm=TRUE), na.rm=TRUE), na.rm=TRUE)
+	    else if(dYcheck && !dXcheck) N <- sum( colSums( as.matrix( Y ), na.rm=TRUE), na.rm=TRUE)
+	    else if(!dYcheck && dXcheck) N <- sum( colSums( as.matrix( X ), na.rm=TRUE), na.rm=TRUE)
 	    else N <- 1e16
 
 	} # end of if do fom stmts.
@@ -352,7 +353,7 @@ locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep
    if( any( c("ph", "mhd") %in% which.stats)) {
 
 	# dX <- distmap(X, ...)
-	dX <- do.call(distfun, list(x=X, ...))
+	dX <- do.call(distfun, list(x = X, ...))
 
 	diffXY <- sort( c(abs(dX - dY)), decreasing=TRUE)
 
@@ -370,8 +371,8 @@ locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep
 
 	if( "mhd" %in% which.stats) {
 
-	   if(dXcheck) V <- dX[Y$m]
-	    else if(any(Y$m)) V <- dX
+	   if(dXcheck) V <- dX[ as.matrix( Y ) ]
+	    else if(any( as.matrix( Y ) )) V <- dX
 	    else V <- 0
 	   out$mhd <- max( c( mean(Z, na.rm=TRUE), mean(V, na.rm=TRUE), na.rm=TRUE))
 

@@ -63,13 +63,15 @@ Included here are the well-known Hausdorff metric, the partial-Hausdorff measure
 
 \code{locmeasures2d}, \code{metrV}, \code{distob}, \code{locperf}
 
+Image moments can give useful information about location errors, and are used within feature-based methods, particularly MODE, as they give the centroid of an image (or feature), as well as the orientation angle, among other useful properties.  See the \code{imomenter} function for more details.
+
 2b. Field deformation:
 
 Thanks to Caren Marzban for supplying his optical flow code for this package (it has been modified some).  These functions perform the analyses described in Marzban and Sandgathe (2010) and are based on the work of Lucas and Kanade (1981).  See the help file for
 
 \code{OF}.
 
-A separate image warping pacakge is in the works, and functionality will be included here probably with some wrapper functions specific to spatial forecast verification needs.
+Rigid transformations can be estimated using the \code{rigider} function.  To simply rigidly transform a field (or feature) using specified parameters (x- and y- translations and/or rotations), the \code{rigidTransform} function can be used.  For these functions, which may result in transformations that do not perfectly fall onto grid points, the function \code{Fint2d} can be used to interpolate from nearest grid points.  Interpolation options include \dQuote{round} (simply take the nearest location value), \dQuote{bilinear} and \dQuote{bicubic}.
 
 2c. Features-based methods: These methods are also sometimes called object-based methods (the term \dQuote{features} is used in this package in order to differentiate from an R object), and have many similarities to techniques used in Object-Based Image Analysis (OBIA), a relatively new research area that has emerged primarily as a result of advances in earth observations sensors and GIScience (Blaschke et al., 2008).  It is attempted to identify individual features within a field, and subsequently analyze the fields on a feature-by-feature basis.  This may involve intensity error information in addition to location-specific error information.  Additionally, contingency table verifcation statistics can be found using new definitions for hits, misses and false alarms (correct negatives are more difficult to asses, but can also be done).
 
@@ -77,13 +79,13 @@ Currently, there is functionality for performing the analyses introduced in Davi
 
 Functions to identify features: \code{convthresh}, \code{threshfac}, \code{threshsizer}
 
-Functions to match/merge features: \code{centmatch}, \code{deltamm}
+Functions to match/merge features: \code{centmatch}, \code{deltamm}, \code{minboundmatch}
 
 Functions to diagnose features and/or compare matched features:
 
-    \code{FeatureAxis}, \code{FeatureComps}, \code{FeatureMatchAnalyzer}, \code{FeatureProps}
+    \code{FeatureAxis}, \code{FeatureComps}, \code{FeatureMatchAnalyzer}, \code{FeatureProps}, \code{FeatureTable}, \code{interester}
 
-See \code{compositer} for setting up composited objects, and see \code{hiw} for some shape analysis functionality.
+See \code{compositer} for setting up composited objects, and see \code{hiw} (along with \code{distill} and \code{summary} method functions) for some shape analysis functionality.
 
 The cluster analysis methods of Marzban and Sandgathe (2006; 2008) have been added.  The former method was written from scratch by Eric Gilleland 
 
@@ -92,6 +94,10 @@ The cluster analysis methods of Marzban and Sandgathe (2006; 2008) have been add
 and the latter variation was modified from code originally written by Hilary Lyons 
 
 \code{CSIsamples}.
+
+The contiguous rain area (CRA) utilizes the \code{rigider} function, and can be carried out with the function \code{craer}.
+
+The Structure, Amplitude and Location (SAL) method can be performed with \code{saller}.
 
 2d. Geometrical characterization measures:
 
@@ -170,7 +176,7 @@ Casati, B., Ross, G. and Stephenson, D. B. (2004) A new intensity-scale approach
 
 Davis, C. A., Brown, B. G. and Bullock, R. G. (2006) Object-based verification of precipitation forecasts, Part I: Methodology and application to mesoscale rain areas. \emph{Mon. Wea. Rev.}, \bold{134}, 1772--1784.
 
-Ebert, E. E. (2008) Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25 Available at \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
+Ebert, E. E. (2008) Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. DOI: 10.1002/met.25 
 
 Ebert, E. E. (2009) Neighborhood verification: A strategy for rewarding close forecasts.  \emph{Wea. Forecasting}, \bold{24}, 1498--1510, doi:10.1175/2009WAF2222251.1.
 

@@ -63,8 +63,8 @@ the value of Pthresh found above.  The verification statistic determined by whic
     \item{values}{l by q matrix giving the value of which.score found for each level (rows) and threshold (columns).}
 }
 \references{
-Ebert, E. E. (2008) Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. doi:10.1002/met.25 Available at
-     \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
+Ebert, E. E. (2008) Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. doi:10.1002/met.25 
+
 }
 \author{
 Eric Gilleland

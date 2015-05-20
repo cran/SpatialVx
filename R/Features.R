@@ -1,6 +1,8 @@
 convthresh <- function(object, smoothfun = "disk2dsmooth", smoothpar = 1,
     smoothfunargs = NULL, thresh = 1e-8, idfun = "disjointer", zero.down = FALSE,
     time.point = 1, model = 1, ...) {
+
+    theCall <- match.call()
    
     a <- attributes(object)
 
@@ -73,6 +75,7 @@ convthresh <- function(object, smoothfun = "disk2dsmooth", smoothpar = 1,
     else model.num <- model
 
     attr(out, "data.name") <- c(vxname, dn[model.num])
+    attr( out, "call" ) <- theCall
 
     class(out) <- "features"
     return(out)
@@ -81,6 +84,8 @@ convthresh <- function(object, smoothfun = "disk2dsmooth", smoothpar = 1,
 
 threshsizer <- function(object, thresh = 1e-8, Ncontig = 50, idfun = "disjointer",
     time.point = 1, model = 1, ...) {
+
+    theCall <- match.call()
 
     a <- attributes(object)
 
@@ -161,11 +166,22 @@ threshsizer <- function(object, thresh = 1e-8, Ncontig = 50, idfun = "disjointer
     else model.num <- model
 
     attr(out, "data.name") <- c(vxname, dn[model.num])
+    attr( out, "call" ) <- theCall
 
     class(out) <- "features"
     return(out)
 
 } # end of 'threshsizer' function.
+
+summary.matched <- function(object, ...) {
+
+    x <- object
+    class( x ) <- "features"
+    out <- summary( x )
+
+    invisible( out )
+
+} # end of 'summary.matched' function.
 
 summary.features <- function(object,...) {
 
@@ -235,12 +251,16 @@ summary.features <- function(object,...) {
     out$X <- holdX
     out$Y <- holdY
     class(out) <- "summary.features"
+
     invisible(out)
+
 } # end of 'summary.features' function.
 
 print.features <- function(x, ...) {
 
     a <- attributes(x)
+
+    print( a$call )
 
     print(a$msg)
     print(a$data.name)
@@ -256,9 +276,18 @@ print.features <- function(x, ...) {
     print(x$identifier.function)
     print(x$identifier.label)
 
-    cat("\n", length(x$X.feats), " ", vxname, " objects identified.\n")
-    cat(length(x$Y.feats), " ", fcstname, " objects identified.\n")
+    cat("\n", length(x$X.feats), " ", vxname, " features identified.\n")
+    cat(length(x$Y.feats), " ", fcstname, " features identified.\n")
+
+    if( !is.null( x$thresholds ) ) {
+
+	cat("Thresholds used are:\n" )
+	print( x$thresholds )
+
+    }
+
     invisible()
+
 } # end of 'print.features' function.
 
 plot.features <- function(x, ..., type = c("both", "obs", "model")) {
@@ -479,6 +508,8 @@ disjointer <- function(x, method="C") {
 threshfac <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL, idfun="disjointer",
     time.point=1, model=1, ...) {
 
+    theCall <- match.call()
+
     a <- attributes(object)
 
     ## Begin: Get the data sets
@@ -507,9 +538,10 @@ threshfac <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL
 	   thresh <- c(thresh, quantile(c(Y[Y >= wash.out]), probs=q))
 
 	}
+
 	thresh <- thresh * fac
 
-    } else if(length(thresh)==1) thresh <- c(thresh, thresh)
+    } else if(length(thresh) == 1) thresh <- c(thresh, thresh)
 
     Ix[X >= thresh[1]] <- 1
     Iy[Y >= thresh[2]] <- 1
@@ -539,6 +571,8 @@ threshfac <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL
     out$Y.labeled <- Ylab
     out$identifier.function <- "threshfac"
     out$identifier.label <- "Threshold"
+    names( thresh ) <- c( "Observed", "Forecast" )
+    out$threshold <- thresh
 
     attr(out, "time.point") <- time.point
     attr(out, "model") <- model
@@ -559,6 +593,8 @@ threshfac <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL
     else model.num <- model
 
     attr(out, "data.name") <- c(vxname, dn[model.num])
+
+    attr( out, "call") <- theCall
 
     class(out) <- "features"
     return(out)
@@ -1102,18 +1138,22 @@ centmatch <- function(x, criteria = 1, const = 14, distfun = "rdist", areafac = 
     OobjID <- t(matrix( rep(1:n, m), n, m))
 
     fmatches <- cbind(c(FobjID)[DcompID], c(OobjID)[DcompID])
-
-    # Check for multiple object pairs.
-    pcheck <- paste(fmatches[,1], fmatches[,2], sep="-")
-    dupID <- duplicated(pcheck)
-    fmatches <- fmatches[!dupID,]
-
-    # Now, put the objects in order according to the forecast objects.
-    oID <- order(fmatches[,1])
-    fmatches <- fmatches[oID,]
-
     colnames(fmatches) <- c("Forecast", "Observed")
 
+    if(dim(fmatches)[ 1 ] > 1) {
+
+        # Check for multiple object pairs.
+        pcheck <- paste(fmatches[,1], fmatches[,2], sep="-")
+        dupID <- duplicated(pcheck)
+        if(any(dupID)) fmatches <- fmatches[!dupID, , drop = FALSE]
+
+        # Now, put the objects in order according to the forecast objects.
+        oID <- order(fmatches[,1])
+        fmatches <- fmatches[oID, , drop = FALSE]
+
+    }
+
+    if(is.null(dim(fmatches)) && length(fmatches) == 2) fmatches <- matrix(fmatches, ncol = 2)
     out$matches <- fmatches
 
     if(any.matched) {

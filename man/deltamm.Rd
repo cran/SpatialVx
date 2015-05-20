@@ -2,6 +2,7 @@
 \alias{deltamm}
 \alias{plot.matched}
 \alias{print.matched}
+\alias{summary.matched}
 \alias{centmatch}
 \title{
 Merge and/or Match Identified Features Within Two Fields
@@ -12,17 +13,21 @@ Merge and/or match identified features within two fields using the delta metric 
 \usage{
 deltamm(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...)
 
+centmatch(x, criteria = 1, const = 14, distfun = "rdist", areafac = 1,
+    verbose = FALSE, ...)
+
 \method{plot}{matched}(x, ..., type = c("both", "obs", "model"))
 
 \method{print}{matched}(x, ...)
 
-centmatch(x, criteria = 1, const = 14, distfun = "rdist", areafac = 1,
-    verbose = FALSE, ...)
+\method{summary}{matched}(object, ...)
+
 }
 \arguments{
   \item{x}{
 For \code{deltamm} and \code{centmatch}, an object of class \dQuote{features} with components \code{X.labeled}, \code{Y.labeled} (matrices with numbered features), as well as, \code{X.feats} and \code{Y.feats}, each of which are list objects containing numbered components within which are objects of class \dQuote{owin} containing logical matrices that define features for the forecast (Y) and verification (X) fields, resp.  For example, as returned by the \code{convthresh} function.  For \code{plot} an object of class \dQuote{matched}.  Argument \code{y} is used if it is not NULL, otherwise argument \code{x} is used (but only one of \code{x} or \code{y} is used).  If \code{x} and \code{y} are missing, but not \code{object}, then \code{object} will be used, in which case it must be of class \dQuote{features}.
 }
+  \item{object}{list object of class \dQuote{matched}.}
   \item{p}{Baddeley delta metric parameter.  A value of 1 gives arithmetic averages, Inf gives the Hausdorff metric and -Inf gives a minimum.  The default of 2 is most common.}
   \item{max.delta}{single numeric giving a cut-off value for delta that disallows two features to be merged or matched if the delta between them is larger than this value.}
   \item{const}{\code{deltamm}: a constant value over which the shortest distances in a distance map are set.  See Gilleland (2011) and Schwedler and Baldwin (2011) for more information about this parameter.
@@ -64,6 +69,9 @@ This function works similarly as \code{deltamm}, though it does not merge featur
 
 	\code{plot}: The plot method function for matched features plots matched features across fields in the same color using \code{rainbow}.  Unmatched features in either field are all colored gray.  Zero values are colored white.  In the case of features created by \code{centmatch}, multiple features from one field could be matched to the same feature in the other so that, in such cases, it is not possible to decipher which feature in one field is mached to which feature in the other exactly.  The \code{print} method function will tell you which features matched between fields, so one can plot the originally derived features (e.g., from \code{convthresh}) to identify matched features.  On the other hand, one can subjectively determine if same colored features should be merged or not.
 
+\code{summary}:
+
+The summary method function so far simply reverts the class back to \dQuote{features} and calls that summary function.
 }
 
 \value{
@@ -113,6 +121,8 @@ Eric Gilleland
 
 \seealso{
 To identify features: \code{\link{convthresh}}, \code{\link{threshfac}}, \code{\link{threshsizer}}
+
+\code{\link{minboundmatch}} is another feature matching function.
 
 To force merges (implicit or otherwise): \code{\link{MergeForce}}, 
 

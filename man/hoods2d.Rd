@@ -70,7 +70,7 @@ New attributes are added giving the values for some of the optional arguments: l
 \references{
 Atger, F. (2001) Verification of intense precipitation forecasts from single models and ensemble prediction systems.  \emph{Nonlin. Proc. Geophys.}, \bold{8}, 401--417.
 
-Ebert, E. E. (2008) Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. doi:10.1002/met.25 Available at \url{http://www.ecmwf.int/newsevents/meetings/workshops/2007/jwgv/METspecialissueemail.pdf}
+Ebert, E. E. (2008) Fuzzy verification of high resolution gridded forecasts: A review and proposed framework.  \emph{Meteorol. Appl.}, \bold{15}, 51--64. doi:10.1002/met.25 
 
 Ebert, E. E. (2009) Neighborhood verification: A strategy for rewarding close forecasts.  \emph{Wea. Forecasting}, \bold{24}, 1498--1510, doi:10.1175/2009WAF2222251.1.
 

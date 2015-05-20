@@ -1,6 +1,6 @@
 Package: SpatialVx
-Version: 0.2-2
-Date: 2011-12-09
+Version: 0.2-3
+Date: 2015-05-19
 Title: Spatial Forecast Verification
 Author: Eric Gilleland <EricG@ucar.edu>
 Maintainer: Eric Gilleland <EricG@ucar.edu>
@@ -8,11 +8,11 @@ Depends: R (>= 2.10.0), spatstat (>= 1.37-0), fields (>= 6.8),
         smoothie, smatr, turboEM
 Imports: distillery, maps, boot, CircStats, fastcluster, waveslim
 Suggests: shapes
-Description: Functions to perform spatial forecast verification
+Description: Contains functions to perform spatial forecast verification.
 License: GPL (>= 2)
 URL: http://www.ral.ucar.edu/projects/icp
 BugReports: http://www.ral.ucar.edu/projects/icp/SpatialVx
-Packaged: 2014-12-23 20:26:12 UTC; ericg
 NeedsCompilation: no
+Packaged: 2015-05-19 22:14:34 UTC; ericg
 Repository: CRAN
-Date/Publication: 2014-12-24 01:45:06
+Date/Publication: 2015-05-20 01:32:45

@@ -141,7 +141,7 @@ These constitute all of the official data test cases used for the first round of
 
 }
 \source{
-\url{http://www.ral.ucar.edu/projects/icp/datacases.html}
+\url{http://www.ral.ucar.edu/projects/icp/}
 }
 \references{
 Ahijevych, D., Gilleland, E., Brown, B. G. and Ebert, E. E. (2009) Application of spatial verification methods to idealized and NWP gridded precipitation forecasts. \emph{Wea. Forecasting}, \bold{24} (6), 1485--1497.
