@@ -110,35 +110,8 @@ deltamm <- function(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...
 
     if(verbose) cat("Finding a bounding box for the entire set of features.\n")
 
-    Xbb <- union.owin(X)
-    Ybb <- union.owin(Xhat)
-
-    Xbb <- lapply(Xbb, as.rectangle)
-    Ybb <- lapply(Ybb, as.rectangle)
-
-    Xbb <- lapply(Xbb, as.owin)
-    Ybb <- lapply(Ybb, as.owin)
-
-    Xbb <- lapply(Xbb, boundingbox)
-    Ybb <- lapply(Ybb, boundingbox)
-
-    # There should not be any null components, but
-    # just in case ...
-
-    Xisnull <- unlist(lapply(Xbb, is.null))
-    Yisnull <- unlist(lapply(Ybb, is.null))
-
-    Xbb <- Xbb[ !Xisnull ]
-    Ybb <- Ybb[ !Yisnull ]
-
-    X.xrg <- range(unlist(lapply(Xbb, function(b) b$xrange)))
-    X.yrg <- range(unlist(lapply(Xbb, function(b) b$yrange)))
-
-    Y.xrg <- range(unlist(lapply(Ybb, function(b) b$xrange)))
-    Y.yrg <- range(unlist(lapply(Ybb, function(b) b$yrange)))
-
-    Xbb <- owin(X.xrg, X.yrg)
-    Ybb <- owin(Y.xrg, Y.yrg)
+    Xbb <- do.call( boundingbox, X )
+    Ybb <- do.call( boundingbox, Xhat )
 
     bb <- boundingbox(Xbb, Ybb)
 

@@ -1,4 +1,4 @@
-a306f7c6be42e175893f562d5f3a85e7 *DESCRIPTION
+abc6ee84c7d771c0ceb827750458f2ed *DESCRIPTION
 5e448fe9cf7f4b31e2f8ee4bc0ba5863 *NAMESPACE
 139e0db288714cf40951a9a2521b9154 *R/CA.R
 fade5f94caa4da3d43f1cfc483349a44 *R/DataObjects.R
@@ -17,7 +17,7 @@ c92fabaecf923e2bc4550e473a0fc00b *R/Vgrams.R
 8dcada8543c7537b079b09c2066b0d63 *R/combiner.R
 351e9e96ef7e0feebfc8d808ef4c3b51 *R/compositer.R
 06a20ad9e5667180c2056b72f0fcd5ef *R/craer.R
-40ffc17ecd7eae9f01542ddd5e2efda3 *R/deltamm.R
+49f994edbbe30c23c46921e73c8faf60 *R/deltamm.R
 21b9035dafb51a081e500906d6470023 *R/functionals.R
 e3362553097fe493900eefc7bd8d97d6 *R/gmm.R
 09ec9aa94ec9f94fecfa88f392b94081 *R/hiw.R
