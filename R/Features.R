@@ -1,178 +1,3 @@
-convthresh <- function(object, smoothfun = "disk2dsmooth", smoothpar = 1,
-    smoothfunargs = NULL, thresh = 1e-8, idfun = "disjointer", zero.down = FALSE,
-    time.point = 1, model = 1, ...) {
-
-    theCall <- match.call()
-   
-    a <- attributes(object)
-
-    ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(object, model=model)
-    else dat <- datagrabber(object)
-
-    X <- dat$X
-    Y <- dat$Xhat
-    ## End: Get the data sets
-
-    xdim <- a$xdim
-
-    Xsm <- do.call(smoothfun, c(list(x=X, lambda=smoothpar), smoothfunargs))
-    Ysm <- do.call(smoothfun, c(list(x=Y, lambda=smoothpar), smoothfunargs))
-
-    if( zero.down) {
-	Xsm[ Xsm < 0] <- 0
-	Xsm <- zapsmall( Xsm)
-	Ysm[ Ysm < 0] <- 0
-	Ysm <- zapsmall( Ysm)
-    }
-
-    if( is.null( thresh)) thresh <- c(quantile(c(Xsm), 0.75), quantile(c(Ysm), 0.75))
-    else if( length( thresh) == 1) thresh <- c(thresh, thresh)
-
-    sIx <- sIy <- matrix(0, xdim[1], xdim[2])
-    sIx[ Xsm >= thresh[1]] <- 1
-    sIy[ Ysm >= thresh[2]] <- 1
-
-    X.feats <- do.call(idfun, c( list( x=sIx), list(...)))
-    Y.feats <- do.call(idfun, c( list( x=sIy), list(...)))
-
-    Xlab <- Ylab <- matrix(0, xdim[1], xdim[2])
-
-    if(!is.null(X.feats)) for( i in 1:length( X.feats)) Xlab[ X.feats[[i]][["m"]]] <- i
-    else X.feats <- NULL
-
-    if(!is.null(Y.feats)) for( j in 1:length( Y.feats)) Ylab[ Y.feats[[j]][["m"]]] <- j
-    else Y.feats <- NULL
-
-    # if(is.null(X.feats)) warning("convthresh: No values above threshold in verification field.")
-    # if(is.null(Y.feats)) warning("convthresh: No values above threshold in forecast field.")
-
-    out <- list()
-    attributes(out) <- a
-
-    out$X <- X
-    out$Xhat <- Y
-    out$X.feats <- X.feats
-    out$Y.feats <- Y.feats
-    out$X.labeled <- Xlab
-    out$Y.labeled <- Ylab
-    out$identifier.function <- "convthresh"
-    out$identifier.label <- "Convolution Threshold"
-
-    attr(out, "time.point") <- time.point
-    attr(out, "model") <- model
-
-    if(length(a$data.name) == a$nforecast + 2) {
-	dn <- a$data.name[-(1:2)]
-	vxname <- a$data.name[1:2]
-    } else {
-	dn <- a$data.name[-1]
-	vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    attr(out, "data.name") <- c(vxname, dn[model.num])
-    attr( out, "call" ) <- theCall
-
-    class(out) <- "features"
-    return(out)
-
-} # end of 'convthresh' function.
-
-threshsizer <- function(object, thresh = 1e-8, Ncontig = 50, idfun = "disjointer",
-    time.point = 1, model = 1, ...) {
-
-    theCall <- match.call()
-
-    a <- attributes(object)
-
-    ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(object, model=model)
-    else dat <- datagrabber(object)
-
-    X <- dat$X
-    Y <- dat$Xhat
-    ## End: Get the data sets
-
-    xdim <- a$xdim
-
-    if(length(thresh)==1) thresh <- c(thresh, thresh)
-
-    sIx <- sIy <- matrix(0, xdim[1], xdim[2])
-    sIx[ X >= thresh[1]] <- 1
-    sIy[ Y >= thresh[2]] <- 1
-
-    X.feats0 <- do.call(idfun, c( list( x=sIx), list(...)))
-    Y.feats0 <- do.call(idfun, c( list( x=sIy), list(...)))
-
-    if(length(X.feats0) == 0) X.feats <- NULL
-    else X.feats <- list()
-
-    if(length(Y.feats0) == 0) Y.feats <- NULL
-    else Y.feats <- list()
-
-    Nfun <- function(Obj) return(sum(colSums(Obj[["m"]], na.rm=TRUE), na.rm=TRUE))
-    Xnums <- c(unlist(lapply(X.feats0, Nfun)))
-    Ynums <- c(unlist(lapply(Y.feats0, Nfun)))
-
-    Xnums <- Xnums >= Ncontig
-    Ynums <- Ynums >= Ncontig
-
-    Xj <- (1:length(Xnums))[Xnums]
-    Yj <- (1:length(Ynums))[Ynums]
-
-    if(length(X.feats0) > 0) for(i in 1:length(Xj)) X.feats[[i]] <- X.feats0[[ Xj[i] ]]
-    if(length(Y.feats0) > 0) for(i in 1:length(Yj)) Y.feats[[i]] <- Y.feats0[[ Yj[i] ]]
-
-    Xlab <- Ylab <- matrix(0, xdim[1], xdim[2])
-
-    if(!is.null(X.feats)) for( i in 1:length(X.feats)) Xlab[ X.feats[[i]][["m"]]] <- i
-    else X.feats <- NULL
-
-    if(!is.null(Y.feats)) for( j in 1:length( Y.feats)) Ylab[ Y.feats[[j]][["m"]]] <- j
-    else Y.feats <- NULL
-
-    # if(is.null(X.feats)) warning("convthresh: No values above threshold in verification field.")
-    # if(is.null(Y.feats)) warning("convthresh: No values above threshold in forecast field.")
-
-    out <- list()
-    attributes(out) <- a
-
-    out$X <- X
-    out$Xhat <- Y
-    out$X.feats <- X.feats
-    out$Y.feats <- Y.feats
-    out$X.labeled <- Xlab
-    out$Y.labeled <- Ylab
-    out$identifier.function <- "threshsizer"
-    out$identifier.label <- paste(Ncontig, " Connected pts > ", thresh, sep="")
-
-    attr(out, "time.point") <- time.point
-    attr(out, "model") <- model
-
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[1:2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    attr(out, "data.name") <- c(vxname, dn[model.num])
-    attr( out, "call" ) <- theCall
-
-    class(out) <- "features"
-    return(out)
-
-} # end of 'threshsizer' function.
-
 summary.matched <- function(object, ...) {
 
     x <- object
@@ -505,101 +330,101 @@ disjointer <- function(x, method="C") {
    return( out)
 } # end of 'disjointer' function.
 
-threshfac <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL, idfun="disjointer",
-    time.point=1, model=1, ...) {
-
-    theCall <- match.call()
-
-    a <- attributes(object)
-
-    ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(object, model=model)
-    else dat <- datagrabber(object)
-
-    X <- dat$X
-    Y <- dat$Xhat
-    ## End: Get the data sets
-
-    xdim <- a$xdim
-    Ix <- Iy <- matrix(0, xdim[1], xdim[2])
-
-    if(is.null(thresh)) {
-
-	if(is.null(wash.out)){
-
-	   thresh <- quantile(c(X), probs=q)
-	   thresh <- c(thresh, quantile(c(Y), probs=q))
-
-	} else {
-
-	   thresh <- quantile(c(X[X >= wash.out]), probs=q)
-	   thresh <- c(thresh, quantile(c(Y[Y >= wash.out]), probs=q))
-
-	}
-
-	thresh <- thresh * fac
-
-    } else if(length(thresh) == 1) thresh <- c(thresh, thresh)
-
-    Ix[X >= thresh[1]] <- 1
-    Iy[Y >= thresh[2]] <- 1
-
-    X.feats <- do.call(idfun, c(list(x=Ix), list(...)))
-    Y.feats <- do.call(idfun, c(list(x=Iy), list(...)))
-
-    Xlab <- Ylab <- matrix(0, xdim[1], xdim[2])
-
-    if(!is.null(X.feats)) for( i in 1:length( X.feats)) Xlab[X.feats[[i]][["m"]]] <- i
-    else X.feats <- NULL
-
-    if(!is.null(Y.feats)) for( j in 1:length( Y.feats)) Ylab[Y.feats[[j]][["m"]]] <- j
-    else Y.feats <- NULL
-
-    # if(is.null(X.feats)) warning("threshfac: No values above threshold in verification field.")
-    # if(is.null(Y.feats)) warning("threshfac: No values above threshold in forecast field.")
-
-    out <- list()
-    attributes(out) <- a
-
-    out$X <- X
-    out$Xhat <- Y
-    out$X.feats <- X.feats
-    out$Y.feats <- Y.feats
-    out$X.labeled <- Xlab
-    out$Y.labeled <- Ylab
-    out$identifier.function <- "threshfac"
-    out$identifier.label <- "Threshold"
-    names( thresh ) <- c( "Observed", "Forecast" )
-    out$threshold <- thresh
-
-    attr(out, "time.point") <- time.point
-    attr(out, "model") <- model
-
-    if(length(a$data.name) == a$nforecast + 2) {
-
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[1:2]
-
-    } else {
-
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-
-    }
-
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    attr(out, "data.name") <- c(vxname, dn[model.num])
-
-    attr( out, "call") <- theCall
-
-    class(out) <- "features"
-    return(out)
-
-} # end of 'threshfac' function.
+# threshfac <- function(object, fac=0.06666667, q=0.95, wash.out=NULL, thresh=NULL, idfun="disjointer",
+#     time.point=1, model=1, ...) {
+# 
+#     theCall <- match.call()
+# 
+#     a <- attributes(object)
+# 
+#     ## Begin: Get the data sets
+#     if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
+#     else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
+#     else if(!missing(model)) dat <- datagrabber(object, model=model)
+#     else dat <- datagrabber(object)
+# 
+#     X <- dat$X
+#     Y <- dat$Xhat
+#     ## End: Get the data sets
+# 
+#     xdim <- a$xdim
+#     Ix <- Iy <- matrix(0, xdim[1], xdim[2])
+# 
+#     if(is.null(thresh)) {
+# 
+# 	if(is.null(wash.out)){
+# 
+# 	   thresh <- quantile(c(X), probs=q)
+# 	   thresh <- c(thresh, quantile(c(Y), probs=q))
+# 
+# 	} else {
+# 
+# 	   thresh <- quantile(c(X[X >= wash.out]), probs=q)
+# 	   thresh <- c(thresh, quantile(c(Y[Y >= wash.out]), probs=q))
+# 
+# 	}
+# 
+# 	thresh <- thresh * fac
+# 
+#     } else if(length(thresh) == 1) thresh <- c(thresh, thresh)
+# 
+#     Ix[X >= thresh[1]] <- 1
+#     Iy[Y >= thresh[2]] <- 1
+# 
+#     X.feats <- do.call(idfun, c(list(x=Ix), list(...)))
+#     Y.feats <- do.call(idfun, c(list(x=Iy), list(...)))
+# 
+#     Xlab <- Ylab <- matrix(0, xdim[1], xdim[2])
+# 
+#     if(!is.null(X.feats)) for( i in 1:length( X.feats)) Xlab[X.feats[[i]][["m"]]] <- i
+#     else X.feats <- NULL
+# 
+#     if(!is.null(Y.feats)) for( j in 1:length( Y.feats)) Ylab[Y.feats[[j]][["m"]]] <- j
+#     else Y.feats <- NULL
+# 
+#     # if(is.null(X.feats)) warning("threshfac: No values above threshold in verification field.")
+#     # if(is.null(Y.feats)) warning("threshfac: No values above threshold in forecast field.")
+# 
+#     out <- list()
+#     attributes(out) <- a
+# 
+#     out$X <- X
+#     out$Xhat <- Y
+#     out$X.feats <- X.feats
+#     out$Y.feats <- Y.feats
+#     out$X.labeled <- Xlab
+#     out$Y.labeled <- Ylab
+#     out$identifier.function <- "threshfac"
+#     out$identifier.label <- "Threshold"
+#     names( thresh ) <- c( "Observed", "Forecast" )
+#     out$threshold <- thresh
+# 
+#     attr(out, "time.point") <- time.point
+#     attr(out, "model") <- model
+# 
+#     if(length(a$data.name) == a$nforecast + 2) {
+# 
+#         dn <- a$data.name[-(1:2)]
+#         vxname <- a$data.name[1:2]
+# 
+#     } else {
+# 
+#         dn <- a$data.name[-1]
+#         vxname <- a$data.name[1]
+# 
+#     }
+# 
+#     if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
+#     else model.num <- model
+# 
+#     attr(out, "data.name") <- c(vxname, dn[model.num])
+# 
+#     attr( out, "call") <- theCall
+# 
+#     class(out) <- "features"
+#     return(out)
+# 
+# } # end of 'threshfac' function.
 
 saller <- function(x, d=NULL, distfun = "rdist", ...) {
 

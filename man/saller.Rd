@@ -17,7 +17,7 @@ saller(x, d = NULL, distfun = "rdist", ...)
 }
 \arguments{
   \item{x}{
-\code{saller}: \code{x} is a list object returned by \code{convthresh} or other feature identification function that returns a list with components \code{X.feats}, \code{Y.feats} (themselves lists with owin class objects defining separate features in the verification and forecast fields, resp.), and \code{X.labeled}, \code{Y.labeled} (fields with the numbers from 0 to the number of features also defining the separate feature locations (e.g., as returned by the \code{connected} function of package \pkg{spatstat}.
+\code{saller}: \code{x} is a list object returned by \code{FeatureFinder} or other feature identification function that returns a list with components \code{X.feats}, \code{Y.feats} (themselves lists with owin class objects defining separate features in the verification and forecast fields, resp.), and \code{X.labeled}, \code{Y.labeled} (fields with the numbers from 0 to the number of features also defining the separate feature locations (e.g., as returned by the \code{connected} function of package \pkg{spatstat}.
 
 \code{print}: list object returned by \code{saller}.
 }
@@ -73,7 +73,7 @@ q <- mean( c(c(x[x>0]),c(xhat[xhat>0])), na.rm=TRUE)
 hold <- make.SpatialVx(x, xhat, field.type="contrived", units="none",
     data.name=c("Example", "x", "xhat"))
 
-hold2 <- convthresh(hold, smoothpar=5, thresh=q)
+hold2 <- FeatureFinder(hold, smoothpar=5, thresh=q)
 \dontrun{plot(hold2)}
 
 look <- saller(hold2)   
@@ -89,7 +89,7 @@ hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
     field.type="Precipitation", units="mm/h",
     data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
 
-look <- convthresh(hold, smoothpar=10.5)
+look <- FeatureFinder(hold, smoothpar=10.5)
 summary(look)
 plot(look)
 

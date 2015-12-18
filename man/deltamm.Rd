@@ -25,7 +25,7 @@ centmatch(x, criteria = 1, const = 14, distfun = "rdist", areafac = 1,
 }
 \arguments{
   \item{x}{
-For \code{deltamm} and \code{centmatch}, an object of class \dQuote{features} with components \code{X.labeled}, \code{Y.labeled} (matrices with numbered features), as well as, \code{X.feats} and \code{Y.feats}, each of which are list objects containing numbered components within which are objects of class \dQuote{owin} containing logical matrices that define features for the forecast (Y) and verification (X) fields, resp.  For example, as returned by the \code{convthresh} function.  For \code{plot} an object of class \dQuote{matched}.  Argument \code{y} is used if it is not NULL, otherwise argument \code{x} is used (but only one of \code{x} or \code{y} is used).  If \code{x} and \code{y} are missing, but not \code{object}, then \code{object} will be used, in which case it must be of class \dQuote{features}.
+For \code{deltamm} and \code{centmatch}, an object of class \dQuote{features} with components \code{X.labeled}, \code{Y.labeled} (matrices with numbered features), as well as, \code{X.feats} and \code{Y.feats}, each of which are list objects containing numbered components within which are objects of class \dQuote{owin} containing logical matrices that define features for the forecast (Y) and verification (X) fields, resp.  For example, as returned by the \code{FeatureFinder} function.  For \code{plot} an object of class \dQuote{matched}.  Argument \code{y} is used if it is not NULL, otherwise argument \code{x} is used (but only one of \code{x} or \code{y} is used).  If \code{x} and \code{y} are missing, but not \code{object}, then \code{object} will be used, in which case it must be of class \dQuote{features}.
 }
   \item{object}{list object of class \dQuote{matched}.}
   \item{p}{Baddeley delta metric parameter.  A value of 1 gives arithmetic averages, Inf gives the Hausdorff metric and -Inf gives a minimum.  The default of 2 is most common.}
@@ -67,7 +67,7 @@ The above algorithm suffers from two deficiencies.  First, features that are mer
 
 This function works similarly as \code{deltamm}, though it does not merge features.  It is based on the method proposed by Davis et al. (2006a).  It is possible for more than one object to be matched to the same object in another field.  As a result, when plotting, it might appear that features have been merged, but they have not been.  For informational purposes, the criteria, appelled \code{criteria.values} (as determined by the \code{criteria} argument), along with the centroid distance matrix, appelled \code{centroid.distances}, are returned.
 
-	\code{plot}: The plot method function for matched features plots matched features across fields in the same color using \code{rainbow}.  Unmatched features in either field are all colored gray.  Zero values are colored white.  In the case of features created by \code{centmatch}, multiple features from one field could be matched to the same feature in the other so that, in such cases, it is not possible to decipher which feature in one field is mached to which feature in the other exactly.  The \code{print} method function will tell you which features matched between fields, so one can plot the originally derived features (e.g., from \code{convthresh}) to identify matched features.  On the other hand, one can subjectively determine if same colored features should be merged or not.
+	\code{plot}: The plot method function for matched features plots matched features across fields in the same color using \code{rainbow}.  Unmatched features in either field are all colored gray.  Zero values are colored white.  In the case of features created by \code{centmatch}, multiple features from one field could be matched to the same feature in the other so that, in such cases, it is not possible to decipher which feature in one field is mached to which feature in the other exactly.  The \code{print} method function will tell you which features matched between fields, so one can plot the originally derived features (e.g., from \code{FeatureFinder}) to identify matched features.  On the other hand, one can subjectively determine if same colored features should be merged or not.
 
 \code{summary}:
 
@@ -120,7 +120,7 @@ Eric Gilleland
 }
 
 \seealso{
-To identify features: \code{\link{convthresh}}, \code{\link{threshfac}}, \code{\link{threshsizer}}
+To identify features: \code{\link{FeatureFinder}}
 
 \code{\link{minboundmatch}} is another feature matching function.
 
@@ -141,7 +141,7 @@ y[c(22:24, 99:100),c(50:52, 99:100)] <- 1
 hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
     data.name=c("Example", "x", "y"))
 
-look <- convthresh(hold, smoothpar=0.5) 
+look <- FeatureFinder(hold, smoothpar=0.5) 
 par( mfrow=c(1,2))
 image.plot(look$X.labeled)
 image.plot(look$Y.labeled)
@@ -164,7 +164,7 @@ hold <- make.SpatialVx(pert000, pert004,
     field.type="Precipitation", units="mm/h",
     data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
 
-look <- convthresh(hold, smoothpar=10.5, thresh = 5)
+look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
 plot(look)
 
 look2 <- deltamm(look, verbose = TRUE)

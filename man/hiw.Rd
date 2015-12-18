@@ -88,7 +88,7 @@ Eric Gilleland
 
 \seealso{
 
-To indentify features and create objects of class \dQuote{features}, see, for example: \code{\link{convthresh}}, \code{\link{threshfac}}, \code{\link{threshsizer}}.
+To indentify features and create objects of class \dQuote{features}, see, for example: \code{\link{FeatureFinder}}
 
 \code{\link{centroid.owin}}, \code{\link{as.psp}}, \code{\link{psp}}, \code{\link{crossing.psp}}, \code{\link{lengths.psp}}, \code{\link{angles.psp}}
 }
@@ -104,7 +104,7 @@ hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
     field.type="Geometric Objects Pretending to be Precipitation",
     units="mm/h", data.name=c("ICP Geometric Cases", "geom000", "geom001"))
 
-look <- threshsizer(hold, thresh = 2, Ncontig = 200)
+look <- FeatureFinder(hold, do.smooth = FALSE, thresh = 2, min.size = 200)
 
 look <- hiw(look)
 
@@ -127,7 +127,7 @@ hold <- make.SpatialVx(geom000, geom004, thresholds=c(0.01,50.01),
     field.type="Geometric Objects Pretending to be Precipitation",
     units="mm/h", data.name=c("ICP Geometric Cases", "geom000", "geom004"))
 
-look <- threshsizer(hold)
+look <- FeatureFinder(hold, do.smooth = FALSE)
 
 look <- hiw(look)
 

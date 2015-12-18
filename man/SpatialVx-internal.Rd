@@ -13,6 +13,7 @@
 \alias{MakeClusterList}
 \alias{makeEmptyWave}
 \alias{makeWaveNames}
+\alias{ORSS}
 \alias{QlossRigid}
 \alias{QcorrRigid}
 \alias{inside}

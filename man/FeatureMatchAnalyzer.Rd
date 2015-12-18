@@ -116,7 +116,7 @@ Davis, C. A., Brown, B. G. and Bullock, R. G. (2006) Object-based verification o
 Eric Gilleland
 }
 \seealso{
-Functions to identify features: \code{\link{convthresh}}, \code{\link{threshfac}}, \code{\link{threshsizer}}
+Functions to identify features: \code{\link{FeatureFinder}}
 
 Functions to merge and/or match objects: \code{\link{deltamm}}, \code{\link{centmatch}}, \code{\link{MergeForce}}
 
@@ -133,7 +133,7 @@ xhat <- ExampleSpatialVxSet$fcst
 hold <- make.SpatialVx(x, xhat, field.type="Example",
     units="units", data.name=c("Example", "x", "xhat"))
 
-look <- convthresh(hold, smoothpar=1.5)
+look <- FeatureFinder(hold, smoothpar=1.5)
 look2 <- centmatch(look)
 
 tmp <- FeatureMatchAnalyzer(look2)
@@ -152,7 +152,7 @@ hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
     field.type="Precipitation", units="mm/h",
     data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
 
-look <- convthresh(hold, smoothpar=10.5)
+look <- FeatureFinder(hold, smoothpar=10.5)
 look2 <- centmatch(look)
 tmp <- FeatureMatchAnalyzer(look2)
 summary(tmp)

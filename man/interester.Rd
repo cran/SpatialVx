@@ -112,6 +112,8 @@ The terminology used for features within the entire \pkg{SpatialVx} package atte
 }
 
 \seealso{
+Identifying features: \code{\link{FeatureFinder}}
+
 Functions for calculating the properties: \code{\link{FeatureComps}}, \code{\link{FeatureProps}}
 }
 \examples{
@@ -126,7 +128,7 @@ y[c(22:24, 99:100),c(50:52, 99:100)] <- 1
 hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
     data.name=c("Example", "x", "y"))
      
-look <- convthresh(hold, smoothpar=0.5) 
+look <- FeatureFinder(hold, smoothpar=0.5) 
      
 look2 <- interester(look)
 look2
@@ -142,7 +144,7 @@ hold <- make.SpatialVx(pert000, pert004,
     field.type="Precipitation", units="mm/h",
     data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
      
-look <- convthresh(hold, smoothpar=10.5, thresh = 5)
+look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
 
 look2 <- interester(look, verbose = TRUE)
 look2

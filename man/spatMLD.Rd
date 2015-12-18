@@ -5,6 +5,7 @@
 \alias{fit.spatMLD}
 \alias{summary.spatMLD}
 \alias{plot.spatMLD}
+\alias{print.spatMLD}
 \title{
 Test for Equal Predictive Ability on Average Over a Regularly Gridded Space
 }
@@ -18,15 +19,17 @@ spatMLD(x, ...)
     trend = "ols", loc = NULL, maxrad = 20, dx = 1, dy = 1,
     zero.out = FALSE)
 
-\method{spatMLD}{SpatialVx}(x, ..., time.point = 1, model = c(1, 2),
-    lossfun = "corrskill", trend = "ols", maxrad = 20, dx = 1, dy = 1,
-    zero.out = FALSE)
+\method{spatMLD}{SpatialVx}(x, ..., time.point = 1, model = c(1, 2), lossfun =
+                 "corrskill", trend = "ols", maxrad, dx = 1, dy = 1,
+                 zero.out = FALSE)
 
-fit.spatMLD(object, start.list = NULL)
+fit.spatMLD(object, vgmodel = "expvg", ...)
 
 \method{summary}{spatMLD}(object, ...)
 
 \method{plot}{spatMLD}(x, ..., icol = c("gray", tim.colors(64)))
+
+\method{print}{spatMLD}(x, ...)
 }
 \arguments{
   \item{x,xhat1, xhat2}{
@@ -47,7 +50,7 @@ numeric giving the maximum radius for finding variogram differences per the \cod
 \code{dx} and \code{dy} of \code{vgram.matrix}.
 }
   \item{zero.out}{logical, should the variogram be computed only over non-zero values of the process?  If TRUE, a modified version of \code{vgram.matrix} is used (\code{variogram.matrix}).}
-  \item{start.list}{list with components: \code{s} and \code{r}, which give initial estimates for sqrt(sill) and range parameters of the exponential variogram, resp.}
+  \item{vgmodel}{character string naming a variogram model function to use.  Default is the exponential variogram, \code{expvg}. }
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
     \item{model}{numeric indicating which forecast model to select for the analysis.}
     \item{icol}{(optional) color scheme.}

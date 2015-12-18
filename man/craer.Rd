@@ -48,7 +48,7 @@ Optional arguments to \code{optim} besides \code{method}.  Not used by \code{pri
 }
 }
 \details{
-The contiguous rain area (CRA) spatial verification method was first introduced by Ebert and McBride (2000).  After identifying features and matching them across fields using your favorit feature identification and feature matching functions, the method attempts to find an optimal rigid transformation between the matched features, and then applies the mean square error (MSE) breakdown given by:
+The contiguous rain area (CRA) spatial verification method was first introduced by Ebert and McBride (2000).  After identifying features and matching them across fields using your favorite feature identification and feature matching functions, the method attempts to find an optimal rigid transformation between the matched features, and then applies the mean square error (MSE) breakdown given by:
 
 MSE( total ) = MSE( displacement ) + MSE( volume ) + MSE( pattern ),
 
@@ -74,9 +74,7 @@ The rigid transformation is performed by the \code{rigider} function, which is e
 \seealso{
 \code{\link{optim}}, \code{\link{imomenter}}
 
-For some supplied feature identification functions, see:
-
-\code{\link{convthresh}}, \code{\link{threshsizer}}, \code{\link{threshfac}}
+Feature identification function: \code{\link{FeatureFinder}}
 
 For some feature matching functions, see:
 
@@ -103,7 +101,7 @@ y[c(22:24, 99:100),c(50:52, 99:100)] <- 1
 hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
     data.name=c("Example", "x", "y"))
 
-look <- convthresh(hold, smoothpar=0.5)
+look <- FeatureFinder(hold, smoothpar=0.5)
 
 look2 <- minboundmatch( look )
 
@@ -119,7 +117,7 @@ hold <- make.SpatialVx(pert000, pert004,
     field.type="Precipitation", units="mm/h",
     data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
 
-look <- convthresh(hold, smoothpar=10.5, thresh = 5)
+look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
 plot(look)
 
 look2 <- minboundmatch(look, verbose = TRUE)

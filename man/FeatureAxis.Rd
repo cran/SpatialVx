@@ -58,7 +58,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{owin}}, \code{\link{convexhull}}, \code{\link{sma}}, \code{\link{as.psp}}, \code{\link{angles.psp}}, \code{\link{rotate.owin}}, \code{\link{rotate.psp}}, \code{\link{bounding.box}}, \code{\link{midpoints.psp}}, \code{\link{lengths.psp}}, \code{\link{infline}}, \code{\link{clip.infline}}, \code{\link{deltamm}}, \code{\link{convthresh}}, \code{\link{disjointer}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{solutionset}}
+\code{\link{owin}}, \code{\link{convexhull}}, \code{\link{sma}}, \code{\link{as.psp}}, \code{\link{angles.psp}}, \code{\link{rotate.owin}}, \code{\link{rotate.psp}}, \code{\link{bounding.box}}, \code{\link{midpoints.psp}}, \code{\link{lengths.psp}}, \code{\link{infline}}, \code{\link{clip.infline}}, \code{\link{deltamm}}, \code{\link{FeatureFinder}}, \code{\link{disjointer}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{solutionset}}
 }
 \examples{
 data(ExampleSpatialVxSet)
@@ -86,7 +86,7 @@ hold <- make.SpatialVx(pert000, pert004,
     field.type="Precipitation", units="mm/h",
     data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
 
-look <- convthresh(hold, smoothpar=10.5)
+look <- FeatureFinder(hold, smoothpar=10.5)
 par(mfrow=c(1,2))
 plot(look)
 

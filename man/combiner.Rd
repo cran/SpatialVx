@@ -25,7 +25,7 @@ Eric Gilleland
 }
 
 \seealso{
-Functions that create objects of class \dQuote{features} and \dQuote{matched}: \code{\link{convthresh}}, \code{\link{threshfac}}, \code{\link{threshsizer}}, \code{\link{centmatch}}, and \code{\link{deltamm}}.
+Functions that create objects of class \dQuote{features} and \dQuote{matched}: \code{\link{FeatureFinder}}, \code{\link{centmatch}}, and \code{\link{deltamm}}.
 }
 \examples{
 # TO DO

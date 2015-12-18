@@ -78,7 +78,7 @@ centroids are rounded to the nearest whole number so that interpolation is not n
 
 
 \seealso{
-Identifying features: \code{\link{convthresh}}, \code{\link{threshfac}}, \code{\link{threshsizer}}
+Identifying features: \code{\link{FeatureFinder}}
 }
 \examples{
 x <- y <- matrix(0, 100, 100)
@@ -91,7 +91,7 @@ y[c(22:24, 99:100),c(50:52, 99:100)] <- 1
 hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
     data.name=c("Example", "x", "y"))
 
-look <- convthresh(hold, smoothpar=0.5)
+look <- FeatureFinder(hold, smoothpar=0.5)
 
 look2 <- compositer(look)
 plot(look2, horizontal = TRUE)
@@ -106,7 +106,7 @@ hold <- make.SpatialVx(pert000, pert004,
     field.type="Precipitation", units="mm/h",
     data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
 
-look <- convthresh(hold, smoothpar=10.5, thresh = 5)
+look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
 plot(look)
 
 look2 <- compositer(look)

@@ -86,7 +86,7 @@ Standard error estimates are based on the univariate equivalent formulations, wh
 }
 
 \seealso{
-To identify features in the fields: \code{\link{convthresh}}, \code{\link{threshfac}}, \code{\link{threshsizer}}
+To identify features in the fields: \code{\link{FeatureFinder}}
 
 To match (and merge) features: \code{\link{centmatch}}, \code{\link{deltamm}}
 }

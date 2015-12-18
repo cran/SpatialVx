@@ -77,7 +77,7 @@ Rigid transformations can be estimated using the \code{rigider} function.  To si
 
 Currently, there is functionality for performing the analyses introduced in Davis et al. (2006,2009), including the merge/match algorithm of Gilleland et al (2008), as well as the SAL technique of Wernli et al (2008, 2009).  Some functionality for composite analysis (Nachamkin, 2004) is provided by way of placing individual features onto a relative grid so that each shares the same centroid.  Shape analysis is partially supported by way of functions to identify boundary points (Micheas et al. 2007; Lack et al. 2010).  In particular, see:
 
-Functions to identify features: \code{convthresh}, \code{threshfac}, \code{threshsizer}
+Functions to identify features: \code{FeatureFinder}
 
 Functions to match/merge features: \code{centmatch}, \code{deltamm}, \code{minboundmatch}
 

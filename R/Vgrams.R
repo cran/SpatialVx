@@ -169,13 +169,21 @@ distmaploss <- function(x,y, threshold=0, const=Inf, ...) {
 } # end of 'distmaploss' function.
 
 spatMLD <- function(x, ...) {
+
     UseMethod("spatMLD", x)
+
 } # end of 'spatMLD' function.
 
 spatMLD.SpatialVx <- function(x, ..., time.point=1, model=c(1,2),
-    lossfun="corrskill", trend="ols", maxrad=20, dx=1, dy=1, zero.out=FALSE) {
+    lossfun="corrskill", trend="ols", maxrad, dx=1, dy=1, zero.out=FALSE) {
+
+    theCall <- match.call()
 
     a <- attributes(x)
+
+    if( missing( maxrad ) ) maxrad <- floor( max( a$xdim ) / 2 )
+
+    if( is.null( maxrad ) || is.na( maxrad ) || !is.finite( maxrad ) || !is.numeric( maxrad ) ) maxrad <- 20
 
     ## Begin: Get the data sets
     if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point, model=model[1])
@@ -204,6 +212,7 @@ spatMLD.SpatialVx <- function(x, ..., time.point=1, model=c(1,2),
     else model.num <- model
 
     out$data.name <- c(vxname, dn[model.num])
+    out$call <- theCall
 
     attr(out, "time.point") <- time.point
     attr(out, "model") <- model
@@ -216,66 +225,141 @@ spatMLD.SpatialVx <- function(x, ..., time.point=1, model=c(1,2),
     attr(out, "xdim") <- a$xdim
 
     return(out)
+
 } # end of 'spatMLD.SpatialVx' function.
 
 spatMLD.default <- function(x, ..., xhat1, xhat2, lossfun="corrskill", trend="ols",
     loc=NULL, maxrad=20, dx=1, dy=1, zero.out=FALSE) {
 
-   out <- list()
+    theCall <- match.call()
+
+    out <- list()
     attributes(out) <- atmp <- list(...)
     if(is.null(atmp$loc.byrow)) attr(out, "loc.byrow") <- FALSE
 
-   data.name <- c(as.character(substitute(x)),as.character(substitute(xhat1)),as.character(substitute(xhat2)))
-   names(data.name) <- c("verification","model1", "model2")
-   out$data.name <- data.name
-   out$trend <- trend
-   xdim <- dim(x)
-   out$lossfun <- lossfun
-   out$lossfun.args <- list(...)
-   out$vgram.args <- list(maxrad=maxrad,dx=dx,dy=dy)
-   g1 <- do.call(lossfun, args=c(list(x=x,y=xhat1),list(...)))
-   g2 <- do.call(lossfun, args=c(list(x=x,y=xhat2),list(...)))
-   d <- matrix(g1-g2, xdim[1], xdim[2])
-   if(zero.out) {
+    data.name <- c(as.character(substitute(x)),as.character(substitute(xhat1)),as.character(substitute(xhat2)))
+    names(data.name) <- c("verification","model1", "model2")
+    out$data.name <- data.name
+    out$trend <- trend
+    xdim <- dim(x)
+
+    out$maxdim <- floor( sqrt(xdim[ 1 ]^2 + xdim[2]^2 ) )
+    out$lossfun <- lossfun
+    out$lossfun.args <- list(...)
+    out$vgram.args <- list(maxrad=maxrad,dx=dx,dy=dy)
+ 
+    g1 <- do.call(lossfun, args=c(list(x=x,y=xhat1),list(...)))
+    g2 <- do.call(lossfun, args=c(list(x=x,y=xhat2),list(...)))
+    d <- matrix(g1-g2, xdim[1], xdim[2])
+
+    if(zero.out) {
+
 	# zeros <- d == 0
 	zeros <- (x==0) & (xhat1==0) & (xhat2==0)
 	beta <- mean(!zeros, na.rm=TRUE)
 	out$zeros <- zeros
 	out$beta <- beta
-   }
-   if(trend=="ols") {
+
+    }
+
+    if(trend=="ols") {
+
 	if(is.null(loc)) loc <- cbind(rep(1:xdim[1],xdim[2]), rep(1:xdim[2],each=xdim[1]))
-	else out$loc <- as.character(substitute(loc))
+	# else out$loc <- character(substitute(loc))
 	dat <- data.frame(y=c(d), x1=loc[,1], x2=loc[,2])
 	fit <- lm(y~x1+x2, data=dat)
 	tr <- matrix(predict(fit),xdim[1],xdim[2])
 	if(zero.out) tr[zeros] <- 0
 	d <- d - tr
 	out$trend <- fit
-   } else if(is.numeric(trend)) {
+
+    } else if(is.numeric(trend)) {
+
 	if(zeros) warning("spatMLD: zero.out is TRUE, but trend provided.  Not setting original zeros back after removing trend.")
 	d <- d - trend
 	out$trend <- trend
+
    }
-   out$d <- d
-   if(!zero.out) vg <- vgram.matrix(dat=d, R=maxrad, dx=dx, dy=dy)
-   else vg <- variogram.matrix(dat=d, R=maxrad, dx=dx, dy=dy, zero.out=zero.out)
-   out$lossdiff.vgram <- vg
-   class(out) <- "spatMLD"
-   return(out)
+
+    out$call <- theCall
+    out$d <- d
+    if(!zero.out) vg <- vgram.matrix(dat=d, R=maxrad, dx=dx, dy=dy)
+    else vg <- variogram.matrix(dat=d, R=maxrad, dx=dx, dy=dy, zero.out=zero.out)
+    out$lossdiff.vgram <- vg
+    class(out) <- "spatMLD"
+
+    return(out)
+
 } # end of 'spatMLD.default' function.
 
-fit.spatMLD <- function(object, start.list=NULL) {
-   out <- object
-   maxrad <- out$vgram.args$maxrad
-   vgdat <- data.frame(h=out$lossdiff.vgram$d, v=out$lossdiff.vgram$vgram)
-   v1 <- sqrt(vgdat$v[1])
-   Exp.vgram <- function(h, sigma2=1, theta=1) return(sigma2*(1-exp(-h/theta)))
-   if(is.null(start.list)) vgmodel <- nls(v~Exp.vgram(h=h,sigma2=s^2,theta=r), data=vgdat, start=list(s=v1, r=maxrad))
-   else vgmodel <- nls(v~Exp.vgram(h=h,sigma2=s^2,theta=r), data=vgdat, start=start.list)
-   out$vgmodel <- vgmodel
-   return(out)
+fit.spatMLD <- function(object, vgmodel = "expvg", ... ) {
+
+    out <- object
+    a <- attributes( object )
+    vg <- object$lossdiff.vgram
+
+    p <- c( sqrt( vg$vgram[ 1 ] ), ifelse( vg$vgram[ 2 ] > 0, -(vg$vgram[ 2 ] - vg$vgram[ 1 ]), -(0 - vg$vgram[ 1 ]) ) )
+
+    fit <- try( nlminb( p, ORSS, vg = vg, model = vgmodel, ..., lower = c(0, 0), upper = c(Inf, Inf) ) )
+
+    hold <- list( model = vgmodel, p = fit$par, objective = fit$objective, maxdim = object$maxdim,
+		convergence = fit$convergence, message = fit$message, iterations = fit$iterations,
+		evaluations = fit$evaluations )
+
+    class( hold ) <- paste("fit.spatMLD", vgmodel, sep = ".")
+
+    out$vgmodel <- hold
+
+    # class( out ) <- c("spatMLD", "fit.spatMLD")
+
+    return(out)
+
 } # end of 'fit.spatMLD' function.
+
+expvg <- function( p, vg, ... ) {
+
+    return( p[ 1 ] * ( 1 - exp( - vg$d * p[ 2 ] ) ) )
+
+} # end of 'expvg' function.
+
+predict.fit.spatMLD.expvg <- function( object, newdata, ... ) {
+
+    if( missing( newdata ) ) {
+
+	h <- seq(0, object$maxdim - 1, by = 1 )
+
+    } else h <- newdata
+
+    p <- object$p
+
+    return( p[ 1 ] * ( 1 - exp( - h * p[ 2 ] ) ) )
+
+} # end of 'predict.expvg' function.
+
+print.fit.spatMLD.expvg <- function( x, ... ) {
+
+    cat("\n\nExponential variogram fit\n")
+
+    look <- x$p
+    names( look ) <- c("scale", "range")
+
+    print( look )
+
+    invisible()
+
+} # end of 'print.fit.spatMLD.expvg' function.
+
+ORSS <- function( p, vg, model = "expvg", ... ) {
+
+    fit <- do.call( model, c( list( p = p, vg = vg ), list( ... ) ) )
+
+    out <- sum( ( fit - vg$vgram )^2, na.rm = TRUE )
+
+    return( out )
+
+} # end of 'ORSS' function.
+
+# TO DO: make a WRSS function too for weighted RSS (maybe not necessary).
 
 plot.spatMLD <- function(x, ..., icol=c("gray", tim.colors(64))) {
 
@@ -332,7 +416,7 @@ plot.spatMLD <- function(x, ..., icol=c("gray", tim.colors(64))) {
     a <- x$lossdiff.vgram
     plot(a$d, a$vgram, col="darkblue", xlab="separation distance", ylab="variogram")
     if(!is.null(x$vgmodel)) {
-	lines(a$d, predict(x$vgmodel), col="darkorange", lwd=1.5)
+	lines(a$d, predict(x$vgmodel, newdata = a$d), col="darkorange", lwd=1.5)
    	legend("bottomright", legend=c("Empirical", "Model"), pch=c("o", ""), col=c("darkblue","darkorange"), lty=c(0,1), lwd=1.5, bty="n")
     }
     plot.vgram.matrix(a, main="variogram by direction")
@@ -341,9 +425,33 @@ plot.spatMLD <- function(x, ..., icol=c("gray", tim.colors(64))) {
     mtext(msg, line=0.05, outer=TRUE)
 
     invisible()
+
 } # end of 'plot.spatMLD' function.
 
+print.spatMLD <- function( x, ... ) {
+
+    print( x$call )
+
+    print( x$data.name )
+
+    if( !is.null( x$trend ) ) print( x$trend )
+
+    print( x$lossfun )
+
+    if( !is.null( x$vgmodel ) ) {
+
+	cat("\n", "Fitted variogram model:\n")
+
+	print( x$vgmodel )
+
+    } # end of if model has been fit function.
+
+    invisible()
+
+} # end of 'print.spatMLD' function.
+
 summary.spatMLD <- function(object, ...) {
+
    out <- object
    out$summary.call <- match.call()
    msg <- paste(object$lossfun, ": ", object$data.name[2], " vs ", object$data.name[3], " (against verification: ", object$data.name[1], ")", sep="")
@@ -384,7 +492,9 @@ summary.spatMLD <- function(object, ...) {
       cat("p-value for (one-sided) alternative hypothesis that mu(D) > 0 is: ", pval[3], "\n")
       out$p.value <- pval
    }
+
    invisible(out)
+
 } # end of 'summary.spatMLD' function.
 
 variogram.matrix <- function (dat, R = 5, dx = 1, dy = 1, zero.out=FALSE) 
