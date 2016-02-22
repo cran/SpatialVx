@@ -168,22 +168,22 @@ distmaploss <- function(x,y, threshold=0, const=Inf, ...) {
    return(abs(dx - dy))
 } # end of 'distmaploss' function.
 
-spatMLD <- function(x, ...) {
+lossdiff <- function(x, ...) {
 
-    UseMethod("spatMLD", x)
+    UseMethod("lossdiff", x)
 
-} # end of 'spatMLD' function.
+} # end of 'lossdiff' function.
 
-spatMLD.SpatialVx <- function(x, ..., time.point=1, model=c(1,2),
-    lossfun="corrskill", trend="ols", maxrad, dx=1, dy=1, zero.out=FALSE) {
+lossdiff.SpatialVx <- function(x, ..., time.point = 1, model = c(1,2), threshold = NULL,
+    lossfun = "corrskill", zero.out = FALSE) {
 
     theCall <- match.call()
 
     a <- attributes(x)
 
-    if( missing( maxrad ) ) maxrad <- floor( max( a$xdim ) / 2 )
+    # if( missing( maxrad ) ) maxrad <- floor( max( a$xdim ) / 2 )
 
-    if( is.null( maxrad ) || is.na( maxrad ) || !is.finite( maxrad ) || !is.numeric( maxrad ) ) maxrad <- 20
+    # if( is.null( maxrad ) || is.na( maxrad ) || !is.finite( maxrad ) || !is.numeric( maxrad ) ) maxrad <- 20
 
     ## Begin: Get the data sets
     if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point, model=model[1])
@@ -198,8 +198,8 @@ spatMLD.SpatialVx <- function(x, ..., time.point=1, model=c(1,2),
     Xhat2 <- dat$Xhat
     ## End: Get the data sets
 
-    out <- spatMLD.default(x=X, ..., xhat1=Xhat, xhat2=Xhat2, lossfun=lossfun, trend=trend,
-			    loc=a$loc, maxrad=maxrad, dx=dx, dy=dy, zero.out=zero.out)
+    out <- lossdiff.default(x = X, ..., xhat1 = Xhat, xhat2 = Xhat2, threshold = threshold, lossfun = lossfun, 
+			    loc = a$loc, zero.out = zero.out)
 
     if(length(a$data.name) == a$nforecast + 2) {
         dn <- a$data.name[-(1:2)]
@@ -226,10 +226,9 @@ spatMLD.SpatialVx <- function(x, ..., time.point=1, model=c(1,2),
 
     return(out)
 
-} # end of 'spatMLD.SpatialVx' function.
+} # end of 'lossdiff.SpatialVx' function.
 
-spatMLD.default <- function(x, ..., xhat1, xhat2, lossfun="corrskill", trend="ols",
-    loc=NULL, maxrad=20, dx=1, dy=1, zero.out=FALSE) {
+lossdiff.default <- function(x, ..., xhat1, xhat2, threshold = NULL, lossfun = "corrskill", loc = NULL, zero.out = FALSE) {
 
     theCall <- match.call()
 
@@ -240,13 +239,26 @@ spatMLD.default <- function(x, ..., xhat1, xhat2, lossfun="corrskill", trend="ol
     data.name <- c(as.character(substitute(x)),as.character(substitute(xhat1)),as.character(substitute(xhat2)))
     names(data.name) <- c("verification","model1", "model2")
     out$data.name <- data.name
-    out$trend <- trend
     xdim <- dim(x)
 
     out$maxdim <- floor( sqrt(xdim[ 1 ]^2 + xdim[2]^2 ) )
     out$lossfun <- lossfun
     out$lossfun.args <- list(...)
-    out$vgram.args <- list(maxrad=maxrad,dx=dx,dy=dy)
+
+    if( !is.null( threshold ) ) {
+
+	numthresh <- length( threshold )
+	if( numthresh == 1 ) threshold <- rep( threshold, 3 )
+	else if( numthresh > 3 ) stop("lossdiff: invalid threshold argument.  Must be of length one, two or three.")
+	else if( numthresh == 2 ) threshold <- c( threshold[ 1 ], rep( threshold[ 2], 2 ) )
+
+	x[ x < threshold[ 1 ] ] <- 0
+	xhat1[ xhat1 < threshold[ 2 ] ] <- 0
+	xhat2[ xhat2 < threshold[ 3 ] ] <- 0
+
+	out$threshold <- threshold
+
+    } # end of if 'threshold' stmt.
  
     g1 <- do.call(lossfun, args=c(list(x=x,y=xhat1),list(...)))
     g2 <- do.call(lossfun, args=c(list(x=x,y=xhat2),list(...)))
@@ -262,37 +274,71 @@ spatMLD.default <- function(x, ..., xhat1, xhat2, lossfun="corrskill", trend="ol
 
     }
 
-    if(trend=="ols") {
-
-	if(is.null(loc)) loc <- cbind(rep(1:xdim[1],xdim[2]), rep(1:xdim[2],each=xdim[1]))
-	# else out$loc <- character(substitute(loc))
-	dat <- data.frame(y=c(d), x1=loc[,1], x2=loc[,2])
-	fit <- lm(y~x1+x2, data=dat)
-	tr <- matrix(predict(fit),xdim[1],xdim[2])
-	if(zero.out) tr[zeros] <- 0
-	d <- d - tr
-	out$trend <- fit
-
-    } else if(is.numeric(trend)) {
-
-	if(zeros) warning("spatMLD: zero.out is TRUE, but trend provided.  Not setting original zeros back after removing trend.")
-	d <- d - trend
-	out$trend <- trend
-
-   }
+#     if(trend=="ols") {
+ 
+ 	if(is.null(loc)) loc <- cbind(rep(1:xdim[1],xdim[2]), rep(1:xdim[2],each=xdim[1]))
+ 	# else out$loc <- character(substitute(loc))
+ 	if( zero.out ) dat <- data.frame(y = c(d)[ !zeros ], x1 = loc[ !zeros, 1], x2 = loc[ !zeros, 2])
+	else dat <- data.frame(y = c(d), x1 = loc[, 1], x2 = loc[, 2] )
+ 	fit <- try( lm(y~x1+x2, data=dat), silent = TRUE )
+ 	# tr <- matrix(predict(fit),xdim[1],xdim[2])
+ 	# if(zero.out) tr[zeros] <- 0
+ 	# d <- d - tr
+ 	out$trend.fit <- fit
+# 
+#     } else if(is.numeric(trend)) {
+#
+#	if(zeros) warning("lossdiff: zero.out is TRUE, but trend provided.  Not setting original zeros back after removing trend.")
+# 	d <- d - trend
+# 	if( zero.out ) d[ zero.out ] <- 0
+# 	out$trend <- trend
+#
+#   }
 
     out$call <- theCall
     out$d <- d
-    if(!zero.out) vg <- vgram.matrix(dat=d, R=maxrad, dx=dx, dy=dy)
-    else vg <- variogram.matrix(dat=d, R=maxrad, dx=dx, dy=dy, zero.out=zero.out)
-    out$lossdiff.vgram <- vg
-    class(out) <- "spatMLD"
+    class(out) <- "lossdiff"
 
     return(out)
 
-} # end of 'spatMLD.default' function.
+} # end of 'lossdiff.default' function.
 
-fit.spatMLD <- function(object, vgmodel = "expvg", ... ) {
+empiricalVG.lossdiff <- function( x, trend = 0, maxrad, dx = 1, dy = 1 ) {
+
+    theCall <- match.call()
+
+    a <- attributes( x )
+
+    out <- x
+
+    if( missing( maxrad ) ) maxrad <- floor( max( a$xdim ) / 2 )
+
+    if( is.null( maxrad ) || is.na( maxrad ) || !is.finite( maxrad ) || !is.numeric( maxrad ) ) maxrad <- 20
+
+    out$trend <- trend
+    out$vgram.args <- list( maxrad = maxrad, dx = dx, dy = dy )
+
+    if( !is.null( x$zeros ) ) zero.out <- TRUE
+    else zero.out <- FALSE
+
+    d <- x$d - trend
+
+    if( zero.out ) d[ x$zeros ] <- 0
+
+    out$loss.differential.detrended <- d
+
+    if( !zero.out ) vg <- vgram.matrix(dat = d, R = maxrad, dx = dx, dy = dy)
+    else vg <- variogram.matrix(dat = d, R = maxrad, dx = dx, dy = dy, zero.out = zero.out)
+
+    out$lossdiff.vgram <- vg
+
+    out$call <- list( out$call, theCall )
+
+    return( out )
+
+} # end of 'empiricalVG.lossdiff' function.
+
+flossdiff <- function(object, vgmodel = "expvg", ... ) {
 
     out <- object
     a <- attributes( object )
@@ -306,15 +352,15 @@ fit.spatMLD <- function(object, vgmodel = "expvg", ... ) {
 		convergence = fit$convergence, message = fit$message, iterations = fit$iterations,
 		evaluations = fit$evaluations )
 
-    class( hold ) <- paste("fit.spatMLD", vgmodel, sep = ".")
+    class( hold ) <- paste("flossdiff", vgmodel, sep = ".")
 
     out$vgmodel <- hold
 
-    # class( out ) <- c("spatMLD", "fit.spatMLD")
+    # class( out ) <- c("lossdiff", "flossdiff")
 
     return(out)
 
-} # end of 'fit.spatMLD' function.
+} # end of 'flossdiff' function.
 
 expvg <- function( p, vg, ... ) {
 
@@ -322,7 +368,7 @@ expvg <- function( p, vg, ... ) {
 
 } # end of 'expvg' function.
 
-predict.fit.spatMLD.expvg <- function( object, newdata, ... ) {
+predict.flossdiff.expvg <- function( object, newdata, ... ) {
 
     if( missing( newdata ) ) {
 
@@ -336,7 +382,7 @@ predict.fit.spatMLD.expvg <- function( object, newdata, ... ) {
 
 } # end of 'predict.expvg' function.
 
-print.fit.spatMLD.expvg <- function( x, ... ) {
+print.flossdiff.expvg <- function( x, ... ) {
 
     cat("\n\nExponential variogram fit\n")
 
@@ -347,7 +393,7 @@ print.fit.spatMLD.expvg <- function( x, ... ) {
 
     invisible()
 
-} # end of 'print.fit.spatMLD.expvg' function.
+} # end of 'print.flossdiff.expvg' function.
 
 ORSS <- function( p, vg, model = "expvg", ... ) {
 
@@ -361,7 +407,7 @@ ORSS <- function( p, vg, model = "expvg", ... ) {
 
 # TO DO: make a WRSS function too for weighted RSS (maybe not necessary).
 
-plot.spatMLD <- function(x, ..., icol=c("gray", tim.colors(64))) {
+plot.lossdiff <- function(x, ..., icol=c("gray", tim.colors(64))) {
 
     tmp <- attributes(x)
     loc.byrow <- tmp$loc.byrow
@@ -426,15 +472,15 @@ plot.spatMLD <- function(x, ..., icol=c("gray", tim.colors(64))) {
 
     invisible()
 
-} # end of 'plot.spatMLD' function.
+} # end of 'plot.lossdiff' function.
 
-print.spatMLD <- function( x, ... ) {
+print.lossdiff <- function( x, ... ) {
 
     print( x$call )
 
     print( x$data.name )
 
-    if( !is.null( x$trend ) ) print( x$trend )
+    if( !is.null( x$trend ) ) print( summary( x$trend ) )
 
     print( x$lossfun )
 
@@ -448,14 +494,16 @@ print.spatMLD <- function( x, ... ) {
 
     invisible()
 
-} # end of 'print.spatMLD' function.
+} # end of 'print.lossdiff' function.
 
-summary.spatMLD <- function(object, ...) {
+summary.lossdiff <- function(object, ...) {
 
    out <- object
    out$summary.call <- match.call()
    msg <- paste(object$lossfun, ": ", object$data.name[2], " vs ", object$data.name[3], " (against verification: ", object$data.name[1], ")", sep="")
    print(msg)
+   cat("Fitted trend information (note: not used by subsequent functions, information only):\n\n")
+   print( summary( object$trend.fit ) )
    d <- object$d
    if(zero.out <- !is.null(object$beta)) {
 	cat("\n", "Estimate of beta present, so calculating Dbar and test statistic over non-zero entries only.\n")
@@ -485,7 +533,7 @@ summary.spatMLD <- function(object, ...) {
       out$test.statistic <- SV
       cat("Test Statistic for null hypothesis of equal predictive ability on average\n")
       print(SV)
-      pval <- c(2*pnorm(-abs(SV)), pnorm(SV), pnorm(SV, lower.tail=FALSE))
+      pval <- c( 2 * pnorm( -abs(SV) ), pnorm( SV ), pnorm( SV, lower.tail=FALSE ) )
       names(pval) <- c("two.sided", "less", "greater")
       cat("p-value for two-sided alternative hypothesis is: ", pval[1], "\n")
       cat("p-value for (one-sided) alternative hypothesis that mu(D) < 0 is: ", pval[2], "\n")
@@ -495,9 +543,9 @@ summary.spatMLD <- function(object, ...) {
 
    invisible(out)
 
-} # end of 'summary.spatMLD' function.
+} # end of 'summary.lossdiff' function.
 
-variogram.matrix <- function (dat, R = 5, dx = 1, dy = 1, zero.out=FALSE) 
+variogram.matrix <- function (dat, R = 5, dx = 1, dy = 1, zero.out = FALSE) 
 {
     SI <- function(ntemp, delta) {
         n1 <- 1:ntemp

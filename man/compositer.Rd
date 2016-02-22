@@ -48,7 +48,7 @@ Not used by \code{compositer}.
 }
 \details{
 
-This is funcitonality for performing an analysis similar to the composite verification method of Nachamkin (2004).  See also Nachamkin et al. (2005) and Nachamkin (2009).  The main difference is that this function centers all features to the same point, then re-sizes the grid to the smallest possible size to contain all features.  The "existence" of a feature at the same time point is determined by the centroid distance (because, here, the compositing is done for a large field rather than a small area), but it does not allow for having half of the feature in the domain in order to be considered.
+This is functionality for performing an analysis similar to the composite verification method of Nachamkin (2004).  See also Nachamkin et al. (2005) and Nachamkin (2009).  The main difference is that this function centers all features to the same point, then re-sizes the grid to the smallest possible size to contain all features.  The "existence" of a feature at the same time point is determined by the centroid distance (because, here, the compositing is done for a large field rather than a small area), but it does not allow for having half of the feature in the domain in order to be considered.
 
 \code{compositer} takes an object of class \dQuote{features} or \dQuote{matched} and centers all of the identified features onto the same point so that all features have the same centroid.  It also then re-grids the composited features so that they are contained on the smallest possible domain that includes all of the features in the verification set.
 

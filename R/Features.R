@@ -1126,7 +1126,7 @@ FeatureProps <- function(x, Im = NULL, which.props = c("centroid", "area", "axis
 } # end of 'FeatureProps' function.
 
 FeatureComps <- function(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ratio",
-					     "int.area", "bdelta", "haus", "ph", "mhd",
+					     "int.area", "bdelta", "haus", "ph", 
 					     "med", "msd", "fom", "minsep", "bearing"),
 		sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", deg=TRUE, aty="compass", loc = NULL, ...) {
 
@@ -1137,8 +1137,8 @@ FeatureComps <- function(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ra
 	if( any(is.element(c("area.ratio","int.area"), which.comps))) list1 <- c(list1, "area")
 	if( is.element("angle.diff", which.comps)) list1 <- c(list1, "axis")
    }
-   id2 <- is.element(c("ph", "mhd", "med", "msd", "fom", "minsep"), which.comps)
-   if(any(id2)) list2 <- c("ph", "mhd", "med", "msd", "fom", "minsep")[id2]
+   id2 <- is.element(c("ph", "med", "msd", "fom", "minsep"), which.comps)
+   if(any(id2)) list2 <- c("ph", "med", "msd", "fom", "minsep")[id2]
 
    if(any(id1)) {
 
@@ -1300,7 +1300,7 @@ summary.FeatureAxis <- function(object, ...) {
 } # end of 'summary.FeatureAxis' function.
 
 FeatureMatchAnalyzer <- function(x, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
-                    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"), 
+                    "bdelta", "haus", "ph", "med", "msd", "fom", "minsep", "bearing"), 
 		    sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", ...) {
 
     UseMethod("FeatureMatchAnalyzer", x)
@@ -1308,7 +1308,7 @@ FeatureMatchAnalyzer <- function(x, which.comps=c("cent.dist", "angle.diff", "ar
 } # end of 'FeatureMatchAnalyzer' function.
 
 FeatureMatchAnalyzer.matched <- function(x, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
-                    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
+                    "bdelta", "haus", "ph", "med", "msd", "fom", "minsep", "bearing"),
                     sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", ...) {
 
     class(x) <- paste(class(x), x$match.type, sep = ".")
@@ -1318,7 +1318,7 @@ FeatureMatchAnalyzer.matched <- function(x, which.comps=c("cent.dist", "angle.di
 
 
 FeatureMatchAnalyzer.matched.centmatch <- function(x, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
-                    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"), 
+                    "bdelta", "haus", "ph", "med", "msd", "fom", "minsep", "bearing"), 
                     sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", ...) {
 
     a <- attributes(x)
@@ -1358,7 +1358,7 @@ FeatureMatchAnalyzer.matched.centmatch <- function(x, which.comps=c("cent.dist",
 } # end of 'FeatureMatchAnalyzer.matched.centmatch' function.
 
 FeatureMatchAnalyzer.matched.deltamm <- function(x, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
-		    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
+		    "bdelta", "haus", "ph", "med", "msd", "fom", "minsep", "bearing"),
     		    sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", ...,
     		    y=NULL, matches=NULL, object=NULL) {
 
@@ -1438,7 +1438,6 @@ summary.FeatureMatchAnalyzer <- function(object, ...) {
 	    if(!silent) {
 
    	        if(names(object[[1]])[i] == "ph") cat("\n", "Partial Hausdorff Distance:\n")
-   	        else if(names(object[[1]])[i] == "mhd") cat("\n", "Modified Hausdorff Distance:\n")
    	        else if(names(object[[1]])[i] == "med") cat("\n", "Mean Error Distance:\n")
    	        else if(names(object[[1]])[i] == "msd") cat("\n", "Mean Square Error Distance:\n")
    	        else if(names(object[[1]])[i] == "fom") cat("\n", "Pratt\'s Figure of Merit:\n")
@@ -1485,7 +1484,7 @@ summary.FeatureMatchAnalyzer <- function(object, ...) {
     invisible()
 } # end of 'summary.FeatureMatchAnalyzer' function.
 
-plot.FeatureMatchAnalyzer <- function(x, ..., type=c("all", "ph", "mhd", "med", "msd", "fom", "minsep",
+plot.FeatureMatchAnalyzer <- function(x, ..., type=c("all", "ph", "med", "msd", "fom", "minsep",
 					"cent.dist", "angle.diff", "area.ratio", "int.area", "bearing",
 					"bdelta", "haus")) {
 
@@ -1518,7 +1517,6 @@ plot.FeatureMatchAnalyzer <- function(x, ..., type=c("all", "ph", "mhd", "med", 
     	        } else {
 
                     if(colnames(y)[i] == "ph") t1 <- "Partial Hausdorff \nDistance"
-                    else if(colnames(y)[i] == "mhd") t1 <- "Modified Hausdorff \nDistance"
                     else if(colnames(y)[i] == "med") t1 <- "Mean Error Distance"
                     else if(colnames(y)[i] == "msd") t1 <- "Mean Square Error \nDistance"
                     else if(colnames(y)[i] == "fom") t1 <- "Pratt\'s Figure \nof Merit"
@@ -1537,7 +1535,6 @@ plot.FeatureMatchAnalyzer <- function(x, ..., type=c("all", "ph", "mhd", "med", 
         } else {
 
 	    if(type=="ph") t1 <- "Partial Hausdorff \nDistance"
-            else if(type == "mhd") t1 <- "Modified Hausdorff \nDistance"
             else if(type == "med") t1 <- "Mean Error Distance"
             else if(type == "msd") t1 <- "Mean Square Error \nDistance"
             else if(type == "fom") t1 <- "Pratt\'s Figure \nof Merit"

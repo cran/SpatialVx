@@ -80,7 +80,7 @@ A list object of class \dQuote{matched} is returned by both centmatch and deltam
 
     \item{match.message}{A character string stating how features were matched.}
 
-    \item{match.type}{character string naming the matching funciton used.}
+    \item{match.type}{character string naming the matching function used.}
 
     \item{matches}{two-column matrix with forecast object numbers in the first column and corresponding matched observed features in the second column.  If no matches, this will have value integer(0) for each column giving a matrix with dimension 0 by 2.}
 

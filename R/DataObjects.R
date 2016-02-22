@@ -15,11 +15,20 @@ make.SpatialVx <- function(X, Xhat, thresholds=NULL, loc=NULL, projection=FALSE,
     } else {
 
 	nforecast <- 1
-	ydim <- dim(Xhat)
+	ydim <- dim( Xhat )
 
     }
 
-    if(all(xdim != ydim)) stop("make.SpatialVx: dim of X must be the same as dim of (each component of) Xhat")
+    if(all(xdim != ydim)) {
+
+	stopmsg <- paste("make.SpatialVx: dim of X (", xdim[ 1 ], " by ", xdim[ 2 ],
+		") must be the same as dim of (each component of) Xhat (", ydim[ 1 ], " by ",
+		ydim[ 2 ], ")", sep = "" )
+
+	stop( stopmsg )
+	# stop("make.SpatialVx: dim of X must be the same as dim of (each component of) Xhat")
+
+    } # end of stop bc dims are not equal stmt.
 
     out <- list(X, Xhat)
 

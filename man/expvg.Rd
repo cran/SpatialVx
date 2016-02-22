@@ -1,7 +1,7 @@
 \name{expvg}
 \alias{expvg}
-\alias{predict.fit.spatMLD.expvg}
-\alias{print.fit.spatMLD.expvg}
+\alias{predict.flossdiff.expvg}
+\alias{print.flossdiff.expvg}
 \title{
 Exponential Variogram
 }
@@ -11,9 +11,9 @@ Compute the exponential variogram.
 \usage{
 expvg(p, vg, ...)
 
-\method{predict}{fit.spatMLD.expvg}(object, newdata, ...)
+\method{predict}{flossdiff.expvg}(object, newdata, ...)
 
-\method{print}{fit.spatMLD.expvg}(x, ...)
+\method{print}{flossdiff.expvg}(x, ...)
 }
 \arguments{
   \item{p}{
@@ -22,14 +22,14 @@ numeric vector of length two.  Each component should be positively valued.  The 
   \item{vg}{
 A list object with component \code{d} giving a numeric vector of distances over which the variogram is to be calculated.
 }
-  \item{object, x}{A list object returned by \code{fit.spatMLD} using \code{expvg} as the variogram model.}
+  \item{object, x}{A list object returned by \code{flossdiff} using \code{expvg} as the variogram model.}
   \item{newdata}{Numeric giving the distances over which to use the fitted exponential variogram model to make predictions.  The default is to go from zero to the maximum lag distance for a given data set, which is not the usual convention for the generic \code{predict}, which usually defaults to operate on the lags used in performing the fit.}
   \item{\dots}{
 Not used.
 }
 }
 \details{
-A very simple function used mainly internally by \code{fit.spatMLD} when fitting the exponential variogram to the empirical one, and by the \code{predict}, \code{print} and \code{summary} method functions for \code{spatMLD} objects.  For those wishing to use a different variogram model than the exponential, use this function and its method functions as a template.  Be sure to create \code{predict} and \code{print} method functions to operate on objects of class \dQuote{fit.spatMLD.XXX} where \dQuote{XXX} is the name of the variogram function you write (so, \dQuote{expvg} in the current example).
+A very simple function used mainly internally by \code{flossdiff} when fitting the exponential variogram to the empirical one, and by the \code{predict}, \code{print} and \code{summary} method functions for \code{lossdiff} objects.  For those wishing to use a different variogram model than the exponential, use this function and its method functions as a template.  Be sure to create \code{predict} and \code{print} method functions to operate on objects of class \dQuote{flossdiff.XXX} where \dQuote{XXX} is the name of the variogram function you write (so, \dQuote{expvg} in the current example).
 }
 \value{
 Numeric vector of length equal to that of the \code{d} component of \code{vg} giving the corresponding exponential variogram values with nugget and range defined by \code{p}.
@@ -42,11 +42,11 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{spatMLD}}, \code{\link{fit.spatMLD}}
+\code{\link{lossdiff}}, \code{\link{flossdiff}}
 }
 \examples{
 ##
-## For examples, see spatMLD and fit.spatMLD
+## For examples, see lossdiff and flossdiff
 ##
 }
 \keyword{ manip }

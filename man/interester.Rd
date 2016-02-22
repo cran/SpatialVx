@@ -10,10 +10,10 @@ Calculate interest maps for specific feature comparisons and compute the total i
 }
 \usage{
 interester(x, properties = c("cent.dist", "angle.diff", "area.ratio", "int.area",
-    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep"),
-    weights = c(0.24, 0.12, 0.17, 0.12, 0, 0, 0, 0, 0, 0, 0, 0.35),
-    b1 = c(35, 30, 0, 0, 0.5, 35, 20, 20, 40, 120, 1, 40),
-    b2 = c(100, 90, 0.8, 0.25, 85, 400, 200, 200, 200, 400, 0.25, 200),
+    "bdelta", "haus", "ph", "med", "msd", "fom", "minsep"),
+    weights = c(0.24, 0.12, 0.17, 0.12, 0, 0, 0, 0, 0, 0, 0.35),
+    b1 = c(35, 30, 0, 0, 0.5, 35, 20, 40, 120, 1, 40),
+    b2 = c(100, 90, 0.8, 0.25, 85, 400, 200, 200, 400, 0.25, 200),
     verbose = FALSE, ...)
 
 \method{print}{interester}(x, ...)
@@ -119,16 +119,16 @@ Functions for calculating the properties: \code{\link{FeatureComps}}, \code{\lin
 \examples{
 
 x <- y <- matrix(0, 100, 100)
-x[2:3,c(3:6, 8:10)] <- 1
-y[c(4:7, 9:10),c(7:9, 11:12)] <- 1
+x[ 2:3, c(3:6, 8:10) ] <- 1
+y[ c(4:7, 9:10), c(7:9, 11:12) ] <- 1
      
-x[30:50,45:65] <- 1
-y[c(22:24, 99:100),c(50:52, 99:100)] <- 1
+x[ 30:50, 45:65 ] <- 1
+y[ c(22:24, 99:100), c(50:52, 99:100) ] <- 1
      
-hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
-    data.name=c("Example", "x", "y"))
+hold <- make.SpatialVx(x, y, field.type = "contrived", units = "none",
+    data.name = c("Example", "x", "y"))
      
-look <- FeatureFinder(hold, smoothpar=0.5) 
+look <- FeatureFinder(hold, smoothpar = 0.5) 
      
 look2 <- interester(look)
 look2

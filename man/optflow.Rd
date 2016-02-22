@@ -20,7 +20,7 @@ This function estimates the optical flow from the initial field (image) to the f
 
 I_o(x,y) ~ I_f(x,y) + [partial(I_f) wrt x]*dx + [partial(I_f) wrt y]*dy.
 
-The procedure follows that proposed by Lucas and Kanade (1981) whereby for some window, W, it is assumed that all dx (dy) are assumed constant, and least squares estimation is used to estimate dx and dy (see Marzban and Sandgathe, 2010 for more on this implementation).  It is assumed that the fields (initial and final) include only the window around the point of interest (i.e., this funciton finds the optical flow estimate for a single window).  See the function \code{OF}, which iteratively calls this funciton, for performing optical flow over the entire field.
+The procedure follows that proposed by Lucas and Kanade (1981) whereby for some window, W, it is assumed that all dx (dy) are assumed constant, and least squares estimation is used to estimate dx and dy (see Marzban and Sandgathe, 2010 for more on this implementation).  It is assumed that the fields (initial and final) include only the window around the point of interest (i.e., this function finds the optical flow estimate for a single window).  See the function \code{OF}, which iteratively calls this function, for performing optical flow over the entire field.
 
 The above formulation is linear in the parameters.  Marzban and Sandgathe (2010) also introduce an additive error component, which leads to a nonlinear version of the above.  Namely,
 

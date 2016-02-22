@@ -50,7 +50,7 @@ vector identifying which specific grid points should be included (if not all of 
 If more than one time point is available in the set (i.e., the set is of n X m X T arrays, with T > 1), then this argument can be used to define the time points.  If missing, the default will yield the vector \code{1:T}.  But, it is possible to include actual time information.  This is also a forward looking feature that may or may not have any subsequent functionality.
 }
   \item{reg.grid}{
-logical, is the verification set on a regular grid?  This is another feature intended for possible future funcitonality.  Most functions in this package assume the set is on a regular grid.
+logical, is the verification set on a regular grid?  This is another feature intended for possible future functionality.  Most functions in this package assume the set is on a regular grid.
 }
   \item{map}{
 logical, should the plot function attempt to place a map onto the plot?  Only possible if the \code{loc} argument is given.

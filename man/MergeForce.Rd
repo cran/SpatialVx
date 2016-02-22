@@ -18,14 +18,14 @@ logical, should progress information be printed to the screen.
 }
 }
 \details{
-Objects returned by functions such as \code{deltamm} and \code{centmatch} provide information necessary to merge and match features from \dQuote{features} objects.  In the case of \code{centmatch}, only implicit merges are given, and this function creates objects where the implicit merges are forced to be merged.  In the case of \code{deltamm}, a second pass through might yield better merges/matches in that without a second pass, only features in one field or the other can be merged and matched (not both simultaneously).  Using this funciton, and apssing the result back through \code{deltamm} can result in subsequent matches of merged features from both fields simultaneously.  Moreover, in some cases, it may be more computationally efficient to run this function once for subsequent analyses/plotting.
+Objects returned by functions such as \code{deltamm} and \code{centmatch} provide information necessary to merge and match features from \dQuote{features} objects.  In the case of \code{centmatch}, only implicit merges are given, and this function creates objects where the implicit merges are forced to be merged.  In the case of \code{deltamm}, a second pass through might yield better merges/matches in that without a second pass, only features in one field or the other can be merged and matched (not both simultaneously).  Using this function, and apssing the result back through \code{deltamm} can result in subsequent matches of merged features from both fields simultaneously.  Moreover, in some cases, it may be more computationally efficient to run this function once for subsequent analyses/plotting.
 }
 \value{
 A list object of class \dQuote{matched} is returned containing several components and the same attributes as x.
 
     \item{match.message}{A character string stating how features were matched with (merged) apended.}
 
-    \item{match.type}{character of length 2 naming the original matching funciton used and this function to note that the features have been forced to be merged/clustered together.  }
+    \item{match.type}{character of length 2 naming the original matching function used and this function to note that the features have been forced to be merged/clustered together.  }
 
     \item{matches}{two-column matrix with forecast object numbers in the first column and corresponding matched observed features in the second column.  If no matches, this will have value integer(0) for each column giving a matrix with dimension 0 by 2.}
 

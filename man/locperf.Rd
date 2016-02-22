@@ -9,7 +9,7 @@ Localization Performance Measures
 Some localization performance (distance) measures for binary images.
 }
 \usage{
-locperf(X, Y, which.stats = c("ph", "mhd", "med", "msd", "fom", "minsep"),
+locperf(X, Y, which.stats = c("ph", "med", "msd", "fom", "minsep"),
     alpha = 0.1, k = 4, distfun = "distmapfun", a=NULL, ...)
 
 distob(X, Y, distfun = "distmapfun", ...)
@@ -54,7 +54,7 @@ Minimum separation distance between boundaries (\dQuote{minsep}) is just the sma
 
 distob is a modification of the mean error distance where if there are no events in either field, the value is 0, and if there are no events in one field only, the value is something large (in this case the length of the longest side of the grid).
 
-The Hausdorff distance for a finite grid is given by max( max( d(x,B); x in A), max( d(x,A); x in B)), and can be written as max( abs(d(x,A) - d(x,B)), over all x in the raster).  The partial Hausdorff distance (\dQuote{ph}) is a modification that replaces the maximum in the latter equation with a k-th order statistic (or quantile).  The modified Hausdorff distance (\dQuote{mhd}) is given by mhd(A,B) = max( e.bar(A,B), e.bar(B,A)).  See, e.g., Baddeley, (1992) and Schwedler and Baldwin (2011).
+The Hausdorff distance for a finite grid is given by max( max( d(x,B); x in A), max( d(x,A); x in B)), and can be written as max( abs(d(x,A) - d(x,B)), over all x in the raster).  The partial Hausdorff distance (\dQuote{ph}) is a modification that replaces the maximum in the latter equation with a k-th order statistic (or quantile).  The modified Hausdorff distance is no longer given from this function, but can easily be computed using output from this function as it is given by mhd(A,B) = max( e.bar(A,B), e.bar(B,A)), and in some literature the maximum is replaced by the minimum.  See, e.g., Baddeley, (1992) and Schwedler and Baldwin (2011).
 
 For computational efficiency, the distance transform method is used via \code{distmap} from package \pkg{spatstat} for calculating d(x,A) x in the raster.
 }
@@ -63,7 +63,6 @@ For computational efficiency, the distance transform method is used via \code{di
   \item{bdelta}{matrix or numeric depending on p and number of thresholds.}
   \item{haus}{numeric giving the Hausdorff distances for each threshold.}
   \item{ph }{matrix or numeric, depending on k and number of thresholds, giving the value of the partial Hausdorff distance for each threshold.}
-  \item{mhd}{numeric giving the value of the modified Hausdorff distance for each threshold.}
   \item{med,msd}{numeric giving the value of the mean error/square error distance for each threshold.}
   \item{fom}{matrix or numeric, depending on alpha and number of thresholds, giving the value of Pratt his Figure of Merit for each threshold.}
   \item{minsep}{numeric giving the value of the minimum boundary separation distance for each threshold.}

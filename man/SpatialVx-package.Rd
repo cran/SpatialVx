@@ -111,7 +111,7 @@ In addition to the methods categorized in Gilleland et al. (2009), there are als
 
 \code{spatbiasFS}, \code{LocSig}, \code{MCdof}
 
-In addition, the mean loss differential approach of Hering and Genton (2011) is included via the function, \code{spatMLD}, including the loss functions: absolute error (\code{abserrloss}), square error (\code{sqerrloss}) and correlation skill (\code{corrskill}), as well as the distance map loss function (\code{distmaploss}) introduced in Gilleland (2013).
+In addition, the spatial prediction comparison test (SPCT) introduced by Hering and Genton (2011) is included via the functions: \code{lossdiff}, \code{empiricalVG} and \code{flossdiff}.  Supporting functions for calculating the loss functions include: absolute error (\code{abserrloss}), square error (\code{sqerrloss}) and correlation skill (\code{corrskill}), as well as the distance map loss function (\code{distmaploss}) introduced in Gilleland (2013).
 
 4. Other:
 

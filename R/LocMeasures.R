@@ -11,26 +11,35 @@ locmeasures2dPrep <- function(object, k=NULL, alpha=0.1, bdconst=NULL, p=2) {
 
 } # end of 'locmetric2dPrep' function.
 
-locmeasures2d <- function(object, which.stats=c("bdelta", "haus", "ph", "mhd", "med", "msd", "fom"),
+locmeasures2d <- function(object, which.stats=c("bdelta", "haus", "ph", "med", "msd", "fom"),
         distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ...) {
 
     UseMethod("locmeasures2d", object)
 
 } # end of 'locmeasures2d' function.
 
-locmeasures2d.default <- function(object, which.stats=c("bdelta", "haus", "ph", "mhd", "med", "msd", "fom"),
+locmeasures2d.default <- function(object, which.stats=c("bdelta", "haus", "ph", "med", "msd", "fom"),
         distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ..., Y, thresholds=NULL) {
 
     args <- list(...)
     if(missing(Y) && is.element("Xhat", names(args))) Y <- args$Xhat
+    if( !all( dim( Y ) == dim( object ) ) ) {
+
+	stopmsg <- paste("locmeasures2d: dim of observed field (", dim( object ), 
+		") must equal dim of forecast field (", dim( Y ), ")", sep = "" )
+	stop( stopmsg )
+
+    }
+
     obj <- make.SpatialVx(X=object, Xhat=Y, thresholds=thresholds)
 
     out <- locmeasures2d.SpatialVx(object=obj, which.stats=which.stats, distfun=distfun,
 						k=k, alpha=alpha, bdconst=bdconst, p=p, ...)
     return(out)
+
 } # end of 'locmeasures2d.default' function.
 
-locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "ph", "mhd", "med", "msd", "fom"),
+locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "ph", "med", "msd", "fom"),
 	distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ..., time.point=1, model=1) {
 
     object <- locmeasures2dPrep(object=object, k=k, alpha=alpha, bdconst=bdconst, p=p)
@@ -39,7 +48,7 @@ locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "ph"
     thresholds <- a$thresholds
     q <- dim( thresholds)[1]
 
-    if(is.null(a$k) & "ph" %in% which.stats) stop("locmeasures2d: must supply k in call to locmeasures2dPrep to do ph method.")
+    if(is.null(a$k) && "ph" %in% which.stats) stop("locmeasures2d: must supply k in call to locmeasures2dPrep to do ph method.")
 
     if(!is.null(a$k)) nk <- length(a$k)
     else nk <- 1
@@ -76,7 +85,7 @@ locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "ph"
 	model.num <- (1:a$nforecast)[model == dn]
     } else model.num <- model
     attr(out, "data.name") <- c(mainname, vxname, dn[model.num])
-    thresholds <- cbind(thresholds[,1], thresholds[,model.num + 1])
+    if( dim( thresholds )[ 2 ] > 2 ) thresholds <- cbind(thresholds[,1], thresholds[,model.num + 1])
     colnames(thresholds) <- c(vxname, dn[model.num])
     attr(out, "thresholds") <- thresholds
     ## End: Get the data sets
@@ -99,10 +108,9 @@ locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "ph"
 
 	if( "ph" %in% which.stats) for( k in 1:nk) out$ph[k,threshold] <- locperf(X=Ix, Y=Iy, which.stats="ph", k=a$k[k],
 											distfun=distfun, distfun.params)$ph
-	if( w.id <- any( c("mhd", "med", "msd") %in% which.stats)) {
+	if( w.id <- any( c("med", "msd") %in% which.stats)) {
 
-	   tmp <- locperf(X=Ix, Y=Iy, which.stats=c("ph","mhd", "med", "msd")[w.id], distfun=distfun, distfun.params)
-	   if( "mhd" %in% which.stats) out$mhd[threshold] <- tmp$mhd
+	   tmp <- locperf(X=Ix, Y=Iy, which.stats=c("ph", "med", "msd")[w.id], distfun=distfun, distfun.params)
 	   if( "med" %in% which.stats) out$med[threshold] <- tmp$med
 	   if( "msd" %in% which.stats) out$msd[threshold] <- tmp$msd
 
@@ -119,8 +127,10 @@ locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "ph"
 	}
 
    } # end of for 'threshold' loop.
+
    class(out) <- "locmeasures2d"
    return(out)
+
 } # end of 'locmeasures.SpatialVx' function.
 
 metrV <- function(x, ...) {
@@ -302,7 +312,7 @@ distmapfun <- function(x, ...) {
 
 } # end of 'distmapfun' function.
 
-locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep"), alpha=0.1, k=4, distfun="distmapfun", a=NULL, ...) {
+locperf <- function(X,Y, which.stats=c("ph", "med", "msd", "fom", "minsep"), alpha=0.1, k=4, distfun="distmapfun", a=NULL, ...) {
 
    out <- LocListSetup(a=a, which.stats, nthresh=1)
 
@@ -350,7 +360,7 @@ locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep
 
    }
 
-   if( any( c("ph", "mhd") %in% which.stats)) {
+   if( "ph" %in% which.stats ) {
 
 	# dX <- distmap(X, ...)
 	dX <- do.call(distfun, list(x = X, ...))
@@ -369,15 +379,6 @@ locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep
 
 	}
 
-	if( "mhd" %in% which.stats) {
-
-	   if(dXcheck) V <- dX[ as.matrix( Y ) ]
-	    else if(any( as.matrix( Y ) )) V <- dX
-	    else V <- 0
-	   out$mhd <- max( c( mean(Z, na.rm=TRUE), mean(V, na.rm=TRUE), na.rm=TRUE))
-
-	}
-
    } # end of if do partial- and/or modified- Hausdorff stmts.
 
    if( "med" %in% which.stats) out$med <- mean( Z, na.rm=TRUE)
@@ -389,7 +390,7 @@ locperf <- function(X,Y, which.stats=c("ph", "mhd", "med", "msd", "fom", "minsep
 
 } # end of 'locperf' function.
 
-LocListSetup <- function(a, which.stats= c("bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep"),
+LocListSetup <- function(a, which.stats= c("bdelta", "haus", "ph", "med", "msd", "fom", "minsep"),
 			    nthresh=1, np=1, nk=1, nalpha=1) {
 
    out <- list()
@@ -400,7 +401,6 @@ LocListSetup <- function(a, which.stats= c("bdelta", "haus", "ph", "mhd", "med",
    if( "bdelta" %in% which.stats) out$bdelta <- matrix( NA, np, q)
    if( "haus" %in% which.stats) out$haus <- outvec
    if( "ph" %in% which.stats) out$ph <- matrix( NA, nk, q)
-   if( "mhd" %in% which.stats) out$mhd <- outvec
    if( "med" %in% which.stats) out$med <- outvec
    if( "msd" %in% which.stats) out$msd <- outvec
    if( "fom" %in% which.stats) out$fom <- matrix( NA, nalpha, q)
@@ -442,13 +442,6 @@ summary.locmeasures2d <- function(object, ...) {
 	colnames( y) <- lu
 	cat("\n", "Partial Hausdorff distance\n")
 	print( y)
-   }
-   if( !is.null( object$mhd)) {
-	y <- object$mhd
-	y <- matrix( y, nrow=1)
-        colnames( y) <- lu
-        cat("\n", "modified Hausdorff distance\n")
-        print( y)
    }
    if( !is.null( object$med)) {
         y <- object$med

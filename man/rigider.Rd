@@ -97,7 +97,7 @@ The function \code{rigidTransform} performs a rigid transform for given paramete
 
 \value{
 A list object of class \dQuote{rigided} is returned with components:
-  \item{call }{the funciton call.}
+  \item{call }{the function call.}
   \item{translation.only }{If stages argument is true, this part is the optimal translation before rotation.}
   \item{rotate}{ optimal translation and rotation together, if stages argument is true.}
   \item{initial}{initial values used.}

@@ -12,15 +12,15 @@ Calculate some binary image measures between two fields.
 }
 \usage{
 locmeasures2d(object, which.stats = c("bdelta", "haus", "ph", 
-    "mhd", "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
+    "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
     k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ...)
 
 \method{locmeasures2d}{default}(object, which.stats = c("bdelta", "haus", "ph", 
-    "mhd", "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
+    "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
     k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ..., Y, thresholds=NULL)
 
 \method{locmeasures2d}{SpatialVx}(object, which.stats = c("bdelta", "haus", "ph", 
-    "mhd", "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
+    "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
     k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ..., time.point = 1, 
     model = 1)
 
@@ -68,8 +68,6 @@ Calculates one or more of the following binary image measures:
 
 \dQuote{ph} Partial Hausdorff distance (Schwedler and Baldwin, 2011).  See the help file for \code{locperf}.
 
-\dQuote{mhd} Modified Hausdorff Distance (Schwedler and Baldwin, 2011).  See the help file for \code{locperf}.
-
 \dQuote{med} Mean Error Distance (Peli and Malah, 1982; Baddeley, 1992a).  See the help file for \code{locperf}.
 
 \dQuote{msd} Mean Square Error Distance (Peli and Malah, 1982; Baddeley, 1992a).  See the help file for \code{locperf}.
@@ -83,7 +81,6 @@ A list with at least one of the following components depending on the argument w
 \item{bdelta }{p by q matrix giving the Baddeley delta metric for each desired value of p (rows) and each threshold (columns)}
 \item{haus}{numeric vector giving the Hausdorff distance for each threshold}
 \item{ph}{k by q matrix giving the partial Hausdorff distance for each k-th largest value (rows) and each threshold (columns)}
-\item{mhd}{numeric vector giving the modified Hausdorff distance for each threshold.}
 \item{med}{numeric vector giving the mean error distance.}
 \item{msd}{numeric vector giving the mean square error distance.}
 \item{fom}{numeric vector giving Pratt's figure of merit.}
@@ -116,12 +113,12 @@ Binary fields are determined by having values >= the thresholds.
 x <- y <- matrix(0, 10, 12)
 x[2,3] <- 1
 y[4,7] <- 1
-hold <- make.SpatialVx(x, y, thresholds=0.1,
-    field.type="random", units="grid squares")
-locmeasures2d(hold, k=1)
+hold <- make.SpatialVx(x, y, thresholds = 0.1,
+    field.type = "random", units = "grid squares")
+locmeasures2d(hold, k = 1)
 
 # Alternatively ...
-locmeasures2d(x, thresholds=0.1, k=1, Y=y)
+locmeasures2d(x, thresholds = 0.1, k = 1, Y = y)
 
 \dontrun{
 data(geom000)

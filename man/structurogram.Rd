@@ -58,7 +58,7 @@ The \code{plot} method function plots the structure by separation distance (circ
 A list object of class \dQuote{structurogram} is returned with components:
   \item{d }{numeric vector giving the pair-wise distances.}
   \item{val }{numeric vector giving the structure function values for each distance.}
-  \item{q}{numeric giving the value of q passed into the funciton.}
+  \item{q}{numeric giving the value of q passed into the function.}
   \item{call}{Calling string}
   \item{stats}{Matrix of statistics for values in each bin.  Rows are the summaries returned by the stats function or describe (see package fields).  If either breaks or N arguments are not supplied then this component is not computed.}
    \item{centers}{numeric vector giving the bin centers.}

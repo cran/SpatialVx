@@ -15,31 +15,31 @@ Analyze matched features of a verification set.
 }
 \usage{
 FeatureMatchAnalyzer(x, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
-                    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep",
+                    "bdelta", "haus", "ph", "med", "msd", "fom", "minsep",
 		    "bearing"), sizefac=1, alpha=0.1, k=4, p=2, c=Inf,
 		    distfun="distmapfun", ...)
 
 \method{FeatureMatchAnalyzer}{matched.centmatch}(x, which.comps=c("cent.dist", "angle.diff",
-		    "area.ratio", "int.area", "bdelta", "haus", "ph", "mhd", "med",
+		    "area.ratio", "int.area", "bdelta", "haus", "ph", "med",
 		    "msd", "fom", "minsep", "bearing"), sizefac=1, alpha=0.1, k=4, p=2,
 		    c=Inf, distfun="distmapfun", ...)
 
 \method{FeatureMatchAnalyzer}{matched.deltamm}(x, which.comps = c("cent.dist", "angle.diff",
-		    "area.ratio", "int.area", "bdelta", "haus", "ph", "mhd", "med", "msd",
+		    "area.ratio", "int.area", "bdelta", "haus", "ph", "med", "msd",
 		    "fom", "minsep", "bearing"), sizefac = 1, alpha = 0.1, k = 4, p = 2,
 		    c = Inf, distfun = "distmapfun", ..., y = NULL, matches = NULL,
 		    object = NULL)
 
 \method{summary}{FeatureMatchAnalyzer}(object, ...)
 
-\method{plot}{FeatureMatchAnalyzer}(x, ..., type = c("all", "ph", "mhd", "med", "msd", 
+\method{plot}{FeatureMatchAnalyzer}(x, ..., type = c("all", "ph", "med", "msd", 
     "fom", "minsep", "cent.dist", "angle.diff", "area.ratio",
     "int.area", "bearing", "bdelta", "haus"))
 
 \method{print}{FeatureMatchAnalyzer}(x, ...)
 
 FeatureComps(Y, X, which.comps=c("cent.dist", "angle.diff", "area.ratio", "int.area",
-    "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", "minsep", "bearing"),
+    "bdelta", "haus", "ph", "med", "msd", "fom", "minsep", "bearing"),
     sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", deg = TRUE,
     aty = "compass", loc = NULL, ...)
 
@@ -89,7 +89,7 @@ Not used by \code{distill}.
 
 \code{FeatureComps} is the primary function called by \code{FeatureMatchAnalyzer}, and is designed as a more stand-alone type of function.  Several of the measures that can be calculated are simply the binary image measures/metrics available via, e.g., \code{locperf}.  It calculates comparisons between two matched features (i.e., between the verification and forecast fields).
 
-\code{distill} reduces a \dQuote{FeatureComps} list object to a named numeric vector containing (in this order) the components that exist from "cent.dist", "angle.diff", "area.ratio", "int.area", "bdelta", "haus", "ph", "mhd", "med", "msd", "fom", and "minsep".  This is used, for example, by \code{interester}, which is why the order is important.
+\code{distill} reduces a \dQuote{FeatureComps} list object to a named numeric vector containing (in this order) the components that exist from "cent.dist", "angle.diff", "area.ratio", "int.area", "bdelta", "haus", "ph", "med", "msd", "fom", and "minsep".  This is used, for example, by \code{interester}, which is why the order is important.
 
 The \code{summary} method function for \code{FeatureMatchAnalyzer} allows for passing a function, con, to determine confidence for each interest value.  The idea being to set the interest to zero when the particular interest value does not make sense.  For example, angle difference makes no sense if both objects are circles.  Currently, no functions are included in this package for actually doing this, and so the functionality itself has not been tested. 
 
@@ -103,7 +103,7 @@ FeatureMatchAnalyzer returns a list of list objects.  The specific components de
   \item{area.ratio}{numeric giving the area ratio, which is always between 0 and 1 because this is defined by Davis et al. (2006) to be the area of the smaller feature divided by that of the larger feature regardless of which field the feature belongs to.}
    \item{int.area}{numeric giving the intersection area of the features.}
    \item{bdelta}{numeric giving Baddeley's delta metric between the two features.}
-   \item{haus, ph, mhd, med, msd, fom, minsep}{numeric, see locperf for specific information.}
+   \item{haus, ph, med, msd, fom, minsep}{numeric, see locperf for specific information.}
    \item{bearing}{numeric giving the bearing from the forecast object centroid to the observed object centroid.}
 The summary method for FeatureMatchAnalyzer invisibly returns a matrix with the same information, but where each matched object is a row and each column is the specific statistic.  Or, if optional interest argument is passed, a list with components:
 

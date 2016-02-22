@@ -1,8 +1,8 @@
 interester <- function(x, properties = c("cent.dist", "angle.diff", "area.ratio", 
-    "int.area", "bdelta", "haus", "ph", "mhd", "med", "msd", 
-    "fom", "minsep"), weights = c(0.24, 0.12, 0.17, 0.12, 0, 0, 0, 0, 0, 0, 0, 0.35),
-    b1 = c(35, 30, 0, 0, 0.5, 35, 20, 20, 40, 120, 1, 40),
-    b2 = c(100, 90, 0.8, 0.25, 85, 400, 200, 200, 200, 400, 0.25, 200), 
+    "int.area", "bdelta", "haus", "ph", "med", "msd", 
+    "fom", "minsep"), weights = c(0.24, 0.12, 0.17, 0.12, 0, 0, 0, 0, 0, 0, 0.35),
+    b1 = c(35, 30, 0, 0, 0.5, 35, 20, 40, 120, 1, 40),
+    b2 = c(100, 90, 0.8, 0.25, 85, 400, 200, 200, 400, 0.25, 200), 
     verbose = FALSE, ...) {
 
     if(verbose) begin.tiid <- Sys.time()
@@ -56,7 +56,7 @@ interester <- function(x, properties = c("cent.dist", "angle.diff", "area.ratio"
 
     ipwlin <- function(x, b1, b2, a0, a1, property, ...) {
 
-	dn <- is.element(property, c("cent.dist", "angle.diff", "bdelta", "haus", "ph", "mhd", "med", "msd", "minsep"))
+	dn <- is.element(property, c("cent.dist", "angle.diff", "bdelta", "haus", "ph", "med", "msd", "minsep"))
 	up <- is.element(property, c("area.ratio", "int.area"))
 	fom <- property == "fom"
 
@@ -275,7 +275,7 @@ print.summary.interester <- function(x, ..., min.interest = 0.8, long = TRUE) {
 distill.FeatureComps <- function(x, ...) {
 
     desired.names <- c("cent.dist", "angle.diff", "area.ratio", 
-        "int.area", "bdelta", "haus", "ph", "mhd", "med", "msd", 
+        "int.area", "bdelta", "haus", "ph", "med", "msd", 
         "fom", "minsep")
 
     nomen <- names(x)
