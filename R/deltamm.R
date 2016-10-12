@@ -26,18 +26,11 @@ deltamm <- function(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...
 
 	# First, try to figure out if one of 'OB' or 'FC' is a list of lists or just a list.
 
-	if(class(OB[[ 1 ]]) == "im") {
+	if(class(OB[[ 1 ]]) == "im") A <- OB[[ j ]]
+	else A <- OB[[ k ]][[ j ]]
 
-	    A <- OB[[ j ]]
-            if(class(FC[[ 1 ]]) == "im") B <- FC[[ k ]]
-	    else B <- FC[[ j ]][[ k ]]
-
-	} else {
-
-	    A <- OB[[ k ]][[ j ]]
-	    B <- FC[[ k ]]
-
-	}
+	if(class(FC[[ 1 ]]) == "im") B <- FC[[ k ]]
+        else B <- FC[[ j ]][[ k ]]
 
         if(!is.infinite(const)) {
 
@@ -188,23 +181,25 @@ deltamm <- function(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...
         # compute that distance map once.  To be done later...
 
         newobj <- list()
+	if( m >= 2 ) newobj[[ 1 ]] <- union.owin( Xhat[[ o[ 1 ] ]], Xhat[[ o[ 2 ] ]] )
+	else newobj <- Xhat
 
-        for(i in 2:(m - 1)) newobj[[ i - 1 ]] <- union.owin(Xhat[[ o[ i - 1] ]], Xhat[[ o[ i ] ]])
+	if( m >= 3 ) for( i in 3:m ) newobj[[ i - 1 ]] <- union.owin( newobj[[ i - 2 ]], Xhat[[ o[ i ] ]] ) 
 
-        newobj2 <- lapply(newobj, rebound, rect = bb)
+        newobj2 <- lapply( newobj, rebound, rect = bb )
 
         Ksi.dmap[[ j ]] <- lapply(newobj2, distmap, ...)
 
         # Find the distance map for the merging of all features.
         # This is the same for all n cases, so need only be done once.
 
-        if(j == n) {
+        # if(j == n) {
 
-	    newlast <- union.owin(newobj[[ m - 2 ]], Xhat[[ o[ m ] ]])
-	    newlast <- rebound(newlast, bb)
-	    Ksi.last <- distmap(newlast, ...)
+	 #    newlast <- union.owin(newobj[[ m - 2 ]], Xhat[[ o[ m ] ]])
+	  #   newlast <- rebound(newlast, bb)
+	   #  Ksi.last <- distmap(newlast, ...)
 
-        } # end of if last iteration of loop stmt.
+        # } # end of if last iteration of loop stmt.
 
     } # end of outer 'j' loop.
 
@@ -218,65 +213,86 @@ deltamm <- function(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...
         o <- (1:n)[ o.Psi[, k] ]
 
         newobj <- list()
+	if( n >= 2 ) newobj[[ 1 ]] <- union.owin( X[[ o[ 1 ] ]], X[[ o[ 2 ] ]] )
+	else newobj <- X
 
-        for(i in 2:(n - 1)) newobj[[ i - 1 ]] <- union.owin(X[[ o[ i - 1] ]], X[[ o[ i ] ]])
+        if( n >= 3 ) for(i in 3:n ) newobj[[ i - 1 ]] <- union.owin( newobj[[ i - 2 ]], X[[ o[ i ] ]] )
 
         newobj2 <- lapply(newobj, rebound, rect = bb)
 
         Psi.dmap[[ k ]] <- lapply(newobj2, distmap, ...)
 
-        if(k == m) {
+        # if(k == m) {
 
-	    newlast <- union.owin(newobj[[ n - 2 ]], X[[ o[ n ] ]])
-	    newlast <- rebound(newlast, bb)
-	    Psi.last <- distmap(newlast, ...)
+	 #    newlast <- union.owin(newobj[[ n - 2 ]], X[[ o[ n ] ]])
+	  #   newlast <- rebound(newlast, bb)
+	   #  Psi.last <- distmap(newlast, ...)
 
-        }
+        # }
 
     } # end of outer 'k' loop.
 
-    if(verbose) cat("\nAll necessary distance maps have been found.  Calculating delta metrics for forecast merges.\n")
+    if(verbose) cat("\nAll necessary distance maps have been found.\n")
 
     # Grab the indicators for the next round but leave out metrics that have already been calculated.
-    ind1 <- ind2 <- ind
+    # ind1 <- ind2 <- ind
 
-    ind1[ ind[,2] == 1,] <- NA
-    ind1[ ind[,2] == m,] <- NA
-    ind1 <- ind1[!is.na(ind1[,1]),]
-    ind1[,2] <- ind1[,2] - 1
+    # ind1[ ind[,2] == 1,] <- NA
+    # ind1[ ind[,2] == m,] <- NA
+    # ind1 <- ind1[!is.na(ind1[,1]),]
+    # ind1[,2] <- ind1[,2] - 1
 
-    ind2[ ind[,1] == 1,] <- NA
-    ind2[ ind[,1] == n,] <- NA
-    ind2 <- ind2[!is.na(ind2[,1]),]
-    ind2[,1] <- ind2[,1] - 1
+    # ind2[ ind[,1] == 1,] <- NA
+    # ind2[ ind[,1] == n,] <- NA
+    # ind2 <- ind2[!is.na(ind2[,1]),]
+    # ind2[,1] <- ind2[,1] - 1
 
-    tmp <- apply(ind1, 1, bfun, OB = dX, FC = Ksi.dmap, p = p, const = const, verbose = verbose)
+    if( m > 1 ) {
 
-    Ksi[, 2:(m - 1)] <- tmp
+	if(verbose) cat("Calculating delta metrics for forecast merges.\n")
 
-    ind1 <- cbind(1:n, rep(1, n))
-    Ksi.last2 <- list()
-    Ksi.last2[[ 1 ]] <- Ksi.last
+	ind <- cbind( rep( 1:n, m - 1 ), rep( 1:(m - 1), each = n ) )
+	look <- paste(ind[,1], ind[,2], sep = "-")
+	ind <- ind[ !duplicated( look ), ]
 
-    tmp <- apply(ind1, 1, bfun, OB = dX, FC = Ksi.last2, p = p, const = const, verbose = verbose)
+        tmp <- apply(ind, 1, bfun, OB = dX, FC = Ksi.dmap, p = p, const = const, verbose = verbose) 
 
-    Ksi[, m] <- tmp
+        Ksi[, 2:m ] <- tmp
 
-    if(verbose) cat("\nAll metrics for forecast merges found.  Calculating delta metrics for observed merges.\n")
+    } else Ksi <- Upsilon
 
-    tmp <- apply(ind2, 1, bfun, OB = Psi.dmap, FC = dXhat, p = p, const = const, verbose = verbose)
+    # ind1 <- cbind(1:n, rep(1, n))
+    # Ksi.last2 <- list()
+    # Ksi.last2[[ 1 ]] <- Ksi.last
 
-    Psi <- t(Psi)
-    Psi[,2:(n - 1)] <- tmp
+    # tmp <- apply(ind1, 1, bfun, OB = dX, FC = Ksi.last2, p = p, const = const, verbose = verbose)
 
-    ind2 <- cbind(rep(1, m), 1:m)
-    Psi.last2 <- list()
-    Psi.last2[[ 1 ]] <- Psi.last
+    # Ksi[, m] <- tmp
 
-    tmp <- apply(ind2, 1, bfun, OB = Psi.last2, FC = dXhat, p = p, const = const, verbose = verbose)
+    if( n > 1 ) {
 
-    Psi[, n] <- tmp
-    Psi <- t(Psi)
+        if(verbose) cat("\nAll metrics for forecast merges found.  Calculating delta metrics for observed merges.\n")
+
+	ind <- cbind( rep( 1:(n - 1), m ), rep( 1:m, each = n - 1 ) )
+	look <- paste(ind[,1], ind[,2], sep = "-")
+        ind <- ind[ !duplicated( look ), ]
+
+        tmp <- apply(ind, 1, bfun, OB = Psi.dmap, FC = dXhat, p = p, const = const, verbose = verbose)
+
+        Psi <- t( Psi )
+        Psi[, 2:n ] <- tmp
+	Psi <- t( Psi )
+
+    } else Psi <- Upsilon
+
+    # ind2 <- cbind(rep(1, m), 1:m)
+    # Psi.last2 <- list()
+    # Psi.last2[[ 1 ]] <- Psi.last
+
+    # tmp <- apply(ind2, 1, bfun, OB = Psi.last2, FC = dXhat, p = p, const = const, verbose = verbose)
+
+    # Psi[, n] <- tmp
+    # Psi <- t(Psi)
 
     bigQ <- array(NA, dim = c(n, m, 3))
 

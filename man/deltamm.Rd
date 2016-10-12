@@ -16,7 +16,7 @@ deltamm(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...)
 centmatch(x, criteria = 1, const = 14, distfun = "rdist", areafac = 1,
     verbose = FALSE, ...)
 
-\method{plot}{matched}(x, ..., type = c("both", "obs", "model"))
+\method{plot}{matched}(x, ...)
 
 \method{print}{matched}(x, ...)
 
@@ -39,7 +39,6 @@ For \code{deltamm} and \code{centmatch}, an object of class \dQuote{features} wi
   \item{verbose}{
 logical, should progress information be printed to the screen?
 }
-  \item{type}{character string naming which plot should be created.}
   \item{\dots}{
 For \code{deltamm}: additional optional arguments to the \code{distmap} function from package \pkg{spatstat}.  For \code{centmatch}: optional arguments to \code{distfun}.  For \code{plot.matched}, additional arguments to \code{image.plot} concerning the color legend bar only.
 }
@@ -67,7 +66,9 @@ The above algorithm suffers from two deficiencies.  First, features that are mer
 
 This function works similarly as \code{deltamm}, though it does not merge features.  It is based on the method proposed by Davis et al. (2006a).  It is possible for more than one object to be matched to the same object in another field.  As a result, when plotting, it might appear that features have been merged, but they have not been.  For informational purposes, the criteria, appelled \code{criteria.values} (as determined by the \code{criteria} argument), along with the centroid distance matrix, appelled \code{centroid.distances}, are returned.
 
-	\code{plot}: The plot method function for matched features plots matched features across fields in the same color using \code{rainbow}.  Unmatched features in either field are all colored gray.  Zero values are colored white.  In the case of features created by \code{centmatch}, multiple features from one field could be matched to the same feature in the other so that, in such cases, it is not possible to decipher which feature in one field is mached to which feature in the other exactly.  The \code{print} method function will tell you which features matched between fields, so one can plot the originally derived features (e.g., from \code{FeatureFinder}) to identify matched features.  On the other hand, one can subjectively determine if same colored features should be merged or not.
+	\code{plot}: The plot method function for matched features plots matched features across fields in the same color using \code{rainbow}.  Unmatched features in either field are all colored gray.  Zero values are colored white.  The function \code{MergeForce} must first be called, however, in order to organize the object into a format that allows the \code{plot} method function to determine the correct color coding.
+
+The \code{print} method function will tell you which features matched between fields, so one can plot the originally derived features (e.g., from \code{FeatureFinder}) to identify matched features.
 
 \code{summary}:
 
@@ -142,17 +143,23 @@ hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
     data.name=c("Example", "x", "y"))
 
 look <- FeatureFinder(hold, smoothpar=0.5) 
-par( mfrow=c(1,2))
-image.plot(look$X.labeled)
-image.plot(look$Y.labeled)
 
 look2 <- deltamm(look)
+look2 <- MergeForce( look2 )
+
+look2
+
+plot( look2 )
 
 FeatureTable(look2)
 
 look3 <- centmatch(look)
 
 FeatureTable(look3)
+
+look3 <- MergeForce( look3 )
+
+plot( look3 )
 
 \dontrun{
 data(pert000)

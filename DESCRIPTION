@@ -1,18 +1,17 @@
 Package: SpatialVx
-Version: 0.4
-Date: 2016-02-18
+Version: 0.5
+Date: 2016-10-11
 Title: Spatial Forecast Verification
 Author: Eric Gilleland <EricG@ucar.edu>
 Maintainer: Eric Gilleland <EricG@ucar.edu>
 Depends: R (>= 2.10.0), spatstat (>= 1.37-0), fields (>= 6.8),
         smoothie, smatr, turboEM
 Imports: distillery, maps, boot, CircStats, fastcluster, waveslim
-Suggests: shapes
 Description: Spatial forecast verification arose from verifying high-resolution forecasts, where coarser-resolution models generally are favored even when a human forecaster finds the higher-resolution model to be considerably better.  Most newly proposed methods, which largely come from image analysis, computer vision, and similar, are available, with more on the way.
 License: GPL (>= 2)
 URL: http://www.ral.ucar.edu/projects/icp/SpatialVx
 BugReports: http://www.ral.ucar.edu/staff/ericg
 NeedsCompilation: no
-Packaged: 2016-02-22 17:18:32 UTC; ericg
+Packaged: 2016-10-12 19:33:21 UTC; ericg
 Repository: CRAN
-Date/Publication: 2016-02-22 22:12:28
+Date/Publication: 2016-10-12 23:52:45

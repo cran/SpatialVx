@@ -39,7 +39,7 @@ rigidTransform <- function(theta, p0, N, cen) {
 } # end of 'rigidTransform' function.
 
 rigider <- function(x1, x0, p0, init = c(0, 0, 0), type = c("regular", "fast"), translate = TRUE, rotate = FALSE, loss, loss.args = NULL,
-    interp = "bicubic", method = "BFGS", stages = TRUE, verbose = FALSE, ...) {
+    interp = "bicubic", stages = TRUE, verbose = FALSE, ...) {
 
     # Below is a little awkward because stages is TRUE by default,
     # which is good if rotate is chosen to be TRUE, but bad otherwise.
@@ -125,12 +125,14 @@ rigider <- function(x1, x0, p0, init = c(0, 0, 0), type = c("regular", "fast"), 
     
                 if(verbose) cat("Optimizing translation.\n")
     
-                res <- optim(init[ 1:2 ], ofun, p0 = p0, x1 = x1, x0 = x0, loss = loss, loss.args = loss.args,
-                    interp = interp, N = bigN, cen = field.center, xdim = xdim, method = method, ...)
+                # res <- optim(init[ 1:2 ], ofun, p0 = p0, x1 = x1, x0 = x0, loss = loss, loss.args = loss.args,
+                #    interp = interp, N = bigN, cen = field.center, xdim = xdim, method = method, ...)
+		res = nlminb( init[ 1:2 ], ofun, p0 = p0, x1 = x1, x0 = x0, loss = loss, loss.args = loss.args,
+		    interp = interp, N = bigN, cen = field.center, xdim = xdim, ... )
     
                 if(verbose) cat("Optimal translation found to be: ", res$par, "\nwhere loss value is: ", res$value, "\n")
     
-                res$method <- method
+                # res$method <- method
     
                 p1 <- rigidTransform(theta = c(res$par, init[ 3 ]), p0 = p0, N = bigN, cen = field.center)
                 y1 <- Fint2d(X = x1, Ws = p1, s = p0, method = interp)
@@ -139,7 +141,8 @@ rigider <- function(x1, x0, p0, init = c(0, 0, 0), type = c("regular", "fast"), 
                 out$x1.translated <- y1
     
                 outpar <- res$par
-                outval <- res$value
+                # outval <- res$value
+		outval = res$objective
     
             } # end of if 'translate' stmt.
     
@@ -165,17 +168,20 @@ rigider <- function(x1, x0, p0, init = c(0, 0, 0), type = c("regular", "fast"), 
     
                 } # end of internal 'ofun' function.
     
-                if(!is.element(method, c("BFGS", "Brent"))) {
+                # if(!is.element(method, c("BFGS", "Brent"))) {
     
-                    warning("rigider: optimization method is set to something other than Brent or BFGS.  Changing to BFGS for rotation-only.")
-                    method2 <- "BFGS"
+                 #    warning("rigider: optimization method is set to something other than Brent or BFGS.  Changing to BFGS for rotation-only.")
+                  #   method2 <- "BFGS"
     
-                } else method2 <- method
+                # } else method2 <- method
     
                 if(verbose) cat("Optimizing rotation.\n")
     
-                res2 <- optim(init2[ 3 ], ofun, p0 = p0, x1 = x1, x0 = x0, loss = loss, loss.args = loss.args,
-                            interp = interp, N = bigN, cen = field.center, xdim = xdim, tr = init2[ 1:2 ], method = method2, ...)
+                # res2 <- optim(init2[ 3 ], ofun, p0 = p0, x1 = x1, x0 = x0, loss = loss, loss.args = loss.args,
+                #            interp = interp, N = bigN, cen = field.center, xdim = xdim, tr = init2[ 1:2 ], method = method2, ...)
+
+		res2 = nlminb( init2[ 3 ], ofun, p0 = p0, x1 = x1, x0 = x0, loss = loss, loss.args = loss.args,
+                    interp = interp, N = bigN, cen = field.center, xdim = xdim, tr = init2[ 1:2 ], ... )
     
                 if(verbose) cat("Optimal rotation found to be: ", res2$par, "\nwhere loss value is: ", res2$value, "\n")
     
@@ -183,7 +189,8 @@ rigider <- function(x1, x0, p0, init = c(0, 0, 0), type = c("regular", "fast"), 
                 y1 <- Fint2d(X = x1, Ws = p1, s = p0, method = interp)
     
                 outpar <- c(outpar, res2$par)
-                outval <- res2$value
+                # outval <- res2$value
+		outval <- res2$objective
     
             } # end of if 'rotate' stmt.
     
@@ -212,7 +219,10 @@ rigider <- function(x1, x0, p0, init = c(0, 0, 0), type = c("regular", "fast"), 
             if(verbose) cat("Optimizing rigid transformation.\n")
     
             res <- optim(init, ofun, p0 = p0, x1 = x1, x0 = x0, loss = loss, loss.args = loss.args,
-                    interp = interp, N = bigN, cen = field.center, xdim = xdim, method = method, ...)
+                    interp = interp, N = bigN, cen = field.center, xdim = xdim, ...)
+
+	    res = nlminb( init, ofun, p0 = p0, x1 = x1, x0 = x0, loss = loss, loss.args = loss.args,
+                    interp = interp, N = bigN, cen = field.center, xdim = xdim, ... )
     
             if(verbose) cat("Optimal transformation found to be: ", res$par, "\nwhere loss value is: ", res$value, "\n")
     
@@ -329,14 +339,13 @@ print.rigided <- function(x, ...) {
     cat("Objective function value = ", x$value, "\n")
 
     cat("\n\n")
-    if(!is.null(x$translation.only)) cat("Translation convergence code (see ?optim for details): ", x$translation.only$convergence, "\n")
-    if(!is.null(x$rotate)) cat("Rotation convergence code (see ?optim for details): ", x$rotate$convergence, "\n")
-    if(!is.null(x$optim.object)) cat("Convergence code (see ?optim for details): ", x$optim.object$convergence, "\n")
+    if(!is.null(x$translation.only)) cat("Translation convergence code (see ?nlminb for details): ", x$translation.only$convergence, "\n")
+    if(!is.null(x$rotate)) cat("Rotation convergence code (see ?nlminb for details): ", x$rotate$convergence, "\n")
+    if(!is.null(x$optim.object)) cat("Convergence code (see ?nlminb for details): ", x$optim.object$convergence, "\n")
 
     invisible()
 
 } # end of 'print.rigided' function.
-
 
 summary.rigided <- function(object, ...) {
 

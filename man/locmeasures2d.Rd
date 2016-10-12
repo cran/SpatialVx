@@ -11,16 +11,16 @@ Binary Image Measures
 Calculate some binary image measures between two fields.
 }
 \usage{
-locmeasures2d(object, which.stats = c("bdelta", "haus", "ph", 
-    "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
+locmeasures2d(object, which.stats = c("bdelta", "haus", "qdmapdiff", 
+    "med", "msd", "ph", "fom"), distfun = "distmapfun", distfun.params = NULL, 
     k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ...)
 
-\method{locmeasures2d}{default}(object, which.stats = c("bdelta", "haus", "ph", 
-    "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
+\method{locmeasures2d}{default}(object, which.stats = c("bdelta", "haus", "qdmapdiff", 
+    "med", "msd", "ph", "fom"), distfun = "distmapfun", distfun.params = NULL, 
     k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ..., Y, thresholds=NULL)
 
-\method{locmeasures2d}{SpatialVx}(object, which.stats = c("bdelta", "haus", "ph", 
-    "med", "msd", "fom"), distfun = "distmapfun", distfun.params = NULL, 
+\method{locmeasures2d}{SpatialVx}(object, which.stats = c("bdelta", "haus", "qdmapdiff", 
+    "med", "msd", "ph", "fom"), distfun = "distmapfun", distfun.params = NULL, 
     k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ..., time.point = 1, 
     model = 1)
 
@@ -66,11 +66,13 @@ Calculates one or more of the following binary image measures:
 
 \dQuote{haus} Hausdorff distance (Baddeley, 1992b; Schwedler and Baldwin, 2011)
 
-\dQuote{ph} Partial Hausdorff distance (Schwedler and Baldwin, 2011).  See the help file for \code{locperf}.
+\dQuote{qdmapdiff} Quantile (or rank) of the differences in disstance maps.  See the help file for \code{locperf}.
 
 \dQuote{med} Mean Error Distance (Peli and Malah, 1982; Baddeley, 1992a).  See the help file for \code{locperf}.
 
 \dQuote{msd} Mean Square Error Distance (Peli and Malah, 1982; Baddeley, 1992a).  See the help file for \code{locperf}.
+
+\dQuote{ph} Partial Hausdorff distance.  See the help file for \code{locperf}.
 
 \dQuote{fom} Pratt's Figure of Merit (Peli and Malah, 1982; Baddeley, 1992a, Eq (1)).  See the help file for \code{locperf}.
 
@@ -80,9 +82,9 @@ These distances are summaries in and of themselves, so the summary method functi
 A list with at least one of the following components depending on the argument which.stats
 \item{bdelta }{p by q matrix giving the Baddeley delta metric for each desired value of p (rows) and each threshold (columns)}
 \item{haus}{numeric vector giving the Hausdorff distance for each threshold}
-\item{ph}{k by q matrix giving the partial Hausdorff distance for each k-th largest value (rows) and each threshold (columns)}
-\item{med}{numeric vector giving the mean error distance.}
-\item{msd}{numeric vector giving the mean square error distance.}
+\item{qdmapdiff}{k by q matrix giving the difference in distance maps for each of the k-th largest value(s) or quantile(s) (rows) for each threshold (columns).}
+\item{medMiss, medFalseAlarm, msdMiss, msdFalseAlarm}{two-row matrix giving the mean error (or square error) distance as (Forecast, Observation) or misses and (Observation, Forecast) or false alarms.}
+\item{ph}{k by q matrix giving the k-th largest value(s) or quantile(s) (rows) for each threshold (columns) of the maximum between the distances from one field to the other.}
 \item{fom}{numeric vector giving Pratt's figure of merit.}
 }
 \references{

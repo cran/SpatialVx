@@ -40,6 +40,7 @@ saller returns a list with components:
   \item{L }{numeric giving the lcoation component.}
   \item{S}{numeric giving the structure component.}
   \item{L1,L2}{numeric giving the values that sum together to give L.}
+  \item{L1.alt, L.alt}{numeric giving an alternative L1 component, and subsequently alternative L where it is calculated using the centroid of the field containing only defined features rather than the original raw field.}
 
 print invisibly returns a named vector with S, A and L.
 
@@ -56,6 +57,7 @@ Eric Gilleland
 There are several ways to identify features, and some are provided by this package, but only a few.  For example, the method for identifying features in the SAL method as introduced by Wernli et al. (2008) utilizes information from a contour field of a particular variable, and is therefore not currently included in this package.  Users are encouraged to write their own such functions, and should feel free to contribute them to this package by contacting the maintainer.
 
 The SAL method typically looks at a small domain, and it is up to the user to set this up before calling these functions, as they are not designed to handle such a situation.
+
 }
 
 \seealso{

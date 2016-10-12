@@ -103,7 +103,8 @@ hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
 
 look <- FeatureFinder(hold, smoothpar=0.5)
 
-look2 <- minboundmatch( look )
+look2 <- minboundmatch( look, type = "multiple", mindist = 20 )
+look2 <- MergeForce( look2 )
 
 craer( look2, type = "fast", verbose = TRUE)
 

@@ -1,41 +1,53 @@
 craer <- function(x, type = c("regular", "fast"), rotate = FALSE, loss, loss.args = NULL, interp = "bicubic",
     method = "BFGS", stages = TRUE, verbose = FALSE, ...) { 
 
-    if(verbose) begin.tiid <- Sys.time()
+    if(verbose) begin.tiid = Sys.time()
 
     if(class(x) != "matched") stop("craer: invalid x argument.  Must be of class matched.")
 
-    type <- tolower(type)
-    type <- match.arg(type)
+    type = tolower(type)
+    type = match.arg(type)
 
-    if(missing(loss) && type == "regular") loss <- "QlossRigid"
-    else if(missing(loss)) loss <- NULL
+    if(missing(loss) && type == "regular") loss = "QlossRigid"
+    else if(missing(loss)) loss = NULL
 
-    n <- dim(x$matches)[ 1 ]
+    n = dim(x$matches)[ 1 ]
 
     # If no matches, quietly return NULL.
     if(n == 0) return(NULL)
 
-    a <- attributes(x)
-    a$names <- NULL
+    a = attributes(x)
+    a$names = NULL
 
-    Xfeats <- x$X.feats
-    Yfeats <- x$Y.feats
+    Xfeats = x$X.feats
+    Yfeats = x$Y.feats
+
+    X = x$X
+    Xhat = x$Xhat
 
     # obtain rigid transformations either by optimizing a loss function (regular), or
     # by only calculating the centroid and possibly the orientation angle differences (fast).
 
     # loc <- a$loc
-    loc <- cbind(rep(1:a$xdim[ 1 ], a$xdim[ 2 ]), rep(1:a$xdim[ 2 ], each = a$xdim[ 1 ]))
+    loc = cbind(rep(1:a$xdim[ 1 ], a$xdim[ 2 ]), rep(1:a$xdim[ 2 ], each = a$xdim[ 1 ]))
 
-    rfun <- function(ij, Xfeats, Yfeats, loc, typ, rot, leas, leas.args, itp, omet, stg, vb, ...) {
+    rfun <- function(ij, Xfeats, Yfeats, Obs, Xhat, loc, typ, rot, leas, leas.args, itp, omet, stg, vb, ...) {
 
 	i <- ij[ 1 ]
 	j <- ij[ 2 ]
 
 	if(vb) cat("\n", "Comparing observed feature ", j, " to forecast feature ", i, "\n")
 
-	obj <- rigider(x1 = as.matrix(Yfeats[[ i ]]), x0 = as.matrix(Xfeats[[ j ]]), p0 = loc, type = typ,
+	xhatBin = as.matrix( Yfeats[[ i ]] )
+	xBin    = as.matrix( Xfeats[[ j ]] )
+
+	im1 = Xhat
+	im1[ xhatBin == 0 ] <- 0
+
+	im0 = Obs
+	im0[ xBin == 0 ] <- 0
+
+	obj <- rigider(x1 = im1, x0 = im0, p0 = loc, type = typ,
 			rotate = rot, loss = leas, loss.args = leas.args, interp = itp, method = omet,
 			stages = stg, verbose = vb, ...)
 
@@ -45,7 +57,7 @@ craer <- function(x, type = c("regular", "fast"), rotate = FALSE, loss, loss.arg
 
     if(verbose) cat("\n", "Applying rigid transformations.  This may take time even if type is fast.\n")
 
-    transforms <- apply(x$matches, 1, rfun, Xfeats = Xfeats, Yfeats = Yfeats, loc = loc, typ = type, rot = rotate,
+    transforms <- apply( X = x$matches, MARGIN = 1, FUN = rfun, Xfeats = Xfeats, Yfeats = Yfeats, Obs = X, Xhat = Xhat, loc = loc, typ = type, rot = rotate,
 		leas = loss, leas.args = loss.args, itp = interp, omet = method, stg = stages, vb = verbose, ...)
 
 

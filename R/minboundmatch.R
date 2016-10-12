@@ -13,8 +13,8 @@ minboundmatch <- function(x, type = c("single", "multiple"), mindist = Inf, verb
     out$match.type <- "minboundmatch"
     out$match.message <- paste("Matching based on minimum boundary separation using ", type, " matches.", sep = "")
 
-    Xfeats <- x$X.feats
-    Yfeats <- x$Y.feats
+    Xfeats = x$X.feats
+    Yfeats = x$Y.feats
 
     if( !is.null(Xfeats) ) n <- length( Xfeats )
     else n <- 0
@@ -41,24 +41,22 @@ minboundmatch <- function(x, type = c("single", "multiple"), mindist = Inf, verb
 
     ind <- cbind( rep(1:n, m), rep(1:m, each = n) )
 
-    Xdmaps <- lapply(Xfeats, distmap, ...)
+    Xdmaps = lapply( Xfeats, distmap, ... )
+    Ydmaps = lapply( Yfeats, distmap, ... )
 
-    minsepfun <- function(id, dm, Y) {
+    minsepfun <- function( id, dm0, dm1, indX, indXhat ) {
 
-	i <- id[ 1 ]
-	j <- id[ 2 ]
+	i = id[ 1 ]
+	j = id[ 2 ]
 
-	X <- dm[[ i ]]
-	X <- X$v
-	Ym <- as.matrix( Y[[ j ]] )
+	Obs = min( ( as.matrix( dm0[[ i ]] ) )[ as.logical( as.matrix( indXhat[[ j ]] ) ) ], na.rm = TRUE )
+	Fcst = min( ( as.matrix( dm1[[ j ]] ) )[ as.logical( as.matrix( indX[[ i ]] ) ) ], na.rm = TRUE )
 
-	Z <- X[ Ym ]
-
-	return( min( c( Z ), na.rm = TRUE) )
+	return( min( c( Fcst, Obs ) , na.rm = TRUE ) )
 
     } # end of 'minsep' internal function.
 
-    res <- apply(ind, 1, minsepfun, dm = Xdmaps, Y = Yfeats)
+    res <- apply( ind, 1, minsepfun, dm0 = Xdmaps, dm1 = Ydmaps, indX = Xfeats, indXhat = Yfeats )
 
     res <- cbind(ind, res)
     colnames( res ) <- c( "Observed Feature No.", "Forecast Feature No.", "Minimum Boundary Separation" )

@@ -11,14 +11,14 @@ locmeasures2dPrep <- function(object, k=NULL, alpha=0.1, bdconst=NULL, p=2) {
 
 } # end of 'locmetric2dPrep' function.
 
-locmeasures2d <- function(object, which.stats=c("bdelta", "haus", "ph", "med", "msd", "fom"),
+locmeasures2d <- function(object, which.stats=c("bdelta", "haus", "qdmapdiff", "med", "msd", "ph", "fom"),
         distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ...) {
 
     UseMethod("locmeasures2d", object)
 
 } # end of 'locmeasures2d' function.
 
-locmeasures2d.default <- function(object, which.stats=c("bdelta", "haus", "ph", "med", "msd", "fom"),
+locmeasures2d.default <- function(object, which.stats=c("bdelta", "haus", "qdmapdiff", "med", "msd", "ph", "fom"),
         distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ..., Y, thresholds=NULL) {
 
     args <- list(...)
@@ -39,7 +39,7 @@ locmeasures2d.default <- function(object, which.stats=c("bdelta", "haus", "ph", 
 
 } # end of 'locmeasures2d.default' function.
 
-locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "ph", "med", "msd", "fom"),
+locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "qdmapdiff", "med", "msd", "ph", "fom"),
 	distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ..., time.point=1, model=1) {
 
     object <- locmeasures2dPrep(object=object, k=k, alpha=alpha, bdconst=bdconst, p=p)
@@ -48,7 +48,7 @@ locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "ph"
     thresholds <- a$thresholds
     q <- dim( thresholds)[1]
 
-    if(is.null(a$k) && "ph" %in% which.stats) stop("locmeasures2d: must supply k in call to locmeasures2dPrep to do ph method.")
+    if(is.null(a$k) && "qdmapdiff" %in% which.stats) stop("locmeasures2d: must supply k in call to locmeasures2dPrep to do qdmapdiff method.")
 
     if(!is.null(a$k)) nk <- length(a$k)
     else nk <- 1
@@ -106,13 +106,24 @@ locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "ph"
 
 	if( "haus" %in% which.stats) out$haus[threshold] <- deltametric(Iy,Ix,p=Inf,c=Inf, ...)
 
-	if( "ph" %in% which.stats) for( k in 1:nk) out$ph[k,threshold] <- locperf(X=Ix, Y=Iy, which.stats="ph", k=a$k[k],
-											distfun=distfun, distfun.params)$ph
+	if( "qdmapdiff" %in% which.stats) for( k in 1:nk) out$qdmapdiff[k,threshold] <- locperf(X=Ix, Y=Iy, which.stats="qdmapdiff", k=a$k[k],
+											distfun=distfun, distfun.params)$qdmapdiff
 	if( w.id <- any( c("med", "msd") %in% which.stats)) {
 
-	   tmp <- locperf(X=Ix, Y=Iy, which.stats=c("ph", "med", "msd")[w.id], distfun=distfun, distfun.params)
-	   if( "med" %in% which.stats) out$med[threshold] <- tmp$med
-	   if( "msd" %in% which.stats) out$msd[threshold] <- tmp$msd
+	   tmp <- locperf( X = Ix, Y = Iy, which.stats = c( "med", "msd" )[ w.id ], distfun = distfun, distfun.params )
+	   if( "med" %in% which.stats) {
+
+		out$medMiss[ threshold ] <- tmp$medMiss
+		out$medFalseAlarm[ threshold ] <- tmp$medFalseAlarm
+
+	   }
+
+	   if( "msd" %in% which.stats) {
+
+		out$msdMiss[ threshold ] <- tmp$msdMiss
+		out$msdFalseAlarm[ threshold ] <- tmp$msdFalseAlarm
+
+	    }
 
 	} # end of if do partial and/or modified Hausdorff metric.
 
@@ -301,7 +312,7 @@ distob <- function(X,Y, distfun="distmapfun", ...) {
    nY <- sum(colSums(as.matrix( Y ), na.rm=TRUE), na.rm=TRUE)
    if( nX==0 & nY==0) return(0)
    else if( nX==0 | nY==0) return( max( dim( as.matrix( X ) ), na.rm=TRUE) )
-   else out <- locperf( X=X, Y=Y, which.stats="med", distfun=distfun, ...)$med
+   else out <- locperf( X=X, Y=Y, which.stats = "med", distfun=distfun, ...)$medMiss
    return(out)
 }
 
@@ -312,41 +323,53 @@ distmapfun <- function(x, ...) {
 
 } # end of 'distmapfun' function.
 
-locperf <- function(X,Y, which.stats=c("ph", "med", "msd", "fom", "minsep"), alpha=0.1, k=4, distfun="distmapfun", a=NULL, ...) {
+locperf <- function(X, Y, which.stats = c("qdmapdiff", "med", "msd", "ph", "fom", "minsep"), alpha=0.1, k=4, distfun="distmapfun", a=NULL, ...) { 
 
-   out <- LocListSetup(a=a, which.stats, nthresh=1)
+   out = LocListSetup(a=a, which.stats, nthresh=1)
 
-   bb <- boundingbox(as.rectangle(X), as.rectangle(Y))
-   X <- rebound(X, bb)
-   Y <- rebound(Y, bb)
-   # dY <- distmap(Y, ...)
-   dY <- do.call(distfun, list(x=Y, ...))
+   bb = boundingbox(as.rectangle(X), as.rectangle(Y))
+   X = rebound( X, bb )
+   Y = rebound( Y, bb )
+   # dY = distmap(Y, ...)
+   dY = do.call(distfun, list(x=Y, ...))
+
+   # dX <- distmap(X, ...)
+   dX = do.call(distfun, list(x = X, ...))
 
     if(!any( as.matrix( Y ))) {
 
-	dY <- unique(c(dY))
-	dYcheck <- FALSE
+	dY = unique(c(dY))
+	dYcheck = FALSE
 
-    } else dYcheck <- TRUE
+    } else dYcheck = TRUE 
 
-    if(!any( as.matrix( X ))) dXcheck <- FALSE
-    else dXcheck <- TRUE
+    if(!any( as.matrix( X ))) dXcheck = FALSE
+    else dXcheck = TRUE
 
-   if(any(c("med", "msd", "fom", "minsep") %in% which.stats)) {
+   if(any(c("med", "msd", "fom", "minsep", "ph" ) %in% which.stats)) {
 
-	if(dYcheck) Z <- dY[as.matrix( X )]
+	if(dYcheck) Z = dY[ as.matrix( X ) ]
 	else if(any(as.matrix( X ))) {
 
-	    Z <- as.matrix( X )
-	    Z[as.matrix( X )] <- dY
+	    Z = as.matrix( X ) + NA
+	    Z[ as.matrix( X ) ] = dY
 
-	} else Z <- 0
+	} else Z = 0
+
+	if( dXcheck ) Zother = dX[ as.matrix( Y ) ]
+	else if( any( as.matrix( Y ) ) ) {
+
+	    Zother = as.matrix( Y ) + NA
+	    Zother[ as.matrix( Y ) ] = dX
+
+	} else Zother = 0
 
     }
 
    if(any(c("msd", "fom") %in% which.stats)) {
 
-	Z2 <- Z^2
+	Z2      = Z^2
+	Zother2 = Zother^2
 
 	if( "fom" %in% which.stats) {
 
@@ -360,37 +383,58 @@ locperf <- function(X,Y, which.stats=c("ph", "med", "msd", "fom", "minsep"), alp
 
    }
 
-   if( "ph" %in% which.stats ) {
+  if( "ph" %in% which.stats ) {
 
-	# dX <- distmap(X, ...)
-	dX <- do.call(distfun, list(x = X, ...))
+	if( dXcheck || dYcheck ) {
 
-	diffXY <- sort( c(abs(dX - dY)), decreasing=TRUE)
+	    if( k >= 1 ) out$ph = max( sort( Z )[ k ], sort( Zother )[ k ], na.rm = TRUE )
+	    else if( k >= 0 && k < 1 ) out$ph = max( quantile( Z, probs = k ), quantile( Zother, probs = k ), na.rm = TRUE )
+	    else out$ph = NA
 
-	if( "ph" %in% which.stats) {
+	} else out$ph = max( sort( Z )[ 1 ], sort( Zother )[ 1 ], na.rm = TRUE )
+
+   }
+
+   if( "qdmapdiff" %in% which.stats ) {
+
+	diffXY = sort( c(abs(dX - dY)), decreasing=TRUE)
+
+	if( "qdmapdiff" %in% which.stats) {
 
 	    if(dXcheck || dYcheck) {
 
-	   	if( k >= 1) out$ph <- diffXY[k]
-	   	else if( k >= 0 && k < 1) out$ph <- quantile( diffXY, probs=k)
-	   	else out$ph <- NA
+	   	if( k >= 1) out$qdmapdiff = diffXY[k]
+	   	else if( k >= 0 && k < 1) out$qdmapdiff = quantile( diffXY, probs=k)
+	   	else out$qdmapdiff = NA
 
-	    } else out$ph <- diffXY[1]
+	    } else out$qdmapdiff <- diffXY[1]
 
 	}
 
-   } # end of if do partial- and/or modified- Hausdorff stmts.
+   } # end of if do 'qdmapdiff' stmts.
 
-   if( "med" %in% which.stats) out$med <- mean( Z, na.rm=TRUE)
-   if( "msd" %in% which.stats) out$msd <- mean( Z2, na.rm=TRUE)
-   if( "fom" %in% which.stats) out$fom <- sum( 1/(1+alpha*Z2), na.rm=TRUE)/N
-   if( "minsep" %in% which.stats) out$minsep <- min( c(Z), na.rm=TRUE)
+   if( "med" %in% which.stats) {
+
+	out$medMiss <- mean( Z, na.rm=TRUE)
+	out$medFalseAlarm <- mean( Zother, na.rm = TRUE )
+
+   }
+
+   if( "msd" %in% which.stats) {
+
+	out$msdMiss <- mean( Z2, na.rm=TRUE )
+	out$msdFalseAlarm <- mean( Zother2, na.rm = TRUE )
+
+   }
+
+   if( "fom" %in% which.stats) out$fom <- sum( 1 / ( 1 + alpha * Z2 ), na.rm=TRUE ) / N
+   if( "minsep" %in% which.stats) out$minsep <- min( c(Z), na.rm=TRUE )
 
    return( out)
 
 } # end of 'locperf' function.
 
-LocListSetup <- function(a, which.stats= c("bdelta", "haus", "ph", "med", "msd", "fom", "minsep"),
+LocListSetup <- function(a, which.stats= c("bdelta", "haus", "qdmapdiff", "med", "msd", "ph", "fom", "minsep"),
 			    nthresh=1, np=1, nk=1, nalpha=1) {
 
    out <- list()
@@ -398,12 +442,13 @@ LocListSetup <- function(a, which.stats= c("bdelta", "haus", "ph", "med", "msd",
 
    q <- nthresh
    outvec <- numeric(q)+NA
-   if( "bdelta" %in% which.stats) out$bdelta <- matrix( NA, np, q)
-   if( "haus" %in% which.stats) out$haus <- outvec
-   if( "ph" %in% which.stats) out$ph <- matrix( NA, nk, q)
-   if( "med" %in% which.stats) out$med <- outvec
-   if( "msd" %in% which.stats) out$msd <- outvec
-   if( "fom" %in% which.stats) out$fom <- matrix( NA, nalpha, q)
+   if( "bdelta" %in% which.stats ) out$bdelta <- matrix( NA, np, q)
+   if( "haus" %in% which.stats ) out$haus <- outvec
+   if( "qdmapdiff" %in% which.stats) out$qdmapdiff <- matrix( NA, nk, q)
+   if( "med" %in% which.stats ) out$medMiss <- out$medFalseAlarm <- outvec
+   if( "msd" %in% which.stats ) out$msdMiss <- out$msdFalseAlarm <- outvec
+   if( "ph" %in% which.stats ) out$ph <- matrix( NA, nk, q )
+   if( "fom" %in% which.stats ) out$fom <- matrix( NA, nalpha, q)
    if( "minsep" %in% which.stats) out$minsep <- outvec
    return( out)
 } # end of 'LocListSetup' function.
@@ -436,27 +481,50 @@ summary.locmeasures2d <- function(object, ...) {
 	cat("\n", "Hausdorff distance\n")
 	print(y)
    }
-   if( !is.null( object$ph)) {
-	y <- object$ph
+   if( !is.null( object$qdmapdiff)) {
+	y <- object$qdmapdiff
 	rownames( y) <- paste("k = ", as.character( k), "; ", sep="")
 	colnames( y) <- lu
-	cat("\n", "Partial Hausdorff distance\n")
+	cat("\n", "Quantile (if k in (0,1) or k-th highest (if k = 1, 2, ...) difference in distance maps.\n")
 	print( y)
    }
-   if( !is.null( object$med)) {
-        y <- object$med
+   if( !is.null( object$medMiss)) {
+        y <- object$medMiss
         y <- matrix( y, nrow=1)
         colnames( y) <- lu
-        cat("\n", "Mean error distance\n")
+        cat("\n", "Mean error distance (Miss)\n")
         print( y)
    }
-   if( !is.null( object$msd)) {
-	y <- object$msd
+   if( !is.null( object$medFalseAlarm)) {
+        y <- object$medFalseAlarm
         y <- matrix( y, nrow=1)
         colnames( y) <- lu
-        cat("\n", "Mean square error distance\n")
+        cat("\n", "Mean error distance (FalseAlarm)\n")
         print( y)
    }
+   if( !is.null( object$msdMiss)) {
+	y <- object$msdMiss
+        y <- matrix( y, nrow=1)
+        colnames( y) <- lu
+        cat("\n", "Mean square error distance (Miss)\n")
+        print( y)
+   }
+   if( !is.null( object$msdFalseAlarm )) {
+        y <- object$msdFalseAlarm 
+        y <- matrix( y, nrow=1)
+        colnames( y) <- lu
+        cat("\n", "Mean square error distance (FalseAlarm)\n")
+        print( y)
+   }
+
+   if( !is.null( object$qdmapdiff)) {
+        y <- object$ph
+        rownames( y) <- paste("k = ", as.character( k), "; ", sep="")
+        colnames( y) <- lu
+        cat("\n", "Partial Hausdorff distance\n")
+        print( y)
+   }
+
    if( !is.null( object$fom)) {
         y <- object$fom
 	rownames( y) <- paste("alpha = ", x$alpha, "; ", sep="")

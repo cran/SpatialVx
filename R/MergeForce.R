@@ -125,6 +125,7 @@ MergeForce <- function(x, verbose = FALSE) {
     out$X.labeled <- X.labeled
     out$Y.labeled <- Y.labeled
     out$unmatched <- list(X = vxunmatched, Xhat = fcunmatched)
+    out$MergeForced <- TRUE
 
     # 'out' should already have class "matched".
     # class(out) <- "matched"

@@ -1,4 +1,6 @@
-Fint2d <- function(X, Ws, s, method = c("round", "bilinear", "bicubic"), derivs=FALSE, ...) {
+Fint2d <-
+function(X, Ws, s, method = c("round", "bilinear", "bicubic"), derivs = FALSE, ...) {
+
     ##
     ## Function to extract value of Forcast at locations and apply bi-linear interpolation
     ## where necessary.
@@ -48,9 +50,17 @@ Fint2d <- function(X, Ws, s, method = c("round", "bilinear", "bicubic"), derivs=
   
     n <- length( u)
   
-    out <- matrix(NA, nrow=dimout[1], ncol=dimout[2])
+    # out <- matrix(NA, nrow=dimout[1], ncol=dimout[2])
+    out = matrix(NA, nrow=dimout[1], ncol=dimout[2])
   
-    if( derivs) out.x <- out.y <- out
+    if( derivs) {
+
+	out.x <- out.y <- out
+
+	dFx <- cbind( X[ , 2:dimout[ 2 ] ] - X[ , 1:(dimout[ 2 ] - 1) ], 0 )
+	dFy <- rbind( X[ 2:dimout[ 1 ], ] - X[ 1:(dimout[ 1 ] - 1), ], 0 )
+
+    } # end of if 'derivs' stmt.
 
     if(method == "round") {
 
@@ -62,13 +72,19 @@ Fint2d <- function(X, Ws, s, method = c("round", "bilinear", "bicubic"), derivs=
        y[ which(y > maxy) ] <- maxy
        y[ which(y < miny) ] <- miny
 
-       # for( i in 1:n) out[s[i,1],s[i,2]] <- X[x[i],y[i]]
-       out[ s ] <- X[ cbind(x,y) ]
+       # for( i in 1:n) out[ s[i,1], s[i,2] ] <- X[ x[i], y[i] ]
+       # out[ s ] <- X[ cbind(x, y) ]
+        out[ s ] = X[ cbind( x, y ) ]
 
        if( derivs) {
 
-          out.x <- cbind(out[, 2:dimout[2]] - out[, 1:(dimout[2] - 1)], 0)
-          out.y <- rbind(out[2:dimout[1], ] - out[1:(dimout[1]-1), ], 0)
+          # out.x <- cbind( out[, 2:dimout[2] ] - out[, 1:(dimout[2] - 1) ], 0 )
+          # out.y <- rbind( out[ 2:dimout[1], ] - out[ 1:(dimout[1] - 1), ], 0 )
+	  out.x[ s ] <- dFx[ cbind( x, y ) ]
+	  out.y[ s ] <- dFy[ cbind( x, y ) ]
+
+	  out.x[ is.na( out.x ) ] <- 0
+	  out.y[ is.na( out.y ) ] <- 0
 
        } # end of if 'derivs' stmt.
 
@@ -95,25 +111,43 @@ Fint2d <- function(X, Ws, s, method = c("round", "bilinear", "bicubic"), derivs=
 
 	if(method == "bilinear") {
 
-	    out[ s ] <- (1-ufrac)*(1-vfrac)*X[ fuv] + (1-ufrac)*vfrac*X[ fuv1] + ufrac*(1-vfrac)*X[ fu1v] + ufrac*vfrac*X[ fu1v1]
+	    # out[ s ] <- ( 1 - ufrac ) * ( 1 - vfrac ) * X[ fuv ] + 
+	# 	( 1 - ufrac ) * vfrac * X[ fuv1 ] + 
+	# 	ufrac * ( 1 - vfrac ) * X[ fu1v ] + 
+	# 	ufrac * vfrac * X[ fu1v1 ]
+
+	    out[ s ] = ( 1 - ufrac ) * ( 1 - vfrac ) * X[ fuv ] + 
+                ( 1 - ufrac ) * vfrac * X[ fuv1 ] +
+                ufrac * ( 1 - vfrac ) * X[ fu1v ] +
+                ufrac * vfrac * X[ fu1v1 ]
 
             if(derivs) {
 
-              out.x[ s] <- (1-vfrac)*(X[ fu1v] - X[ fuv])  + vfrac*(X[ fu1v1] - X[ fuv1])
-              out.y[ s] <- (1-ufrac)*(X[ fuv1] - X[ fuv]) + ufrac*(X[ fu1v1] - X[ fu1v])
+	    out.x[ s ] <- ( 1 - ufrac ) * ( 1 - vfrac ) * dFx[ fuv ] +
+                ( 1 - ufrac ) * vfrac * dFx[ fuv1 ] +
+                ufrac * ( 1 - vfrac ) * dFx[ fu1v ] +
+                ufrac * vfrac * dFx[ fu1v1 ]
+
+	    out.y[ s ] <- ( 1 - ufrac ) * ( 1 - vfrac ) * dFy[ fuv ] +
+                ( 1 - ufrac ) * vfrac * dFy[ fuv1 ] +
+                ufrac * ( 1 - vfrac ) * dFy[ fu1v ] +
+                ufrac * vfrac * dFy[ fu1v1 ]
+
+            #  out.x[ s ] <- (1 - vfrac) * ( X[ fu1v ] - X[ fuv ] ) + vfrac * ( X[ fu1v1 ] - X[ fuv1 ] )
+            #  out.y[ s ] <- (1 - ufrac) * ( X[ fuv1 ] - X[ fuv ] ) + ufrac * ( X[ fu1v1 ] - X[ fu1v ] )
 
             } # end of if 'derivs' stmt.
 
         } else if( method == "bicubic") {
 
-	    u.bneg1 <- (2*ufrac^2 - ufrac^3 - ufrac)/2
-	    v.bneg1 <- (2*vfrac^2 - vfrac^3 - vfrac)/2
-	    u.b0    <- (3*ufrac^3 - 5*ufrac^2 + 2)/2
-	    v.b0    <- (3*vfrac^3 - 5*vfrac^2 + 2)/2
-	    u.b1    <- (4*ufrac^2 - 3*ufrac^3 + ufrac)/2
-	    v.b1    <- (4*vfrac^2 - 3*vfrac^3 + vfrac)/2
-	    u.b2    <- ((ufrac - 1)*ufrac^2)/2
-	    v.b2    <- ((vfrac - 1)*vfrac^2)/2
+	    u.bneg1 <- ( 2 * ufrac^2 - ufrac^3 - ufrac ) / 2
+	    v.bneg1 <- ( 2 * vfrac^2 - vfrac^3 - vfrac ) / 2
+	    u.b0    <- ( 3 * ufrac^3 - 5 * ufrac^2 + 2 ) / 2
+	    v.b0    <- ( 3 * vfrac^3 - 5 * vfrac^2 + 2 ) / 2
+	    u.b1    <- ( 4 * ufrac^2 - 3 * ufrac^3 + ufrac)/2
+	    v.b1    <- ( 4 * vfrac^2 - 3 * vfrac^3 + vfrac)/2
+	    u.b2    <- ( ( ufrac - 1) * ufrac^2 ) / 2
+	    v.b2    <- ( ( vfrac - 1) * vfrac^2 ) / 2
 	    
 	    fun1vn1 <- fuv - 1
 	    fun1v <- cbind( fun1vn1[,1], fuv[,2])
@@ -133,33 +167,50 @@ Fint2d <- function(X, Ws, s, method = c("round", "bilinear", "bicubic"), derivs=
 
 	    if( derivs) {
 
-		du.bneg1 <- (4*ufrac - 3*ufrac^2 - 1)/2
-		dv.bneg1 <- (4*vfrac - 3*vfrac^2 - 1)/2
-		du.b0 <- (9*ufrac^2 - 10*ufrac)/2
-		dv.b0 <- (9*vfrac^2 - 10*vfrac)/2
-		du.b1 <- (8*ufrac - 9*ufrac^2 + 1)/2
-		dv.b1 <- (8*vfrac - 9*vfrac^2 + 1)/2
-		du.b2 <- (3*ufrac^2 - 2*ufrac)/2
-		dv.b2 <- (3*vfrac^2 - 2*vfrac)/2
+		du.bneg1 <- ( 4 * ufrac - 3 * ufrac^2 - 1) / 2
+		dv.bneg1 <- ( 4 * vfrac - 3 * vfrac^2 - 1) / 2
+		du.b0 <- ( 9 * ufrac^2 - 10 * ufrac ) / 2
+		dv.b0 <- ( 9 * vfrac^2 - 10 * vfrac ) / 2
+		du.b1 <- ( 8 * ufrac - 9 * ufrac^2 + 1 ) / 2
+		dv.b1 <- ( 8 * vfrac - 9 * vfrac^2 + 1 ) / 2
+		du.b2 <- ( 3 * ufrac^2 - 2 * ufrac ) / 2
+		dv.b2 <- ( 3 * vfrac^2 - 2 * vfrac ) / 2
 
             } # end of if 'derivs' stmt.
 
-	    out[ s ] <- u.bneg1*(v.bneg1*X[ fun1vn1] + v.b0*X[ fun1v] + v.b1*X[ fun1v1] + v.b2*X[ fun1v2]) +
+	    # out[ s ] <- u.bneg1*(v.bneg1*X[ fun1vn1] + v.b0*X[ fun1v] + v.b1*X[ fun1v1] + v.b2*X[ fun1v2]) +
+             #          u.b0*( v.bneg1*X[ fuvn1] + v.b0*X[ fuv] + v.b1*X[ fuv1] + v.b2*X[ fuv2]) +
+              #         u.b1*( v.bneg1*X[ fu1vn1] + v.b0*X[ fu1v] + v.b1*X[ fu1v1] + v.b2*X[ fu1v2]) +
+               #        u.b2*( v.bneg1*X[ fu2vn1] + v.b0*X[ fu2v] + v.b1*X[ fu2v1] + v.b2*X[ fu2v2])
+
+	    out[ s ] = u.bneg1*(v.bneg1*X[ fun1vn1] + v.b0*X[ fun1v] + v.b1*X[ fun1v1] + v.b2*X[ fun1v2]) +
                       u.b0*( v.bneg1*X[ fuvn1] + v.b0*X[ fuv] + v.b1*X[ fuv1] + v.b2*X[ fuv2]) +
                       u.b1*( v.bneg1*X[ fu1vn1] + v.b0*X[ fu1v] + v.b1*X[ fu1v1] + v.b2*X[ fu1v2]) +
                       u.b2*( v.bneg1*X[ fu2vn1] + v.b0*X[ fu2v] + v.b1*X[ fu2v1] + v.b2*X[ fu2v2])
 
 	    if( derivs) {
 
-          	out.x[ s ] <- du.bneg1*( v.bneg1*X[ fun1vn1] + v.b0*X[ fun1v] + v.b1*X[ fun1v1] + v.b2*X[ fun1v2]) +
-                           du.b0*( v.bneg1*X[ fuvn1] + v.b0*X[ fuv] + v.b1*X[ fuv1] + v.b2*X[ fuv2]) +
-                           du.b1*( v.bneg1*X[ fu1vn1] + v.b0*X[ fu1v] + v.b1*X[ fu1v1] + v.b2*X[ fu1v2]) +
-                           du.b2*( v.bneg1*X[ fu2vn1] + v.b0*X[ fu2v] + v.b1*X[ fu2v1] + v.b2*X[ fu2v2])
+          	# out.x[ s ] <- du.bneg1 * ( v.bneg1 * X[ fun1vn1 ] + v.b0 * X[ fun1v ] + v.b1 * X[ fun1v1 ] + v.b2 * X[ fun1v2 ] ) +
+                 #           du.b0 * ( v.bneg1 * X[ fuvn1 ] + v.b0 * X[ fuv ] + v.b1 * X[ fuv1 ] + v.b2 * X[ fuv2 ]) +
+                  #          du.b1 * ( v.bneg1 * X[ fu1vn1 ] + v.b0 * X[ fu1v ] + v.b1 * X[ fu1v1 ] + v.b2 * X[ fu1v2 ]) +
+                   #         du.b2 * ( v.bneg1 * X[ fu2vn1 ] + v.b0 * X[ fu2v ] + v.b1 * X[ fu2v1 ] + v.b2 * X[ fu2v2 ])
+# 
+ #          	out.y[ s ] <- dv.bneg1 * ( u.bneg1 * X[ fun1vn1 ] + u.b0 * X[ fuvn1 ] + u.b1 * X[ fu1vn1 ] + u.b2 * X[ fu2vn1 ]) +
+  #                          dv.b0 * ( u.bneg1 * X[ fun1v ] + u.b0 * X[ fuv ] + u.b1 * X[ fu1v ] + u.b2 * X[ fu2v ]) +
+   #                         dv.b1 * ( u.bneg1 * X[ fun1v1 ] + u.b0 * X[ fuv1 ] + u.b1 * X[ fu1v1 ] + u.b2 * X[ fu2v1 ]) +
+    #                        dv.b2 * ( u.bneg1 * X[ fun1v2 ] + u.b0 * X[ fuv2 ] + u.b1 * X[ fu1v2 ] + u.b2*X[ fu2v2])
 
-          	out.y[ s ] <- dv.bneg1*( u.bneg1*X[ fun1vn1] + u.b0*X[ fuvn1] + u.b1*X[ fu1vn1] + u.b2*X[ fu2vn1]) +
-                           dv.b0*( u.bneg1*X[ fun1v] + u.b0*X[ fuv] + u.b1*X[ fu1v] + u.b2*X[ fu2v]) +
-                           dv.b1*( u.bneg1*X[ fun1v1] + u.b0*X[ fuv1] + u.b1*X[ fu1v1] + u.b2*X[ fu2v1]) +
-                           dv.b2*( u.bneg1*X[ fun1v2] + u.b0*X[ fuv2] + u.b1*X[ fu1v2] + u.b2*X[ fu2v2])
+		out.x[ s ] <- du.bneg1 * ( v.bneg1 * dFx[ fun1vn1 ] + v.b0 * dFx[ fun1v ] + v.b1 * dFx[ fun1v1 ] + 
+				v.b2 * dFx[ fun1v2 ] ) +
+                           du.b0 * ( v.bneg1 * dFx[ fuvn1 ] + v.b0 * dFx[ fuv ] + v.b1 * dFx[ fuv1 ] + v.b2 * dFx[ fuv2 ]) +
+                           du.b1 * ( v.bneg1 * dFx[ fu1vn1 ] + v.b0 * dFx[ fu1v ] + v.b1 * dFx[ fu1v1 ] + v.b2 * dFx[ fu1v2 ]) +
+                           du.b2 * ( v.bneg1 * dFx[ fu2vn1 ] + v.b0 * dFx[ fu2v ] + v.b1 * dFx[ fu2v1 ] + v.b2 * dFx[ fu2v2 ])
+
+		out.y[ s ] <- dv.bneg1 * ( u.bneg1 * dFy[ fun1vn1 ] + u.b0 * dFy[ fuvn1 ] + u.b1 * dFy[ fu1vn1 ] + 
+				u.b2 * dFy[ fu2vn1 ]) +
+                           dv.b0 * ( u.bneg1 * dFy[ fun1v ] + u.b0 * dFy[ fuv ] + u.b1 * dFy[ fu1v ] + u.b2 * dFy[ fu2v ]) +
+                           dv.b1 * ( u.bneg1 * dFy[ fun1v1 ] + u.b0 * dFy[ fuv1 ] + u.b1 * dFy[ fu1v1 ] + u.b2 * dFy[ fu2v1 ]) +
+                           dv.b2 * ( u.bneg1 * dFy[ fun1v2 ] + u.b0 * dFy[ fuv2 ] + u.b1 * dFy[ fu1v2 ] + u.b2*dFy[ fu2v2])
 
        	    } # end of if 'derivs' stmt.
 
@@ -167,10 +218,10 @@ Fint2d <- function(X, Ws, s, method = c("round", "bilinear", "bicubic"), derivs=
 
     } else stop("method must be one of round, bilinear or bicubic")
 
-      # image( out, col=c("grey", tim.colors(256)))
-      out <- zapsmall(out)
-      if(derivs) return(list( xy=out, dx=out.x, dy=out.y))
-      else return(out)
+    # image( out, col=c("grey", tim.colors(256)))
+    # out <- zapsmall( out )
+    out = zapsmall( out )
+    if(derivs) return(list( xy=out, dx=out.x, dy=out.y))
+    else return(out)
 
- } # end of 'Fint2d' function.
-  
+ }

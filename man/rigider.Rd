@@ -21,7 +21,7 @@ Find the optimal rigid transformation for a spatial field (e.g. an image).
 
 rigider(x1, x0, p0, init = c(0, 0, 0), type = c("regular", "fast"),
     translate = TRUE, rotate = FALSE, loss, loss.args = NULL,
-    interp = "bicubic", method = "BFGS", stages = TRUE,
+    interp = "bicubic", stages = TRUE,
     verbose = FALSE, ...)
 
 \method{plot}{rigided}(x, ...)
@@ -62,9 +62,6 @@ named list giving any optional arguments to \code{loss}.
   \item{interp}{
 character naming the 2-d interpolation method to use in calls to \code{Fint2d}.  Must be one of \dQuote{round} (default), \dQuote{bilinear} or \dQuote{bicubic}.
 }
-  \item{method}{
-character naming an optimization method to use in the call to \code{optim} (same as the method argument for said function).
-}
   \item{stages}{
 logical.  Should the optimal translation be found before finding both the optimal tranlsation and rotation?
 }
@@ -72,7 +69,7 @@ logical.  Should the optimal translation be found before finding both the optima
 logical.  Should progress information be printed to the screen?
 }
   \item{\dots}{
-optional arguments to \code{optim}.
+optional arguments to \code{nlminb}.
 }
 
 }
@@ -85,7 +82,7 @@ A rigid transformation translates coordinates of values in a matrix and/or rotat
 
 where Phi is the matrix with first column given by (cos( theta ), - sin( theta)) and second column given by (sin( theta), cos( theta )).
 
-The optimal transformation is found by way of numerical optimization using the \code{optim} function on the loss function given by \code{loss}.  If no value is given for \code{loss}, then square error loss is assumed.  In this case, the loss function is based on an assumption of Gaussian errors, but this assumption is only important if you try to make inferences based on this model, in which case you should probably think much harder about what you are doing.  In particular, the default objective function, Q, is given by:
+The optimal transformation is found by way of numerical optimization using the \code{nlminb} function on the loss function given by \code{loss}.  If no value is given for \code{loss}, then square error loss is assumed.  In this case, the loss function is based on an assumption of Gaussian errors, but this assumption is only important if you try to make inferences based on this model, in which case you should probably think much harder about what you are doing.  In particular, the default objective function, Q, is given by:
 
 Q = - sum( ( F(W(s)) - O(s) )^2 / (2 * sigma^2) - (N / 2) * log( sigma^2 ),
 
@@ -102,7 +99,7 @@ A list object of class \dQuote{rigided} is returned with components:
   \item{rotate}{ optimal translation and rotation together, if stages argument is true.}
   \item{initial}{initial values used.}
   \item{interp.method}{ same as input argument interp.}
-  \item{optim.args}{optional arguments passed to optim.}
+  \item{optim.args}{optional arguments passed to nlminb.}
   \item{loss, loss.args}{same as input arguments.}
   \item{par}{optimal parameter values found.}
   \item{value}{value of loss function at optimal parameters.}
@@ -124,7 +121,7 @@ Finding the optimal rigid transformation can be very tricky when applying both r
 
 \seealso{
 
-\code{\link{optim}}, \code{\link{Fint2d}}
+\code{\link{nlminb}}, \code{\link{Fint2d}}
 
 }
 

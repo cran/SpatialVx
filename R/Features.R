@@ -457,21 +457,37 @@ saller <- function(x, d=NULL, distfun = "rdist", ...) {
 
     # Location
     if(is.null(d)) d <- max(xdim, na.rm=TRUE)
+
     num <- centdist(binY,binX, distfun = distfun, loc = a$loc, ...)
-    L1 <- num/d
-    intRamt <- function(id,x) return(sum(x[id$m],na.rm=TRUE))
-    RnMod <- as.numeric(unlist(lapply(y, intRamt, x=Y)))
-    RnObs <- as.numeric(unlist(lapply(x, intRamt, x=X)))
-    xRmodN <- as.numeric(unlist(lapply(y, centdist, y=binY)))
-    xRobsN <- as.numeric(unlist(lapply(x, centdist, y=binX)))
-    RmodSum <- sum( RnMod, na.rm=TRUE)
-    RobsSum <- sum( RnObs, na.rm=TRUE)
-    rmod <- sum( RnMod*xRmodN, na.rm=TRUE)/RmodSum
-    robs <- sum( RnObs*xRobsN, na.rm=TRUE)/RobsSum
-    L2 <- 2*abs(rmod - robs)/d
-    out$L1 <- L1
-    out$L2 <- L2
-    out$L <- L1 + L2
+
+    cenX <- imomenter( tmp$X )$centroid
+    cenXhat <- imomenter( tmp$Xhat )$centroid
+    numOrig <- sqrt( (cenX[ 1 ] - cenXhat[ 1 ])^2 + (cenX[ 2 ] - cenXhat[ 2 ])^2 )
+
+    L1.alt = num/d
+    L1 = numOrig / d
+
+    intRamt = function(id,x) return(sum(x[id$m],na.rm=TRUE))
+
+    RnMod = as.numeric(unlist(lapply(y, intRamt, x=Y)))
+    RnObs = as.numeric(unlist(lapply(x, intRamt, x=X)))
+
+    xRmodN = as.numeric(unlist(lapply(y, centdist, y=binY)))
+    xRobsN = as.numeric(unlist(lapply(x, centdist, y=binX)))
+
+    RmodSum = sum( RnMod, na.rm=TRUE)
+    RobsSum = sum( RnObs, na.rm=TRUE)
+
+    rmod = sum( RnMod*xRmodN, na.rm=TRUE)/RmodSum
+    robs = sum( RnObs*xRobsN, na.rm=TRUE)/RobsSum
+
+    L2 = 2*abs(rmod - robs)/d
+
+    out$L1 = L1
+    out$L2 = L2
+    out$L  = L1 + L2
+
+    out$L1.alt = L1.alt
 
     # Structure
     Rmaxer <- function(id, x) return(max(x[id$m], na.rm=TRUE))
@@ -541,284 +557,291 @@ centdist <- function(x,y, distfun = "rdist", loc = NULL, ...) {
 
 } # end of 'centdist' function.
 
-plot.matched <- function(x, ..., type = c("both", "obs", "model")) {
-
-    a <- attributes(x)
-    loc.byrow <- a$loc.byrow
-
-    args <- list(...)
-
-    type <- tolower(type)
-    type <- match.arg(type)
-
-    matches <- x$matches
-    if(!is.null(x$implicit.merges)) mer <- x$implicit.merges
-    else mer <- x$merges
-
-    xdim <- dim(x$X.labeled)
-
-    # Need to fill in values for X and Xhat
-    # where integers correspond to the first n
-    # matched objects and n + 1 for all unmatched
-    # objects.
-
-    if(any(dim(matches) == 0)) {
-
-	n <- 0
-
-	X <- x$X.labeled
-	X[X > 0] <- 1
-
-	Xhat <- x$Y.labeled
-	Xhat[Xhat > 0] <- 1
-
-	icol <- c("white", "gray")
-
-    } else {
-
-	X <- Xhat <- matrix(0, xdim[1], xdim[2])
-
-        if(is.null(mer)) { 
-
-	    n <- dim(matches)[1]
-
-	    for(i in 1:n) {
-
-		k <- matches[i,"Observed"]
-		j <- matches[i, "Forecast"]
-
-		look <- x$X.feats[[ k ]]
-		look <- look$m
-
-		X[look] <- i
-
-		look <- x$Y.feats[[ j ]]
-		look <- look$m
-
-		Xhat[look] <- i
-
-	    } # end of for 'i' loop.
-
-        } else {
-
-	    n <- length(mer)
-
-	    for(i in 1:n) {
-
-		mi <- mer[[i]] # mi is like matches.
-
-		for(jj in 1:dim(mi)[1]) {
-
-		    k <- mi[jj, "Observed"]
-		    j <- mi[jj, "Forecast"]
-
-		    look <- x$X.feats[[ k ]]
-		    look <- look$m
-
-		    X[look] <- i
-
-		    look <- x$Y.feats[[ j ]]
-		    look <- look$m
-
-		    Xhat[look] <- i
-
-		}
-
-	    } # end of for 'i' loop.
-
-        } # end of if else 'implicit.merges/merges' stmts.
-
-	oun <- x$unmatched$X
-	unolen <- length(oun)
-	fcun <- x$unmatched$Xhat
-	unflen <- length(fcun)
-
-	if(unolen > 0) {
-
-	    for(i in 1:unolen) {
-
-		look <- x$X.feats[[ oun[i] ]]
-		look <- look$m
-
-		X[look] <- n + 1
-
-	    } # end of for 'i' loop.
-
-	} # end of if any unmatched observed features stmt.
-
-	if(unflen > 0) {
-
-	    for(i in 1:unflen) {
-
-		look <- x$Y.feats[[ fcun[i] ]]
-		look <- look$m
-
-		Xhat[look] <- n + 1
-
-	    } # end of for 'i' loop.
-
-	} # end of if any unmatched forecast features stmt.
-
-	icol <- c("white", rainbow(n), "gray")
-
-    } # end of if no matches stmt.
-
-    if(!is.null(a$data.name)) {
-
-        dn <- a$data.name
-
-        if(length(dn) == 3) {
-
-            vxname <- dn[2]
-            fcstname <- dn[3]
-
-        } else {
-
-            vxname <- dn[1]
-            fcstname <- dn[2]
-
-        }
-
-        X.name <- paste(vxname, "\nFeature Field", sep="")
-        Xhat.name <- paste(fcstname, "\nFeature Field", sep="")
-
-    } else {
-
-            X.name <- "Verification\nFeature Field"
-            Xhat.name <- "Forecast\nFeature Field"
-
-    } # end of if '!is.null(a$data.name)' stmts.
-
-    if(type == "both") par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
-
-    if (is.null(a$projection)) proj <- FALSE
-    else proj <- a$projection
-
-    if (is.null(a$map)) domap <- FALSE
-    else domap <- a$map
-
-    if(proj) loc <- list(x = matrix(a$loc[, 1], xdim[1], xdim[2], byrow = loc.byrow), 
-            		y = matrix(a$loc[, 2], xdim[1], xdim[2], byrow = loc.byrow))
-
-    zl <- c(0, n + 1)
-
-    if(domap) {
-
-        locr <- apply(a$loc, 2, range, finite = TRUE)
-
-        ax <- list(x = pretty(round(a$loc[, 1], digits = 2)), 
-            	   y = pretty(round(a$loc[, 2], digits = 2)))
-
-	if(proj) {
-
-	   if(is.element(type, c("both", "obs"))) {
-
-	        map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
-
-                axis(1, at = ax$x, labels = ax$x)
-                axis(2, at = ax$y, labels = ax$y)
-
-                poly.image(loc$x, loc$y, X, add = TRUE, col = icol, zlim = zl)
-                map(add = TRUE, lwd = 1.5)
-                map(add = TRUE, database = "state")
-                title(X.name)
-
-	    }
-
-	    if(is.element(type, c("both", "model"))) {
-
-                map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
-                axis(1, at = ax$x, labels = ax$x)
-                axis(2, at = ax$y, labels = ax$y)
-
-                poly.image(loc$x, loc$y, Xhat, add = TRUE, col = icol, zlim = zl)
-                map(add = TRUE, lwd = 1.5)
-                map(add = TRUE, database = "state")
-                title(Xhat.name) 
-
-	    }
-
-	} else {
-
-	    if(is.element(type, c("both", "obs"))) {
-
-	        map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
-                axis(1, at = ax$x, labels = ax$x)
-                axis(2, at = ax$y, labels = ax$y)
-
-                image(as.image(X, nx = xdim[1], ny = xdim[2], x = a$loc, na.rm = TRUE),
-		    col = icol, zlim = zl, add = TRUE)
-                map(add = TRUE, lwd = 1.5)
-                map(add = TRUE, database = "state")
-                title(X.name)
-
-	    }
-
-	    if(is.element(type, c("both", "model"))) {
-
-                map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
-                axis(1, at = ax$x, labels = ax$x)
-                axis(2, at = ax$y, labels = ax$y)
-
-                image(as.image(Xhat, nx = xdim[1], ny = xdim[2], x = a$loc, na.rm = TRUE),
-		    col = icol, zlim = zl, add = TRUE)
-                map(add = TRUE, lwd = 1.5)
-                map(add = TRUE, database = "state")
-                title(Xhat.name)
-
-	    }
-
-	} # end of if else 'proj' stmt.
-
-    } else {
-
-	if (proj) {
-
-	    if(is.element(type, c("both", "obs"))) {
-
-                poly.image(loc$x, loc$y, X, add = TRUE, col = icol, zlim = zl)
-                title(X.name)
-
-	    }
-
-	    if(is.element(type, c("both", "model"))) {
- 
-                poly.image(loc$x, loc$y, Xhat, add = TRUE, col = icol, zlim = zl)
-                title(Xhat.name)
-
-	    }
-
-        } else {
-
-	    if(is.element(type, c("both", "obs"))) {
-
-                image(X, col = icol, zlim = zl, main = X.name)
-
-	    }
-
-	    if(is.element(type, c("both", "model"))) {
-
-                image(Xhat, col = icol, zlim = zl, main = Xhat.name)
-
-	    }
-
-        } # end of if else 'proj' stmt.
-
-
-    } # end of if else 'domap' stmts.
-
-    image.plot(X, col = icol, zlim = zl, legend.only = TRUE, ...)
-
-    if(!is.null(a$msg)) {
-
-	title("")
-	mtext(a$msg, line = 0.05, outer = TRUE)
-
-    }
-
-    invisible()
-
-} # end of 'plot.matched' function.
+# plot.matched <- function( x, ..., type = c("both", "obs", "model") ) {
+# 
+#     if( !is.null( x$MergeForced ) && x$MergeForced ) {
+# 
+# 	class( x ) <- "matched.mergeforced"
+# 	UseMethod("plot", x)
+# 
+#     }
+# 
+#     a <- attributes(x)
+#     loc.byrow <- a$loc.byrow
+# 
+#     args <- list(...)
+# 
+#     type <- tolower(type)
+#     type <- match.arg(type)
+# 
+#     matches <- x$matches
+#     if(!is.null(x$implicit.merges)) mer <- x$implicit.merges
+#     else mer <- x$merges
+# 
+#     xdim <- dim(x$X.labeled)
+# 
+#     # Need to fill in values for X and Xhat
+#     # where integers correspond to the first n
+#     # matched objects and n + 1 for all unmatched
+#     # objects.
+# 
+#     if(any(dim(matches) == 0)) {
+# 
+# 	n <- 0
+# 
+# 	X <- x$X.labeled
+# 	X[X > 0] <- 1
+# 
+# 	Xhat <- x$Y.labeled
+# 	Xhat[Xhat > 0] <- 1
+# 
+# 	icol <- c("white", "gray")
+# 
+#     } else {
+# 
+# 	X <- Xhat <- matrix(0, xdim[1], xdim[2])
+# 
+#         if(is.null(mer)) { 
+# 
+# 	    n <- dim(matches)[1]
+# 
+# 	    for(i in 1:n) {
+# 
+# 		k <- matches[i,"Observed"]
+# 		j <- matches[i, "Forecast"]
+# 
+# 		look <- x$X.feats[[ k ]]
+# 		look <- look$m
+# 
+# 		X[look] <- i
+# 
+# 		look <- x$Y.feats[[ j ]]
+# 		look <- look$m
+# 
+# 		Xhat[look] <- i
+# 
+# 	    } # end of for 'i' loop.
+# 
+#         } else {
+# 
+# 	    n <- length(mer)
+# 
+# 	    for(i in 1:n) {
+# 
+# 		mi <- mer[[i]] # mi is like matches.
+# 
+# 		for(jj in 1:dim(mi)[1]) {
+# 
+# 		    k <- mi[jj, "Observed"]
+# 		    j <- mi[jj, "Forecast"]
+# 
+# 		    look <- x$X.feats[[ k ]]
+# 		    look <- look$m
+# 
+# 		    X[look] <- i
+# 
+# 		    look <- x$Y.feats[[ j ]]
+# 		    look <- look$m
+# 
+# 		    Xhat[look] <- i
+# 
+# 		}
+# 
+# 	    } # end of for 'i' loop.
+# 
+#         } # end of if else 'implicit.merges/merges' stmts.
+# 
+# 	oun <- x$unmatched$X
+# 	unolen <- length(oun)
+# 	fcun <- x$unmatched$Xhat
+# 	unflen <- length(fcun)
+# 
+# 	if(unolen > 0) {
+# 
+# 	    for(i in 1:unolen) {
+# 
+# 		look <- x$X.feats[[ oun[i] ]]
+# 		look <- look$m
+# 
+# 		X[look] <- n + 1
+# 
+# 	    } # end of for 'i' loop.
+# 
+# 	} # end of if any unmatched observed features stmt.
+# 
+# 	if(unflen > 0) {
+# 
+# 	    for(i in 1:unflen) {
+# 
+# 		look <- x$Y.feats[[ fcun[i] ]]
+# 		look <- look$m
+# 
+# 		Xhat[look] <- n + 1
+# 
+# 	    } # end of for 'i' loop.
+# 
+# 	} # end of if any unmatched forecast features stmt.
+# 
+# 	icol <- c("white", rainbow(n), "gray")
+# 
+#     } # end of if no matches stmt.
+# 
+#     if(!is.null(a$data.name)) {
+# 
+#         dn <- a$data.name
+# 
+#         if(length(dn) == 3) {
+# 
+#             vxname <- dn[2]
+#             fcstname <- dn[3]
+# 
+#         } else {
+# 
+#             vxname <- dn[1]
+#             fcstname <- dn[2]
+# 
+#         }
+# 
+#         X.name <- paste(vxname, "\nFeature Field", sep="")
+#         Xhat.name <- paste(fcstname, "\nFeature Field", sep="")
+# 
+#     } else {
+# 
+#             X.name <- "Verification\nFeature Field"
+#             Xhat.name <- "Forecast\nFeature Field"
+# 
+#     } # end of if '!is.null(a$data.name)' stmts.
+# 
+#     if(type == "both") par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
+# 
+#     if (is.null(a$projection)) proj <- FALSE
+#     else proj <- a$projection
+# 
+#     if (is.null(a$map)) domap <- FALSE
+#     else domap <- a$map
+# 
+#     if(proj) loc <- list(x = matrix(a$loc[, 1], xdim[1], xdim[2], byrow = loc.byrow), 
+#             		y = matrix(a$loc[, 2], xdim[1], xdim[2], byrow = loc.byrow))
+# 
+#     zl <- c(0, n + 1)
+# 
+#     if(domap) {
+# 
+#         locr <- apply(a$loc, 2, range, finite = TRUE)
+# 
+#         ax <- list(x = pretty(round(a$loc[, 1], digits = 2)), 
+#             	   y = pretty(round(a$loc[, 2], digits = 2)))
+# 
+# 	if(proj) {
+# 
+# 	   if(is.element(type, c("both", "obs"))) {
+# 
+# 	        map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
+# 
+#                 axis(1, at = ax$x, labels = ax$x)
+#                 axis(2, at = ax$y, labels = ax$y)
+# 
+#                 poly.image(loc$x, loc$y, X, add = TRUE, col = icol, zlim = zl)
+#                 map(add = TRUE, lwd = 1.5)
+#                 map(add = TRUE, database = "state")
+#                 title(X.name)
+# 
+# 	    }
+# 
+# 	    if(is.element(type, c("both", "model"))) {
+# 
+#                 map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
+#                 axis(1, at = ax$x, labels = ax$x)
+#                 axis(2, at = ax$y, labels = ax$y)
+# 
+#                 poly.image(loc$x, loc$y, Xhat, add = TRUE, col = icol, zlim = zl)
+#                 map(add = TRUE, lwd = 1.5)
+#                 map(add = TRUE, database = "state")
+#                 title(Xhat.name) 
+# 
+# 	    }
+# 
+# 	} else {
+# 
+# 	    if(is.element(type, c("both", "obs"))) {
+# 
+# 	        map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
+#                 axis(1, at = ax$x, labels = ax$x)
+#                 axis(2, at = ax$y, labels = ax$y)
+# 
+#                 image(as.image(X, nx = xdim[1], ny = xdim[2], x = a$loc, na.rm = TRUE),
+# 		    col = icol, zlim = zl, add = TRUE)
+#                 map(add = TRUE, lwd = 1.5)
+#                 map(add = TRUE, database = "state")
+#                 title(X.name)
+# 
+# 	    }
+# 
+# 	    if(is.element(type, c("both", "model"))) {
+# 
+#                 map(xlim = locr[, 1], ylim = locr[, 2], type = "n")
+#                 axis(1, at = ax$x, labels = ax$x)
+#                 axis(2, at = ax$y, labels = ax$y)
+# 
+#                 image(as.image(Xhat, nx = xdim[1], ny = xdim[2], x = a$loc, na.rm = TRUE),
+# 		    col = icol, zlim = zl, add = TRUE)
+#                 map(add = TRUE, lwd = 1.5)
+#                 map(add = TRUE, database = "state")
+#                 title(Xhat.name)
+# 
+# 	    }
+# 
+# 	} # end of if else 'proj' stmt.
+# 
+#     } else {
+# 
+# 	if (proj) {
+# 
+# 	    if(is.element(type, c("both", "obs"))) {
+# 
+#                 poly.image(loc$x, loc$y, X, add = TRUE, col = icol, zlim = zl)
+#                 title(X.name)
+# 
+# 	    }
+# 
+# 	    if(is.element(type, c("both", "model"))) {
+#  
+#                 poly.image(loc$x, loc$y, Xhat, add = TRUE, col = icol, zlim = zl)
+#                 title(Xhat.name)
+# 
+# 	    }
+# 
+#         } else {
+# 
+# 	    if(is.element(type, c("both", "obs"))) {
+# 
+#                 image(X, col = icol, zlim = zl, main = X.name)
+# 
+# 	    }
+# 
+# 	    if(is.element(type, c("both", "model"))) {
+# 
+#                 image(Xhat, col = icol, zlim = zl, main = Xhat.name)
+# 
+# 	    }
+# 
+#         } # end of if else 'proj' stmt.
+# 
+# 
+#     } # end of if else 'domap' stmts.
+# 
+#     image.plot(X, col = icol, zlim = zl, legend.only = TRUE, ...)
+# 
+#     if(!is.null(a$msg)) {
+# 
+# 	title("")
+# 	mtext(a$msg, line = 0.05, outer = TRUE)
+# 
+#     }
+# 
+#     invisible()
+# 
+# } # end of 'plot.matched' function.
 
 print.matched <- function(x, ...) {
 
@@ -1517,8 +1540,10 @@ plot.FeatureMatchAnalyzer <- function(x, ..., type=c("all", "ph", "med", "msd", 
     	        } else {
 
                     if(colnames(y)[i] == "ph") t1 <- "Partial Hausdorff \nDistance"
-                    else if(colnames(y)[i] == "med") t1 <- "Mean Error Distance"
-                    else if(colnames(y)[i] == "msd") t1 <- "Mean Square Error \nDistance"
+                    else if(colnames(y)[i] == "medMiss") t1 <- "Mean Error Distance (Miss)"
+		    else if(colnames(y)[i] == "medFalseAlarm") t1 <- "Mean Error Distance (False Alarm)"
+                    else if(colnames(y)[i] == "msdMiss") t1 <- "Mean Square Error \nDistance (Miss)"
+		    else if(colnames(y)[i] == "msdFalseAlarm") t1 <- "Mean Square Error \nDistance (False Alarm)"
                     else if(colnames(y)[i] == "fom") t1 <- "Pratt\'s Figure \nof Merit"
                     else if(colnames(y)[i] == "minsep") t1 <- "Minimum Separation \nDistance"
                     else if(colnames(y)[i] == "cent.dist") t1 <- "Centroid Distance"
@@ -1535,8 +1560,10 @@ plot.FeatureMatchAnalyzer <- function(x, ..., type=c("all", "ph", "med", "msd", 
         } else {
 
 	    if(type=="ph") t1 <- "Partial Hausdorff \nDistance"
-            else if(type == "med") t1 <- "Mean Error Distance"
-            else if(type == "msd") t1 <- "Mean Square Error \nDistance"
+	    else if(colnames(y)[i] == "medMiss") t1 <- "Mean Error Distance (Miss)"
+            else if(colnames(y)[i] == "medFalseAlarm") t1 <- "Mean Error Distance (False Alarm)"
+            else if(colnames(y)[i] == "msdMiss") t1 <- "Mean Square Error \nDistance (Miss)"
+            else if(colnames(y)[i] == "msdFalseAlarm") t1 <- "Mean Square Error \nDistance (False Alarm)"
             else if(type == "fom") t1 <- "Pratt\'s Figure \nof Merit"
             else if(type == "minsep") t1 <- "Minimum Separation \nDistance"
             else if(type == "cent.dist") t1 <- "Centroid Distance"
