@@ -36,7 +36,7 @@ y <- zapsmall(y)
 Reinhard Furrer, Douglas Nychka and Stephen Sain (2012). fields: Tools for spatial data. R package version 6.6.3.  http://CRAN.R-project.org/package=fields
 }
 \examples{
-data(ExampleSpatialVxSet)
+data( "ExampleSpatialVxSet" )
 x <- ExampleSpatialVxSet$vx
 xhat <- ExampleSpatialVxSet$fcst
 par(mfrow=c(1,2))

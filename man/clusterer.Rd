@@ -19,11 +19,11 @@ clusterer(X, Y = NULL, ...)
     linkage.method = "complete", stand = TRUE, trans = "identity", 
     a = NULL, verbose = FALSE)
 
-\method{clusterer}{SpatialVx}(X, Y = NULL, ..., time.point = 1, model = 1, xyp = TRUE, 
+\method{clusterer}{SpatialVx}(X, Y = NULL, ..., time.point = 1, obs = 1, model = 1, xyp = TRUE, 
     threshold = 1e-08, linkage.method = "complete", stand = TRUE, 
     trans = "identity", verbose = FALSE)
 
-\method{plot}{clusterer}(x, ..., set.pw = FALSE, icol = c("gray", tim.colors(64)), 
+\method{plot}{clusterer}(x, ..., mfrow = c(1, 2), col = c("gray", tim.colors(64)), 
     horizontal = FALSE)
 
 \method{plot}{summary.clusterer}(x, ...)
@@ -44,10 +44,10 @@ clusterer(X, Y = NULL, ...)
   \item{stand}{logical, should the data matrices consisting of \code{xloc} and each field first be standardized before performing cluster analysis?}
   \item{trans}{character naming a function to be applied to the field intensities before performing the CA.  Only used if \code{xyp} is TRUE.  Default applies no transformation.}
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-  \item{model}{numeric indicating which forecast model to select for the analysis.}
+  \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
     \item{a}{(optional) list giving object attributes associated with a \dQuote{SpatialVx} class object.  The \code{clusterer} method for \dQuote{SpatialVx} objects calls the default method function, and uses this argument to pass the attributes through to the final returned object, as well as to grab location information.}
-    \item{set.pw}{logical, should a panel of plots be determined and set by the function.}
-    \item{icol}{color vector for image plots of fields after applying the threshold(s).}
+    \item{mfrow}{mfrow parameter (see help file for \code{par}).  If NULL, then the parameter is not re-set.  }
+    \item{col}{color vector for image plots of fields after applying the threshold(s).}
     \item{horizontal}{logical, should the image plot color legend be placed horizontally or vertically?  Only for image plot sof the fields.}
   \item{verbose}{logical, should progress information be printed to the screen?}
   \item{\dots}{optional arguments to the \code{hclust} function.  In the case of the \code{summary} method function, \code{z} and/or \code{sigma} giving a numeric value used to find the cut-off given by median + z*sigma for detemining matched objects (see Marzban and Sandgathe 2006) where defaults of 1 and the standard deviation of minimum inter-cluster distances are used, and \code{silent} (logical should information be printed to the screen (FALSE) or not (TRUE); default is to print to the screen.  In the case of the \code{plot} method functions, these are optional arguments to the \code{summary} method function.}
@@ -98,21 +98,21 @@ If it is desired to simply look at the CA for the two fields, the function hclus
 \code{\link[stats]{hclust}}, \code{\link[fastcluster]{hclust}}, \code{\link{as.dendrogram}}, \code{\link{cutree}}, \code{\link{make.SpatialVx}}, \code{\link{CSIsamples}}
 }
 \examples{
-data(UKobs6)
-data(UKfcst6)
+data( "UKobs6" )
+data( "UKfcst6" )
 look <- clusterer(X=UKobs6, Y=UKfcst6, threshold=16, trans="log", verbose=TRUE)
-plot(look, set.pw=TRUE)
+plot( look )
 
 \dontrun{
-data(UKloc)
+data( "UKloc" )
 
 # Now, do the same thing, but using a "SpatialVx" object.
-hold <- make.SpatialVx(UKobs6, UKfcst6, loc=UKloc, map=TRUE,
-    field.type="Rainfall", units="mm/h",
-    data.name=c("Nimrod", "obs 6", "fcst 6"))
+hold <- make.SpatialVx( UKobs6, UKfcst6, loc = UKloc, map = TRUE,
+    field.type = "Rainfall", units = "mm/h",
+    data.name = "Nimrod", obs.name = "obs 6", model.name = "fcst 6" )
 
 look2 <- clusterer(hold, threshold=16, trans="log", verbose=TRUE)
-plot(look2, set.pw=TRUE)
+plot( look2 )
 # Note that values differ because now we're using the
 # actual locations instead of integer indicators of
 # positions.

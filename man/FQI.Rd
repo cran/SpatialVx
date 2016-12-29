@@ -11,7 +11,7 @@ Forecast Quality Index
 Functions for calculating the Forecast Quality Index (FQI) and its components.
 }
 \usage{
-FQI(object, surr = NULL, k = 4, time.point = 1, model = 1, ...)
+FQI(object, surr = NULL, k = 4, time.point = 1, obs = 1, model = 1, ...)
 
 UIQI(X, Xhat, ...)
 
@@ -35,7 +35,7 @@ three-dimesnional array containing surrogate fields for \code{X}, e.g. as return
 numeric vector for use with the partial Hausdorff distance.  For k that are whole numerics or integers >= 1, then the k-th highest value is returned by \code{locmeasures2d}.  If 0 <= k < 1, then the corresponding quantile is returned.
 }
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-  \item{model}{numeric indicating which forecast model to select for the analysis.}
+  \item{obs, model}{numeric indicating which forecast model to select for the analysis.}
   \item{\dots}{
 In the case of \code{FQI}, additional arguments to \code{surrogater2d}.  Only used if \code{surr} is NULL.  In the case of \code{UIQI}, additional arguments to \code{ampstats}.  In the case of \code{summary.fqi}, these are not used.
 }
@@ -85,7 +85,7 @@ Eric Gilleland
 \code{\link{locperf}}, \code{\link{surrogater2d}}, \code{\link{locmeasures2d}}
 }
 \examples{
-data(ExampleSpatialVxSet)
+data( "ExampleSpatialVxSet" )
 
 x <- ExampleSpatialVxSet$vx
 xhat <- ExampleSpatialVxSet$fcst
@@ -93,11 +93,14 @@ xhat <- ExampleSpatialVxSet$fcst
 # Now, find surrogates of the simulated field.
 z <- surrogater2d(x, zero.down=TRUE, n=10)
 
-u <- cbind( quantile( c(x), c(0.75, 0.9)),
-            quantile( c(xhat), c(0.75, 0.9)))
-hold <- make.SpatialVx(x, xhat, thresholds=u,
-            field.type="Example", units="none",
-            data.name=c("ExampleSpatialVxSet", "X", "Xhat"))
-FQI(hold, surr=z, k=c(4, 0.75))
+u <- list( X = cbind( quantile( c(x), c(0.75, 0.9)) ),
+            Xhat = cbind( quantile( c(xhat), c(0.75, 0.9) ) ) )
+
+hold <- make.SpatialVx(x, xhat, thresholds = u,
+    field.type = "Example", units = "none",
+    data.name = "ExampleSpatialVxSet", 
+    obs.name = "X", model.name = "Xhat" )
+
+FQI(hold, surr = z, k = c(4, 0.75) )
 }
 \keyword{ math }

@@ -48,8 +48,8 @@ y[c(4:7, 9:10),c(7:9, 11:12)] <- 1
 x[30:50,45:65] <- 1
 y[c(22:24, 99:100),c(50:52, 99:100)] <- 1
 
-hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
-    data.name=c("Example", "x", "y"))
+hold <- make.SpatialVx( x, y, field.type = "contrived", units = "none",
+    data.name = "Example", obs.name = "x", model.name = "y" )
 
 look <- FeatureFinder(hold, smoothpar=0.5)
 

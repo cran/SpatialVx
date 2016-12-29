@@ -20,7 +20,7 @@ CSIsamples(x, ...)
     max.csi.clust = 100, diss.metric = "euclidean", linkage.method = "average", 
     verbose = FALSE)
 
-\method{CSIsamples}{SpatialVx}(x, ..., time.point = 1, model = 1, nbr.csi.samples = 100, 
+\method{CSIsamples}{SpatialVx}(x, ..., time.point = 1, obs = 1, model = 1, nbr.csi.samples = 100, 
     threshold = 20, k = 100, width = 25, stand = TRUE, z.mult = 0, 
     hit.threshold = 0.1, max.csi.clust = 100, diss.metric = "euclidean", 
     linkage.method = "average", verbose = FALSE)
@@ -52,7 +52,7 @@ CSIsamples(x, ...)
   \item{diss.metric}{character giving which \code{method} to use in the call to \code{dist} (which dissimilarity metric should be used?).}
   \item{linkage.method}{character giving the name of a linkage method acceptable to the \code{method} argument from the \code{hclust} function of package \pkg{fastcluster}.}
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-  \item{model}{numeric indicating which forecast model to select for the analysis.}
+  \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
   \item{verbose}{logical, should progress information be printed to the screen?}
   \item{\dots}{
 Not used by \code{CSIsamples} method functions.
@@ -110,14 +110,17 @@ data(UKloc)
 
 hold <- make.SpatialVx(UKobs6, UKfcst6, thresholds=0,
     loc=UKloc, map=TRUE, field.type="Rainfall", units="mm/h",
-    data.name=c("Nimrod", "obs 6", "fcst 6"))
+    data.name = "Nimrod", obs.name = "obs 6", model.name = "fcst 6" )
 
-res <- CSIsamples(hold, threshold=0, k=200, z.mult=0.3, hit.threshold=0.2,
-                  max.csi.clust=150, verbose=TRUE)
-plot(res)
-summary(res)
-y <- summary(res)
-plot(y)
+res <- CSIsamples( hold, threshold = 0, k = 200, z.mult = 0.3, hit.threshold = 0.2,
+                  max.csi.clust = 150, verbose = TRUE)
+plot( res )
+
+summary( res )
+
+y <- summary( res )
+
+plot( y )
 }
 }
 \keyword{ cluster }

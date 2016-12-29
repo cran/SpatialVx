@@ -9,12 +9,13 @@ Neighborhood Verification Statistics for a Gridded Verification Set.
 Calculates most of the various neighborhood verification statistics for a gridded verification set as reviewed in Ebert (2008).
 }
 \usage{
-hoods2d(object, which.methods = c("mincvr", "multi.event", 
-    "fuzzy", "joint", "fss", "pragmatic"), time.point = 1, model = 1, 
-    Pe = NULL, levels = NULL, max.n = NULL, smooth.fun = "hoods2dsmooth", 
-    smooth.params = NULL, verbose = FALSE)
+hoods2d(object, which.methods = c("mincvr", "multi.event",
+                 "fuzzy", "joint", "fss", "pragmatic"), time.point = 1,
+                 obs = 1, model = 1, Pe = NULL, levels = NULL, max.n =
+                 NULL, smooth.fun = "hoods2dsmooth", smooth.params =
+                 NULL, rule = ">=", verbose = FALSE)
 
-\method{plot}{hoods2d}(x, ..., set.pw=FALSE, add.text = FALSE)
+\method{plot}{hoods2d}(x, ..., add.text = FALSE)
 
 \method{print}{hoods2d}(x, ...)
 }
@@ -22,15 +23,15 @@ hoods2d(object, which.methods = c("mincvr", "multi.event",
   \item{object}{list object of class \dQuote{SpatialVx}.}
   \item{which.methods}{character vector giving the names of the methods.  Default is for the entire list to be executed.  See Details section for specific option information.}
   \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-  \item{model}{numeric indicating which forecast model to select for the analysis.}
+  \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
   \item{Pe}{(optional) numeric vector of length q >= 1 to be applied to the fields sPy and possibly sPx (see details section).  If NULL, then it is taken to be the most relaxed requirement (i.e., that an event occurs at least once in a neighborhood) of Pe=1/(nlen^2), where nlen is the length of the neighborhood.}
    \item{levels}{numeric vector giving the successive values of the smoothing parameter.  For example, for the default method, these are the neighborhood lengths over which the levels^2 nearest neighbors are averaged for each point.  Values should make sense for the specific smoothing function.  For example, for the default method, these should be odd integers.}
     \item{max.n}{(optional) single numeric giving the maximum neighborhood length to use.  Only used if levels are NULL.}
     \item{smooth.fun}{character giving the name of a smoothing function to be applied.  Default is an average over the n^2 nearest neighbors, where n is taken to be each value of the \code{levels} argument.}
     \item{smooth.params}{list object containing any optional arguments to \code{smooth.fun}.  Use NULL if none.}
+  \item{rule}{character string giving the threshold rule to be applied.  See help file for \code{thresholder} function for more information.}
   \item{verbose}{logical, should progress information be printed to the screen?  Will also give the amount of time (in hours, minutes, or seconds) that the function took to run.}
   \item{x}{list object output from \code{hoods2d}.}
-  \item{set.pw}{logical or length 2 vector, should the function try to set plot window panels within a device?  Generally, it is better to do this yourself, or use this function in conjunction with something like \code{pdf} to allow each plot to print to a separate page.  If \code{set.pw} is a length 2 vector, then this is the vector that is used in the call to \code{mfrow}.  Note that if \code{mfcol} is desired instead (or some other plot layout), then \code{set.pw} should be set to FALSE (default).}
     \item{add.text}{logical, should the text values of FSS be added to its quilt plot?}
   \item{\dots}{not used.}
 }
@@ -93,26 +94,27 @@ Eric Gilleland
 }
 \note{Thresholded fields are taken to be >= the threshold.}
 
-\seealso{\code{\link{fft}}, \code{\link{kernel2dsmooth}}, \code{\link{plot.hoods2d}}, \code{\link{vxstats}} }
+\seealso{\code{\link{fft}}, \code{\link{kernel2dsmooth}}, \code{\link{plot.hoods2d}}, \code{\link{vxstats}}, \code{\link{thresholder}} }
 
 \examples{
 x <- y <- matrix( 0, 50, 50)
 x[ sample(1:50,10), sample(1:50,10)] <- rexp( 100, 0.25)
 y[ sample(1:50,20), sample(1:50,20)] <- rexp( 400)
-hold <- make.SpatialVx(x, y, thresholds=c(0.1, 0.5), field.type="Random Exp. Var.")
+hold <- make.SpatialVx( x, y, thresholds = c(0.1, 0.5), field.type = "Random Exp. Var." )
 look <- hoods2d( hold, which.methods=c("multi.event", "fss"), levels=c(1, 3, 19))
 look
 plot(look)
 
 \dontrun{
-data(UKobs6)
-data(UKfcst6)
-data(UKloc)
+data( "UKobs6" )
+data( "UKfcst6" )
+data( "UKloc" )
 
-hold <- make.SpatialVx(UKobs6, UKfcst6, thresholds=c(0.01, 20.01),
-    projection=TRUE, map=TRUE, loc=UKloc, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("Nimrod", "Observations 6", "Forecast 6"))
+hold <- make.SpatialVx( UKobs6, UKfcst6, thresholds = c(0.01, 20.01),
+    projection = TRUE, map = TRUE, loc = UKloc, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "mm/h",
+    data.name = "Nimrod", obs.name = "Observations 6",
+    model.name = "Forecast 6" )
 
 hold
 plot(hold)
@@ -122,25 +124,28 @@ look <- hoods2d(hold, which.methods=c("multi.event", "fss"),
     levels=c(1, 3, 5, 9, 17), verbose=TRUE)
 plot(look)
 
-data(geom001)
-data(geom000)
-data(ICPg240Locs)
+data( "geom001" )
+data( "geom000" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
-    projection=TRUE, map=TRUE, loc=ICPg240Locs, loc.byrow = TRUE,
-    field.type="Geometric Objects Pretending to be Precipitation",
-    units="mm/h", data.name=c("ICP Geometric Cases", "geom000", "geom001"))
+hold <- make.SpatialVx( geom000, geom001, thresholds = c(0.01, 50.01),
+    projection = TRUE, map = TRUE, loc = ICPg240Locs, loc.byrow = TRUE,
+    field.type = "Geometric Objects Pretending to be Precipitation",
+    units = "mm/h", data.name = "ICP Geometric Cases", obs.name = "geom000",
+    model.name = "geom001" )
 
 look <- hoods2d(hold, levels=c(1, 3, 9, 17, 33, 65, 129, 257), verbose=TRUE)
 
 plot( look) # Might want to use 'pdf' first.
 
-data(pert004)
-data(pert000)
-hold <- make.SpatialVx(pert000, pert004, thresholds=c(1,10,50),
-    projection=TRUE, map=TRUE, loc=ICPg240Locs, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
+data( "pert004" )
+data( "pert000" )
+
+hold <- make.SpatialVx( pert000, pert004, thresholds = c(1, 10, 50),
+    projection = TRUE, map = TRUE, loc = ICPg240Locs, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "mm/h",
+    data.name = "ICP Perturbed Cases", obs.name = "pert000",
+    model.name = "pert004" )
 
 plot(hold)
 

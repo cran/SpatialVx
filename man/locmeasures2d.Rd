@@ -22,7 +22,7 @@ locmeasures2d(object, which.stats = c("bdelta", "haus", "qdmapdiff",
 \method{locmeasures2d}{SpatialVx}(object, which.stats = c("bdelta", "haus", "qdmapdiff", 
     "med", "msd", "ph", "fom"), distfun = "distmapfun", distfun.params = NULL, 
     k = NULL, alpha = 0.1, bdconst = NULL, p = 2, ..., time.point = 1, 
-    model = 1)
+    obs = 1, model = 1)
 
 \method{print}{locmeasures2d}(x, ...)
 
@@ -51,7 +51,7 @@ numeric vector giving one or more values for the parameter p in Baddeley's delta
     \item{Y}{m X n matrix giving the forecast field.}
     \item{thresholds}{numeric or two-column matrix giving the threshold to be applied to the verification (column one) and forecast (column two) fields.  If a vector, same thresholds are applied to both fields.}
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-  \item{model}{numeric indicating which forecast model to select for the analysis.}
+  \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
   \item{\dots}{
 optional arguments to \code{deltametric} and \code{distmap} from package spatstat.  Not used by the \code{summary} or \code{print} methods here.  }
 }
@@ -115,6 +115,7 @@ Binary fields are determined by having values >= the thresholds.
 x <- y <- matrix(0, 10, 12)
 x[2,3] <- 1
 y[4,7] <- 1
+
 hold <- make.SpatialVx(x, y, thresholds = 0.1,
     field.type = "random", units = "grid squares")
 locmeasures2d(hold, k = 1)
@@ -123,13 +124,16 @@ locmeasures2d(hold, k = 1)
 locmeasures2d(x, thresholds = 0.1, k = 1, Y = y)
 
 \dontrun{
-data(geom000)
-data(geom001)
-data(ICPg240Locs)
-hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.1,50.1), 
-            projection=TRUE, map=TRUE, loc=ICPg240Locs, loc.byrow = TRUE,
-	    field.type="Precipitation", units="in/100",
-            data.name=c("ICP Geometric Cases", "geom000", "geom001"))
+data( "geom000" )
+data( "geom001" )
+data( "ICPg240Locs" )
+
+hold <- make.SpatialVx( geom000, geom001, thresholds = c(0.1, 50.1), 
+    projection = TRUE, map=TRUE, loc = ICPg240Locs, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "in/100",
+    data.name= "ICP Geometric Cases", obs.name = "geom000",
+    model.name = "geom001" )
+
 hold2 <- locmeasures2d(hold, k=c(4, 0.975), alpha=c(0.1,0.9))
 summary(hold2)
 }

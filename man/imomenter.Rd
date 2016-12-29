@@ -64,17 +64,17 @@ look[3:5, 7:8] <- rnorm(6)
 imomenter(look)
 
 \dontrun{
-data(geom000) 
-data(ICPg240Locs)
+data( "geom000" )
+data( "ICPg240Locs" )
 
-imomenter(geom000)
-imomenter(geom000, loc = ICPg240Locs)
+imomenter( geom000 )
+imomenter( geom000, loc = ICPg240Locs )
 
-data(geom004)
+data( "geom004" )
 
-imomenter(geom004)
+imomenter( geom004 )
 
-imomenter(geom004, loc = ICPg240Locs)
+imomenter( geom004, loc = ICPg240Locs )
 }
 
 }

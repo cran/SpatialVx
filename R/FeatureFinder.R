@@ -1,6 +1,6 @@
 FeatureFinder <- function (object, smoothfun = "disk2dsmooth", do.smooth = TRUE, smoothpar = 1, 
     smoothfunargs = NULL, thresh = 1e-08, idfun = "disjointer", min.size = 1, max.size = Inf,
-    fac = 1, zero.down = FALSE, time.point = 1, model = 1, ...) 
+    fac = 1, zero.down = FALSE, time.point = 1, obs = 1, model = 1, ...) 
 
 {
 
@@ -17,10 +17,7 @@ FeatureFinder <- function (object, smoothfun = "disk2dsmooth", do.smooth = TRUE,
 
     a <- attributes(object)
 
-    if ( !missing(time.point) && !missing(model) ) dat = datagrabber( object, time.point = time.point, model = model )
-    else if (!missing(time.point)) dat = datagrabber( object, time.point = time.point )
-    else if (!missing(model)) dat = datagrabber( object, model = model )
-    else dat = datagrabber( object )
+    dat <- datagrabber( object, time.point = time.point, obs = obs, model = model )
 
     X = dat$X
     Y = dat$Xhat
@@ -135,23 +132,8 @@ FeatureFinder <- function (object, smoothfun = "disk2dsmooth", do.smooth = TRUE,
     attr(out, "time.point") <- time.point
     attr(out, "model") <- model
 
-    if (length(a$data.name) == a$nforecast + 2) {
+    attr(out, "data.name") <- c(a$data.name, a$obs.name[ obs ], a$model.name[ model ] )
 
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[1:2]
-
-    } else {
-
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-
-    }
-
-    if (!is.numeric(model)) 
-        model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    attr(out, "data.name") <- c(vxname, dn[model.num])
     attr(out, "call") <- theCall
     class(out) <- "features"
 

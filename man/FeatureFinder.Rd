@@ -15,7 +15,7 @@ Identify spatial features within a verification set using a threshold-based meth
 FeatureFinder(object, smoothfun = "disk2dsmooth", do.smooth = TRUE,
     smoothpar = 1, smoothfunargs = NULL, thresh = 1e-08, idfun = "disjointer",
     min.size = 1, max.size = Inf, fac = 1, zero.down = FALSE, time.point = 1,
-    model = 1, ...)
+    obs = 1, model = 1, ...)
 
 \method{plot}{features}(x, ..., type = c("both", "obs", "model"))
 
@@ -64,8 +64,8 @@ logical, should negative values and relatively very small values be set to zero 
   \item{time.point}{
 numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.
 }
-  \item{model}{
-numeric indicating which forecast model to select for the analysis.
+  \item{obs, model}{
+numeric indicating which observation/forecast model to select for the analysis.
 }
 \item{type}{
 character string stating which features to plot (observed, forecast or both).  If both, a panel of two plots will be made side-by-side.
@@ -143,8 +143,8 @@ y[c(4:7, 9:10),c(7:9, 11:12)] <- 1
 x[30:50,45:65] <- 1
 y[c(22:24, 99:100),c(50:52, 99:100)] <- 1
      
-hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
-         data.name=c("Example", "x", "y"))
+hold <- make.SpatialVx( x, y, field.type = "contrived", units = "none",
+         data.name = "Example", obs.name = "x", model.name = "y" )
      
 look <- FeatureFinder(hold, smoothpar=0.5) 
 
@@ -162,14 +162,15 @@ FeatureTable(look3)
      
 \dontrun{
 
-data("pert000")
-data("pert004")
-data("ICPg240Locs")
+data( "pert000" )
+data( "pert004" )
+data( "ICPg240Locs" )
      
-hold <- make.SpatialVx(pert000, pert004,
-    loc=ICPg240Locs, projection=TRUE, map=TRUE, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
+hold <- make.SpatialVx( pert000, pert004,
+    loc = ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "mm/h",
+    data.name = "ICP Perturbed Cases", obs.name = "pert000",
+    model.name = "pert004" )
      
 look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
 plot(look)

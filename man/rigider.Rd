@@ -141,7 +141,7 @@ tmp
 plot(tmp)
 
 # Rotate a coordinate system.
-data(geom000)
+data( "geom000" )
 
 loc <- cbind(rep(1:601, 501), rep(1:501, each = 601))
 
@@ -185,11 +185,11 @@ plot(tmp)
 ## Geometric cases.
 ##
 
-data(geom001)
-data(geom002)
-data(geom003)
-data(geom004)
-data(geom005)
+data( "geom001" )
+data( "geom002" )
+data( "geom003" )
+data( "geom004" )
+data( "geom005" )
 
 
 tmp <- rigider(x1 = geom001, x0 = geom000, p0 = loc, verbose = TRUE)
@@ -214,6 +214,8 @@ tmp <- rigider(x1 = geom004, x0 = geom000, p0 = loc, rotate = TRUE,
     verbose = TRUE)
 tmp
 plot(tmp)
+# Ok, maybe need to give it better starting values?  Or, run it again
+# with just the translation.
 
 tmp <- rigider(x1 = geom005, x0 = geom000, p0 = loc, verbose = TRUE)
 tmp

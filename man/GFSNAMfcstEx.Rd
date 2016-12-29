@@ -35,9 +35,9 @@ Note that the available spatial locations are a subset of the original 70 X 100 
 }
 
 \examples{
-data(GFSNAMfcstEx)
-data(GFSNAMobsEx)
-data(GFSNAMlocEx)
+data( "GFSNAMfcstEx" )
+data( "GFSNAMobsEx" )
+data( "GFSNAMlocEx" )
 
 x <- colMeans(GFSNAMfcstEx, na.rm=TRUE)
 y <- colMeans(GFSNAMobsEx, na.rm=TRUE)

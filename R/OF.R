@@ -2,15 +2,12 @@ OF <- function(x, ...) {
     UseMethod("OF", x)
 } # end of 'OF' function.
 
-OF.SpatialVx <- function(x, ..., time.point=1, model=1, W=5, grads.diff=1, center=TRUE, cutoffpar=4, verbose=FALSE) {
+OF.SpatialVx <- function(x, ..., time.point=1, obs = 1, model=1, W=5, grads.diff=1, center=TRUE, cutoffpar=4, verbose=FALSE) {
 
     a <- attributes(x)
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(x, model=model)
-    else dat <- datagrabber(x)
+    dat <- datagrabber(x, time.point=time.point, obs = obs, model=model)
    
     X <- dat$X
     Xhat <- dat$Xhat
@@ -18,21 +15,12 @@ OF.SpatialVx <- function(x, ..., time.point=1, model=1, W=5, grads.diff=1, cente
 
     out <- OF.default(x=X, xhat=Xhat, W=W, grads.diff=grads.diff, center=center, verbose=verbose)
 
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
     attr(out, "time.point") <- time.point
+    attr( out, "obs" ) <- obs
     attr(out, "model") <- model
 
     attr(out, "msg") <- a$msg
-    attr(out, "data.name") <- c(vxname, dn[model.num])
+    attr(out, "data.name") <- c(a$obs.name[ obs ], a$model.name[ model ])
 
     attr(out, "map") <- a$map
     attr(out, "projection") <- a$projection

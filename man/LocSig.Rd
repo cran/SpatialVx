@@ -62,13 +62,17 @@ Eric Gilleland
 }
 \examples{
 \dontrun{
-data(GFSNAMfcstEx)
-data(GFSNAMobsEx)
-data(GFSNAMlocEx)
+data( "GFSNAMfcstEx" )
+data( "GFSNAMobsEx" )
+data( "GFSNAMlocEx" )
+
 id <- GFSNAMlocEx[,"Lon"] >=-90 & GFSNAMlocEx[,"Lon"] <= -75 & GFSNAMlocEx[,"Lat"] <= 40
+
 look <- LocSig(GFSNAMfcstEx[,id] - GFSNAMobsEx[,id], numrep=500)
+
 stats(look)
-plot(look, loc=GFSNAMlocEx[id,])
+
+plot(look, loc = GFSNAMlocEx[ id, ] )
 }
 }
 \keyword{ distribution }

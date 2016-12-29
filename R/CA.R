@@ -2,7 +2,7 @@ clusterer <- function(X, Y=NULL, ...) {
     UseMethod("clusterer", X)
 } # end of 'clusterer' function.
 
-clusterer.SpatialVx <- function(X, Y=NULL, ..., time.point=1, model=1, xyp=TRUE, threshold=1e-8,
+clusterer.SpatialVx <- function(X, Y=NULL, ..., time.point = 1, obs = 1, model = 1, xyp = TRUE, threshold = 1e-8,
     linkage.method="complete", stand=TRUE, trans="identity", verbose=FALSE) {
 
     if(!missing(Y) && !is.null(Y)) warning("clusterer.SpatialVx: Y argument is ignored.")
@@ -10,10 +10,7 @@ clusterer.SpatialVx <- function(X, Y=NULL, ..., time.point=1, model=1, xyp=TRUE,
     a <- attributes(X)
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(X, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(X, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(X, model=model)
-    else dat <- datagrabber(X)
+    dat <- datagrabber(X, time.point = time.point, obs = obs, model = model)
 
     X <- dat$X
     Xhat <- dat$Xhat
@@ -25,19 +22,10 @@ clusterer.SpatialVx <- function(X, Y=NULL, ..., time.point=1, model=1, xyp=TRUE,
     attr(out, "time.point") <- time.point
     attr(out, "model") <- model
 
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[1:2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    attr(out, "data.name") <- c(vxname, dn[model.num])
+    attr(out, "data.name") <- c(a$data.name, a$obs.name[ obs ], a$model.name[ model ] )
 
     return(out)
+
 } # end of 'clusterer.SpatialVx' function.
 
 clusterer.default <- function(X, Y=NULL, ..., xloc=NULL, xyp=TRUE, threshold=1e-8, linkage.method="complete",
@@ -318,16 +306,17 @@ summary.clusterer <- function(object, ...) {
    invisible(out)
 } # end of 'summary.clusterer' function.
 
-plot.clusterer <- function(x, ..., set.pw=FALSE, icol=c("gray", tim.colors(64)), horizontal=FALSE) {
+plot.clusterer <- function(x, ..., mfrow = c(1, 2), col=c("gray", tim.colors(64)), horizontal=FALSE) {
 
     a <- attributes(x)
     loc.byrow <- a$loc.byrow
 
-    if(!is.logical(set.pw)) {
-	if(!is.numeric(set.pw) || length(set.pw) != 2) stop("plot.clusterer: invalid set.pw argument.")
-	par(mfrow=set.pw, oma=c(0,0,2,0))
-    } else if(set.pw)  par(mfrow=c(4,2), mar=c(4.1,4.1,4.1,4.1), oma=c(0,0,2,0))
-    else if(!is.null(a$msg)) par(oma=c(0,0,2,0))
+    if( !is.null( mfrow ) ) {
+
+	op <- par()
+	par( mfrow = mfrow, oma = c(0, 0, 2, 0) )
+
+    }
 
     X <- x$data$X
     Y <- x$data$Xhat
@@ -367,28 +356,28 @@ plot.clusterer <- function(x, ..., set.pw=FALSE, icol=c("gray", tim.colors(64)),
 	    map(xlim=locr[,1], ylim=locr[,2], type="n")
 	    axis(1, at=ax$x, labels=ax$x)
 	    axis(2, at=ax$y, labels=ax$y)
-	    poly.image(loc$x, loc$y, X, add=TRUE, col=icol, zlim=zl, main=mainX)
+	    poly.image(loc$x, loc$y, X, add=TRUE, col=col, zlim=zl, main=mainX)
 	    map(add=TRUE, lwd=1.5)
 	    map(add=TRUE, database="state")
 
 	    map(xlim=locr[,1], ylim=locr[,2], type="n")
 	    axis(1, at=ax$x, labels=ax$x)
 	    axis(2, at=ax$y, labels=ax$y)
-	    poly.image(loc$x, loc$y, Y, add=TRUE, col=icol, zlim=zl, main=mainY)
+	    poly.image(loc$x, loc$y, Y, add=TRUE, col=col, zlim=zl, main=mainY)
 	    map(add=TRUE, lwd=1.5)
             map(add=TRUE, database="state")
 	} else {
 	    map(xlim=locr[,1], ylim=locr[,2], type="n")
 	    axis(1, at=ax$x, labels=ax$x)
 	    axis(2, at=ax$y, labels=ax$y)
-	    image(as.image(X, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE), add=TRUE, col=icol, zlim=zl, main=mainX)
+	    image(as.image(X, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE), add=TRUE, col=col, zlim=zl, main=mainX)
 	    map(add=TRUE, lwd=1.5)
             map(add=TRUE, database="state")
 
 	    map(xlim=locr[,1], ylim=locr[,2], type="n")
 	    axis(1, at=ax$x, labels=ax$x)
 	    axis(2, at=ax$y, labels=ax$y)
-            image(as.image(Y, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE), add=TRUE, col=icol, zlim=zl, main=mainY)
+            image(as.image(Y, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE), add=TRUE, col=col, zlim=zl, main=mainY)
             map(add=TRUE, lwd=1.5)
             map(add=TRUE, database="state")
 	}
@@ -396,33 +385,43 @@ plot.clusterer <- function(x, ..., set.pw=FALSE, icol=c("gray", tim.colors(64)),
     } else {
 	if(proj) {
 
-	    poly.image(loc$x, loc$y, X, col=icol, zlim=zl, main=mainX)
-	    poly.image(loc$x, loc$y, Y, col=icol, zlim=zl, main=mainY)
+	    poly.image(loc$x, loc$y, X, col=col, zlim=zl, main=mainX)
+	    poly.image(loc$x, loc$y, Y, col=col, zlim=zl, main=mainY)
 
 	} else {
 
-	    image(X, col=icol, zlim=zl, main=mainX)
-      	    image(Y, col=icol, zlim=zl, main=mainY)
+	    image(X, col=col, zlim=zl, main=mainX)
+      	    image(Y, col=col, zlim=zl, main=mainY)
 
 	}
     } # end of if else 'domap' stmts.  
-   image.plot(Y, col=icol, zlim=zl, legend.only=TRUE, horizontal=horizontal)
+   image.plot(Y, col=col, zlim=zl, legend.only=TRUE, horizontal=horizontal)
 
    plot(x$cluster.objects$X, xlab="")
    plot(x$cluster.objects$Y, xlab="")
    hist(x$min.intercluster.dists, col="darkblue", xlab="Minimum inter-cluster distances \n(between fields)", breaks="FD", main="")
    args <- list(...)
-   if(is.null(args$silent)) res <- summary(x,silent=TRUE,...) 
-   else res <- summary(x, ...)
+   if(is.null(args$silent)) res <- summary( x, silent = TRUE, ... ) 
+   else res <- summary( x, ... )
+
    res$par.set <- TRUE
    plot(res)
 
-    if(!is.null(a$msg)) {
-	title("")
-	mtext(a$msg, line=0.05, outer=TRUE)
-    }
+    if( !is.null( mfrow ) ) {
+
+        if(!is.null(a$msg)) {
+
+	    title("")
+	    mtext( a$msg, line = 0.05, outer = TRUE)
+
+        }
+
+	par( mfrow = op$mfrow, oma = op$oma )
+
+    } # end of if 'mfrow' not null stmt.
 
    invisible()
+
 } # end of 'plot.clusterer' function.
 
 plot.summary.clusterer <- function(x, ...) {
@@ -464,7 +463,7 @@ CSIsamples <- function(x, ...) {
     UseMethod("CSIsamples", x)
 } # end of 'CSIsamples' function.
 
-CSIsamples.SpatialVx <- function(x, ..., time.point=1, model=1, nbr.csi.samples = 100,
+CSIsamples.SpatialVx <- function(x, ..., time.point=1, obs = 1, model=1, nbr.csi.samples = 100,
                    threshold = 20, k = 100, width = 25, stand=TRUE,
                    z.mult = 0, hit.threshold = 0.1, max.csi.clust = 100,
                    diss.metric="euclidean", linkage.method="average", verbose=FALSE) {
@@ -473,10 +472,7 @@ CSIsamples.SpatialVx <- function(x, ..., time.point=1, model=1, nbr.csi.samples 
     TheCall <- match.call()
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(x, model=model)
-    else dat <- datagrabber(x)
+    dat <- datagrabber(x, time.point = time.point, obs = obs, model = model)
 
     X <- dat$X
     Xhat <- dat$Xhat
@@ -491,22 +487,14 @@ CSIsamples.SpatialVx <- function(x, ..., time.point=1, model=1, nbr.csi.samples 
     attr(out, "time.point") <- time.point
     attr(out, "model") <- model
 
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[1:2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    attr(out, "data.name") <- c(vxname, dn[model.num])
+    attr(out, "data.name") <- c(a$data.name, a$obs.name[ obs ], a$model.name[ model ] )
 
     attr(out, "xdim") <- a$xdim
     attr(out, "msg") <- a$msg
     out$call <- TheCall
-    return(out)
+
+    return( out )
+
 } # end of 'CSIsamples.SpatialVx' function.
 
 CSIsamples.default <- function(x, ..., xhat, nbr.csi.samples = 100,
@@ -640,10 +628,13 @@ CSIsamples.default <- function(x, ..., xhat, nbr.csi.samples = 100,
   names(results) <- paste("sample", 1:nbr.csi.samples, sep = "")
   out$results <- results
   class(out) <- "CSIsamples"
+
   return(out)
+
 } # end of 'CSIsamples.default' function.
 
 summary.CSIsamples <- function(object, ...) {
+
    out <- object
    args <- list(...)
    if(is.null(args$silent)) silent <- FALSE

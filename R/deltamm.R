@@ -2,6 +2,10 @@ deltamm <- function(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...
 
     if(verbose) begin.tiid <- Sys.time()
 
+    if( is.null( x$X.feats ) && is.null( x$Y.feats ) ) stop( "deltamm: no features to merge/match!" )
+    if( is.null( x$X.feats ) ) stop( "deltamm: no verification features present." )
+    if( is.null( x$Y.feats ) ) stop( "deltamm: no model features present." )
+
     out <- x
     a <- attributes(x)
 

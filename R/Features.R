@@ -884,7 +884,11 @@ print.matched <- function(x, ...) {
 centmatch <- function(x, criteria = 1, const = 14, distfun = "rdist", areafac = 1,
     verbose = FALSE, ...) {
 
-    if(class(x) != "features") stop("centmatch: invalid object, x or y type.")
+    if( class(x) != "features" ) stop( "centmatch: invalid object, x or y type." )
+
+    if( is.null( x$X.feats ) && is.null( x$Y.feats ) ) stop( "centmatch: no features to match!" )
+    if( is.null( x$X.feats ) ) stop( "centmatch: no features in verification field to match." )
+    if( is.null( x$Y.feats ) ) stop( "centmatch: no features in model field to match." )
 
     out <- x
 
@@ -897,7 +901,7 @@ centmatch <- function(x, criteria = 1, const = 14, distfun = "rdist", areafac = 
 
     a <- attributes(x)
 
-    if(distfun == "rdist.earth") {
+    if( distfun == "rdist.earth" ) {
 
 	loc <- a$loc
 	if(is.null(loc)) warning("Using rdist.earth, but lon/lat coords are not available. Can pass them as an attribute to x called loc.")

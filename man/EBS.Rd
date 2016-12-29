@@ -12,7 +12,7 @@ EBS(object, model = 1, block.length = NULL, alpha.boot = 0.05,
     field.sig = 0.05, bootR = 1000, ntrials = 1000,
     verbose = FALSE)
 
-\method{plot}{EBS}(x, ..., set.pw = FALSE, col, horizontal)
+\method{plot}{EBS}(x, ..., mfrow = c(1, 2), col, horizontal)
 }
 \arguments{
   \item{object}{ list object of class \dQuote{SpatialVx}.
@@ -36,7 +36,7 @@ numeric integer giving the number of bootstrap replications to use.
   \item{ntrials}{
 numeric integer giving the number of Monte Carol iterations to use.
 }
-    \item{set.pw}{logical, should the plotting panels be set by the function?}
+    \item{mfrow}{mfrow parameter (see help file for \code{par}).  If NULL, then the parameter is not re-set.  }
     \item{col, horizontal}{optional arguments to \code{image.plot} from \pkg{fields}.}
   \item{verbose}{
 logical, should progress information be printed to the screen?
@@ -62,9 +62,9 @@ Eric Gilleland
 \code{\link{boot}}, \code{\link{tsboot}}, \code{\link{spatbiasFS}}, \code{\link{LocSig}}, \code{\link{poly.image}}, \code{\link{image.plot}}, \code{\link{make.SpatialVx}}
 }
 \examples{
-data(GFSNAMfcstEx)
-data(GFSNAMobsEx)
-data(GFSNAMlocEx)
+data( "GFSNAMfcstEx" )
+data( "GFSNAMobsEx" )
+data( "GFSNAMlocEx" )
 
 id <- GFSNAMlocEx[,"Lon"] >=-95
 id <- id & GFSNAMlocEx[,"Lon"] <= -75
@@ -85,22 +85,22 @@ Mod <- array(t(Fcst), dim=c(49, 48, 361))
 hold <- make.SpatialVx(Ref, Mod, loc=GFSNAMlocEx,
     projection=TRUE, map=TRUE, loc.byrow = TRUE, subset=id,
     field.type="Precipitation", units="mm",
-    data.name=c("GFS/NAM", "Reference", "Model"))
+    data.name = "GFS/NAM", obs.name = "Reference", model.name = "Model" )
 
 look <- EBS(hold, bootR=500, ntrials=500, verbose=TRUE)
-plot(look, set.pw=TRUE)
+plot( look )
 
 \dontrun{
 # Same as above, but now we'll do it for all points.
 # A little slower, but not terribly bad.
 
-hold <- make.SpatialVx(Ref, Mod, loc=GFSNAMlocEx,
-    projection=TRUE, map=TRUE, loc.byrow = TRUE,
-    field.type="Precipitation", reg.grid=FALSE, units="mm",
-    data.name=c("GFS/NAM", "Reference", "Model"))
+hold <- make.SpatialVx(Ref, Mod, loc = GFSNAMlocEx,
+    projection = TRUE, map = TRUE, loc.byrow = TRUE,
+    field.type = "Precipitation", reg.grid = FALSE, units = "mm",
+    data.name = "GFS/NAM", obs.name = "Reference", model.name = "Model" )
 
 look <- EBS(hold, bootR=500, ntrials=500, verbose=TRUE)
-plot(look, set.pw=TRUE)
+plot( look )
 }
 }
 \keyword{ htest }

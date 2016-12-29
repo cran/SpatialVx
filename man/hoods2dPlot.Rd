@@ -24,19 +24,25 @@ Becker, R. A., Chambers, J. M. and Wilks, A. R. (1988) \emph{The New S Language}
 x <- y <- matrix( 0, 50, 50)
 x[ sample(1:50,10), sample(1:50,10)] <- rexp( 100, 0.25)
 y[ sample(1:50,20), sample(1:50,20)] <- rexp( 400)
+
 hold <- make.SpatialVx(x, y, thresholds=c(0.1, 0.5), field.type="random")
+
 look <- hoods2d(hold, which.methods=c("multi.event", "fss"),
     levels=c(1, 3, 20))
+
 hoods2dPlot( look$multi.event$hk, args=hold,
     main="Hanssen Kuipers Score (Multi-Event Cont. Table)")
 \dontrun{
-data(geom001)
-data(geom000)
-data(ICPg240Locs)
-hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
-    loc=ICPg240Locs, projection=TRUE, map=TRUE, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("Geometric ICP Test Cases", "geom000", "geom001"))
+data( "geom001" )
+data( "geom000" )
+data( "ICPg240Locs" )
+
+hold <- make.SpatialVx( geom000, geom001, thresholds = c(0.01, 50.01),
+    loc = ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "mm/h",
+    data.name = "Geometric ICP Test Cases", obs.name = "geom000",
+    model.name = "geom001" )
+
 look <- hoods2d(hold, levels=c(1, 3, 5, 17, 33, 65), verbose=TRUE)
 par(mfrow=c(1,2))
 hoods2dPlot(look$pragmatic$bss, args=attributes(hold))

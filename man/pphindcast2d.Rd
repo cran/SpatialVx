@@ -10,12 +10,12 @@ Function to perform the practically perfect hindcast neighborhood verification m
 optimal threhsold, Pthresh, and calculates the desired statistic for that threshold.
 }
 \usage{
-pphindcast2d(object, which.score = "ets", time.point = 1, model =
-                 1, levels = NULL, max.n = NULL, smooth.fun =
-                 "hoods2dsmooth", smooth.params = NULL, verbose =
-                 FALSE, ...)
+pphindcast2d(object, which.score = "ets", time.point = 1, obs = 1,
+                 model = 1, levels = NULL, max.n = NULL, smooth.fun =
+                 "hoods2dsmooth", smooth.params = NULL, rule = ">=",
+                 verbose = FALSE, ...)
 
-\method{plot}{pphindcast2d}(x, ..., set.pw = FALSE,
+\method{plot}{pphindcast2d}(x, ..., mfrow = NULL,
     type = c("quilt", "line"), 
     col = heat.colors(12), horizontal = FALSE)
 
@@ -29,16 +29,17 @@ A list object returned by the \code{make.SpatialVx} function.
 character stating which verification score is to be used.  Must be one that is accepted by \code{vxstats}.
 }
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-  \item{model}{numeric indicating which forecast model to select for the analysis.}
+  \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
    \item{levels}{numeric vector giving the successive values of the smoothing parameter.  For example, for the default method, these are the neighborhood lengths over which the levels^2 nearest neighbors are averaged for each point.  Values should make sense for the specific smoothing function.  For example, for the default method, these should be odd integers.}
     \item{max.n}{(optional) single numeric giving the maximum neighborhood length to use.  Only used if levels are NULL.}
     \item{smooth.fun}{character giving the name of a smoothing function to be applied.  Default is an average over the n^2 nearest neighbors, where n is taken to be each value of the \code{levels} argument.} 
     \item{smooth.params}{list object containing any optional arguments to \code{smooth.fun}.  Use NULL if none.}
+   \item{rule}{character string giving the threshold rule to be applied.  See help file for \code{thresholder} function for more information.}
   \item{verbose}{
 logical, should progress information be printed to the screen?
 }
   \item{x}{An object of class \dQuote{pphindcast2d} as returned by the self-same function.}
-  \item{set.pw}{logical, should plotting panels be set by the function?}
+    \item{mfrow}{ mfrow parameter (see help file for \code{par}).  If NULL, then the parameter is not re-set. }
   \item{type}{character specifying whether two quilt plots (one for the score and one for Pthresh) should be made, or one line plot incorporating both the score and the Pthresh values; the latter's values being displayed on the right axis.}
   \item{col, horizontal}{arguments used in the calls by \code{image} and \code{image.plot}.}
   \item{\dots}{
@@ -79,28 +80,28 @@ Eric Gilleland
 x <- y <- matrix( 0, 50, 50)
 x[ sample(1:50,10), sample(1:50,10)] <- rexp( 100, 0.25)
 y[ sample(1:50,20), sample(1:50,20)] <- rexp( 400)
-hold <- make.SpatialVx(x, y, thresholds=c(0.1, 0.5),
-    field.type="random")
+
+hold <- make.SpatialVx( x, y, thresholds=c(0.1, 0.5), field.type = "random")
 look <- pphindcast2d(hold, levels=c(1, 3))
 look
 \dontrun{
-data(geom001)
-data(geom000)
-data(ICPg240Locs)
+data( "geom001" )
+data( "geom000" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
-    loc=ICPg240Locs, projection=TRUE, map=TRUE, loc.byrow = TRUE,
-    data.name=c("Geometric", "geom000", "geom001"),
-    field.type="Precipitation", units="mm/h")
+hold <- make.SpatialVx( geom000, geom001, thresholds = c(0.01, 50.01),
+    loc = ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
+    data.name = "Geometric", obs.name = "geom000", model.name = "geom001",
+    field.type = "Precipitation", units = "mm/h")
 
 look <- pphindcast2d( hold, levels=c(1, 3, 65), verbose=TRUE)
 
-plot(look, set.pw=TRUE)
-plot(look, set.pw=TRUE, type="line")
+plot(look, mfrow = c(1, 2) )
+plot(look, mfrow = c(1, 2), type = "line")
 
 # Alternatively:
-par(mfrow=c(1,2))
-hoods2dPlot( look$values, args=attributes(look),
+par( mfrow = c(1, 2) )
+hoods2dPlot( look$values, args = attributes( look ),
     main="Gilbert Skill Score")
 }
 }

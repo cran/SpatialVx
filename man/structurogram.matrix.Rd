@@ -60,7 +60,7 @@ Eric Gilleland
 \code{\link{vgram.matrix}}, \code{\link{vgram}}, \code{\link{structurogram}}, \code{\link{plot.vgram.matrix}}
 }
 \examples{
-data(lennon)
+data( "lennon" )
 look <- structurogram.matrix(lennon, q=2)
 plot(look)
 # Compare the above with

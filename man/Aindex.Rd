@@ -14,7 +14,7 @@ Aindex(x, thresh = NULL, dx = 1, dy = 1, ...)
 \method{Aindex}{default}(x, thresh = NULL, dx = 1, dy = 1, ...)
 
 \method{Aindex}{SpatialVx}(x, thresh = NULL, dx = 1, dy = 1, ...,
-    time.point=1, model=1)
+    time.point=1, obs = 1, model=1)
 }
 \arguments{
     \item{x}{
@@ -29,7 +29,7 @@ Values under this threshold are set to zero.  If NULL, it will be set to 1e-8 (a
 numeric giving the grid point size in each direction if it is desired to apply such a correction.  However, the values are simply canceled out in the index, so these arguments are probably not necessary.  If it is desired to only get the area of the non-zero values in the field, or the convex hull, then these make sense.
 }
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-    \item{model}{numeric indicating which forecast model to select for the analysis.}
+    \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
     \item{\dots}{Not used.}
 }
 \details{
@@ -57,24 +57,27 @@ Eric Gilleland
 }
 \examples{
 # Gemetric shape that is highly structured.
-data(geom000)
-Aindex(geom000)
-Aindex(geom000, dx=4, dy=4)
+data( "geom000" )
+
+Aindex( geom000 )
+Aindex( geom000, dx = 4, dy = 4 )
 
 \dontrun{
 # Two separate areas with highly structured shapes, but far away from each other.
-data(pert000)
-data(pert006)
-data(ICPg240Locs)
+data( "pert000" )
+data( "pert006" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx(pert000, pert006, loc=ICPg240Locs,
-    projection=TRUE, map=TRUE, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("ICP Perturbed Cases", "pert000", "pert006"))
+hold <- make.SpatialVx(pert000, pert006, loc = ICPg240Locs,
+    projection = TRUE, map = TRUE, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "mm/h",
+    data.name = "ICP Perturbed Cases", obs.name = "pert000",
+    model.name = "pert006" )
 
-plot(hold, set.pw=TRUE)
+plot( hold )
 
-Aindex(hold, thresh=20, dx=4, dy=4)
+Aindex( hold, thresh = 20, dx = 4, dy = 4 )
+
 }
 }
 \keyword{ math }

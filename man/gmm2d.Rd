@@ -18,7 +18,7 @@ gmm2d(x, ...)
 \method{gmm2d}{default}(x, ..., xhat, K = 3, gamma = 1, threshold = NULL,
     initFUN = "initGMM", verbose = FALSE)
 
-\method{gmm2d}{SpatialVx}(x, ..., time.point = 1, model = 1, K = 3, gamma = 1, 
+\method{gmm2d}{SpatialVx}(x, ..., time.point = 1, obs = 1, model = 1, K = 3, gamma = 1,
     threshold = NULL, initFUN = "initGMM", verbose = FALSE)
 
 \method{plot}{gmm2d}(x, ..., col = c("gray", tim.colors(64)),
@@ -57,7 +57,7 @@ character naming a function to provide initial estimates for the GMM.  Must take
 logical, should progress information be printed to the screen?
 }
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-    \item{model}{numeric indicating which forecast model to select for the analysis.}
+    \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
 	\item{col, zlim, horizontal}{optional arguments to \pkg{fields} function(s) \code{poly.image}, \code{image.plot}.}
   \item{\dots}{
 In the case of \code{gmm2d}: optional arguments to \code{initFUN}.  In the case of \code{plot}: not used.  In the case of \code{predict}: N by 2 matrix of grid point locations on which to predict the probability from the 2-d GMM model.  In the case of \code{summary}: this can include the arguments: \code{silent}, logical stating whether to print summaries to the screen (FALSE) or not (TURE), \code{e1}, \code{e2}, ..., \code{e5}, giving alternative weights in calculating the overall error (Eq 15 in Lakshmanan and Kain, 2010, but see details section below).
@@ -130,7 +130,7 @@ Eric Gilleland
 }
 \examples{
 \dontrun{
-data(ExampleSpatialVxSet)
+data( "ExampleSpatialVxSet" )
 
 x <- ExampleSpatialVxSet$vx
 xhat <- ExampleSpatialVxSet$fcst
@@ -144,21 +144,23 @@ plot(look)
 }
 \dontrun{
 # Alternative method to skin the cat.
-hold <- make.SpatialVx(x, xhat, field.type="MV Gaussian w/ Exp. Cov.",
-    units="units", data.name=c("Example", "x", "xhat"))
+hold <- make.SpatialVx( x, xhat, field.type = "MV Gaussian w/ Exp. Cov.",
+    units = "units", data.name = "Example", obs.name = "x",
+    model.name = "xhat" )
 
-look2 <- gmm2d(hold, threshold=u, verbose=TRUE)
+look2 <- gmm2d( hold, threshold = u, verbose = TRUE)
 summary(look2)
 plot(look2)
 
-data(pert000)
-data(pert004)
-data(ICPg240Locs)
+data( "pert000" )
+data( "pert004" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
-    map=TRUE, projection=TRUE, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
+hold <- make.SpatialVx( pert000, pert004, loc = ICPg240Locs,
+    map = TRUE, projection = TRUE, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "mm/h",
+    data.name = "ICP Perturbed Cases", obs.name = "pert000",
+    model.name = "pert004" )
 
 look <- gmm2d(hold, threshold=10, verbose=TRUE)
 plot(look) # This will take a long time!

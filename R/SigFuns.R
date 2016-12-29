@@ -179,13 +179,15 @@ plot.LocSig <- function(x, loc=NULL, nx=NULL, ny=NULL, ...){
   invisible(output)
 }
 
-plot.EBS <- function(x, ..., set.pw=FALSE, col, horizontal) {
+plot.EBS <- function(x, ..., mfrow = c(1, 2), col, horizontal) {
 
     if(missing(col)) col <- c("gray", tim.colors(64))
     if(missing(horizontal)) horizontal <- TRUE
 
-    if(set.pw) par(mfrow=c(1,2), oma=c(0,0,2,0))
-    else par(oma=c(0,0,2,0))
+    op <- par()
+
+    if( !is.null( mfrow ) ) par( mfrow = mfrow, oma = c(0, 0, 2, 0) )
+    else par( oma = c(0, 0, 2, 0) )
 
     Zest <- x$block.boot.results$Estimate
     ZciR <- x$block.boot.results$Upper - x$block.boot.results$Lower
@@ -259,7 +261,10 @@ plot.EBS <- function(x, ..., set.pw=FALSE, col, horizontal) {
     else if(a$units != "") msg <- paste(msg, "\n(", a$units, ")", sep="")
     mtext(msg, line=0.05, outer=TRUE)
 
+    par( mfrow = op$mfrow, oma = op$oma )
+
     invisible()
+
 } # end of 'plot.EBS' function.
 
 inside <- function(DF)

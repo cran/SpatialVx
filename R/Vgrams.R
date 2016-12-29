@@ -1,4 +1,4 @@
-griddedVgram <- function(object, zero.in=TRUE, zero.out=TRUE, time.point=1, model=1, ...) {
+griddedVgram <- function(object, zero.in=TRUE, zero.out=TRUE, time.point=1, obs = 1, model=1, ...) {
 
     a <- attributes(object)
     out <- list()
@@ -6,10 +6,7 @@ griddedVgram <- function(object, zero.in=TRUE, zero.out=TRUE, time.point=1, mode
     attributes(out) <- a
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(object, model=model)
-    else dat <- datagrabber(object)
+    dat <- datagrabber(object, time.point=time.point, obs = obs, model=model)
 
     X <- dat$X
     Y <- dat$Xhat
@@ -38,35 +35,24 @@ griddedVgram <- function(object, zero.in=TRUE, zero.out=TRUE, time.point=1, mode
     }
 
     attr(out, "time.point") <- time.point
+    attr(out, "obs") <- obs
     attr(out, "model") <- model
 
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[1:2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    attr(out, "data.name") <- c(vxname, dn[model.num])
+    attr(out, "obs.name") <- a$obs.name[ obs ]
+    attr(out, "model.name") <- a$model.name[ model ]
 
     class(out) <- "griddedVgram"
+
     return(out)
+
 } # end of 'griddedVgram' function.
 
-plot.griddedVgram <- function(x, ..., set.pw=FALSE) {
+plot.griddedVgram <- function( x, ... ) {
 
     a <- attributes(x)
 
-    if(length(a$data.name) == 3) {
-	mainX <- a$data.name[2]
-        mainY <- a$data.name[3]
-    } else {
-        mainX <- a$data.name[1]
-        mainY <- a$data.name[2]
-    }
+    mainX <- a$obs.name
+    mainY <- a$model.name
 
    if(x$zero.in) {
       vgX <- x$Vx.vgram.matrix[[1]]
@@ -78,19 +64,12 @@ plot.griddedVgram <- function(x, ..., set.pw=FALSE) {
       vgY.zero <- x$Fcst.vgram.matrix[[2]]
    }
 
-    if(!is.logical(set.pw) && !is.numeric(set.pw)) stop("plot.griddedVgram: invalid set.pw argument.")
-    else if(!is.logical(set.pw) && is.numeric(set.pw)) {
+    if( !is.null( a$msg ) ) {
 
-	if(length(set.pw) != 2) stop("plot.griddedVgram: invalid set.pw argument.")
-	par(mfrow=set.pw, oma=c(0,0,2,0))
+        op <- par()
+        par( oma = c(0, 0, 2, 0) )
 
-    } else if(set.pw) {
-
-	if(((x$zero.in) && !(x$zero.out)) || (!(x$zero.in) & (x$zero.out))) {
-	    par(mfrow=c(2,2), mar=rep(4.1,4), oma=c(0,0,2,0))
-	} else if(x$zero.in && x$zero.out) par(mfrow=c(4,2), mar=rep(4.1,4), oma=c(0,0,2,0))
-
-    } else par(oma=c(0,0,2,0))
+    }
 
    if(x$zero.in) {
 
@@ -121,11 +100,16 @@ plot.griddedVgram <- function(x, ..., set.pw=FALSE) {
    }
 
     if(!is.null(a$msg)) {
+
 	title("")
 	mtext(a$msg, line=0.05, outer=TRUE)
+
+	par( oma = op$oma )
+
     }
 
    invisible()
+
 } # end of 'plot.griddedVgram' function.
 
 corrskill <- function(x,y,...) {
@@ -174,7 +158,7 @@ lossdiff <- function(x, ...) {
 
 } # end of 'lossdiff' function.
 
-lossdiff.SpatialVx <- function(x, ..., time.point = 1, model = c(1,2), threshold = NULL,
+lossdiff.SpatialVx <- function(x, ..., time.point = 1, obs = 1, model = c(1,2), threshold = NULL,
     lossfun = "corrskill", zero.out = FALSE) {
 
     theCall <- match.call()
@@ -186,35 +170,22 @@ lossdiff.SpatialVx <- function(x, ..., time.point = 1, model = c(1,2), threshold
     # if( is.null( maxrad ) || is.na( maxrad ) || !is.finite( maxrad ) || !is.numeric( maxrad ) ) maxrad <- 20
 
     ## Begin: Get the data sets
-    if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point, model=model[1])
-    else dat <- datagrabber(x, model=model[1])
-   
-    X <- dat$X
+    dat <- datagrabber(x, time.point=time.point, obs = obs, model=model[1])
+   X <- dat$X
     Xhat <- dat$Xhat
 
-    if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point, model=model[2])
-    else dat <- datagrabber(x, model=model[2])
-
+    dat <- datagrabber(x, time.point=time.point, obs = obs, model=model[2])
     Xhat2 <- dat$Xhat
     ## End: Get the data sets
 
     out <- lossdiff.default(x = X, ..., xhat1 = Xhat, xhat2 = Xhat2, threshold = threshold, lossfun = lossfun, 
 			    loc = a$loc, zero.out = zero.out)
 
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    out$data.name <- c(vxname, dn[model.num])
+    out$data.name <- c( a$obs.name[ obs ], a$model.name[ model ] )
     out$call <- theCall
 
     attr(out, "time.point") <- time.point
+    attr( out, "obs" ) <- obs
     attr(out, "model") <- model
 
     attr(out, "msg") <- a$msg

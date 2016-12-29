@@ -42,8 +42,8 @@ Eric Gilleland
 \code{\link{imomenter}}
 }
 \examples{
-data(geom000)
+data( "geom000" )
 
-Mij(geom000) # area
+Mij( geom000 ) # area
 }
 \keyword{arith}

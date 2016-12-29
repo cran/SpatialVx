@@ -71,11 +71,14 @@ Kimberly L. Elmore, Kim.Elmore \dQuote{at} noaa.gov, and Eric Gilleland
 \code{\link{spatbiasFS}}, \code{\link{LocSig}}, \code{\link{cor.test}}, \code{\link{rnorm}}, \code{\link{runif}}, \code{\link{rexp}}, \code{\link{rgamma}}
 }
 \examples{
-data(GFSNAMfcstEx)
-data(GFSNAMobsEx)
-data(GFSNAMlocEx)
+data( "GFSNAMfcstEx" )
+data( "GFSNAMobsEx" )
+data( "GFSNAMlocEx" )
+
 id <- GFSNAMlocEx[,"Lon"] >=-90 & GFSNAMlocEx[,"Lon"] <= -75 & GFSNAMlocEx[,"Lat"] <= 40
+
 look <- MCdof(GFSNAMfcstEx[,id] - GFSNAMobsEx[,id], ntrials=500)
+
 stats(look$MCprops)
 look$minsigcov
 

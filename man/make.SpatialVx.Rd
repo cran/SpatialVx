@@ -11,18 +11,18 @@ Spatial Verification Sets -- SpatialVx Object
 A list object containing the verification sets of spatial verification and forecast fields with pertinent information.
 }
 \usage{
-make.SpatialVx(X, Xhat, thresholds = NULL,
-    loc = NULL, projection = FALSE, subset = NULL,
-    time.vals = NULL, reg.grid = TRUE, map = FALSE,
-    loc.byrow = FALSE, field.type = "", units = "",
-    data.name = c("X", "Xhat"),
-    q = c(0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 0.9, 0.95),
-    qs = NULL)
+make.SpatialVx(X, Xhat, thresholds = NULL, loc = NULL, projection =
+                 FALSE, subset = NULL, time.vals = NULL, reg.grid =
+                 TRUE, map = FALSE, loc.byrow = FALSE, field.type = "",
+                 units = "", data.name = "", obs.name = "X", model.name
+                 = "Xhat", q = c(0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75,
+                 0.9, 0.95), qs = NULL)
 
-\method{hist}{SpatialVx}(x, ..., time.point = 1, model = 1)
+\method{hist}{SpatialVx}(x, ..., time.point = 1, obs = 1, model = 1,
+                 threshold.num = NULL)
 
-\method{plot}{SpatialVx}(x, ..., set.pw = FALSE, time.point = 1, model = 1,
-                 col, zlim, horizontal = TRUE)
+\method{plot}{SpatialVx}( x, ..., time.point = 1, obs = 1, model = 1,
+    col = c( "gray", tim.colors( 64 ) ), zlim, mfrow = c(1, 2) )
 
 \method{print}{SpatialVx}(x, ...)
 
@@ -58,8 +58,8 @@ logical, should the plot function attempt to place a map onto the plot?  Only po
   \item{field.type, units}{
 character used for plot labelling and printing information to the screen.  Describes what variable and in what units the field represents.
 }
-  \item{data.name}{
-character vector describing the verification set.  May have length equal to the number of forecasts and verification fields or it may additionally have as the first entry an overall name for the set.  For example, for the geometric cases from the ICP, one might have a vector that begins with \dQuote{ICP geometric cases} followed by \dQuote{geom000}, \dQuote{geom001}, \dQuote{geom002}, etc.  Subsequent plot labels, etc., may (or may not) make use of this information.
+  \item{data.name, obs.name, model.name}{
+character vector describing the verification set overall, the observation(s) and the model(s), resp.
 }
   \item{q}{
 numeric vector giving the values of quantiles to be used for thresholds.  Only used if \code{thresholds} is NULL.
@@ -67,12 +67,13 @@ numeric vector giving the values of quantiles to be used for thresholds.  Only u
   \item{qs}{
 character vector describing the quantiles used.  Again, only used if \code{thresholds} is NULL.  This is for subsequent plot/print labelling purposes.
 }
-   \item{set.pw}{logical, should a panel of plots be determined and set by the function.}
-    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-  \item{model}{numeric indicating which forecast model to select for the analysis.}
-   \item{col, zlim, horizontal}{optional arguments to \code{image}, and/or \pkg{fields} functions \code{poly.image} and \code{image.plot}}
+    \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.  May also be a function name, in which case the function is applied at each grid point individually across time.  }
+  \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
+   \item{col, zlim}{optional arguments to \code{image}, and/or \pkg{fields} functions \code{poly.image} and \code{image.plot}}
+  \item{mfrow}{ optional argument to change the mfrow argument for the graphic device.  Default is one row with two plots (obs and model).  If null, then the mfrow argument will not be changed. }
     \item{x, object}{list object of class \dQuote{SpatialVx}.}
     \item{loc.byrow}{logical determining whether to set up the location matrices using \code{byrow} = TRUE or FALSE (for use with \code{poly.image}.}
+  \item{threshold.num}{If not null, then the threshold index to apply a threshold to the fields before creating the histogram.}
 \item{\dots}{\code{hist} method: optional arguments to \code{hist}.
 
 \code{plot} method: if \code{time.point} is a function, then these allow for optional arguments to this function to be passed.
@@ -100,7 +101,7 @@ Several attributes are also included among the following:
    \item{udim}{the dimensions of the thresholds matrix.}
    \item{loc}{nm X 2 matrix giving the locations.  If loc was not given, this will be c(rep(1:n, m), rep(1:m, each=n)).}
    \item{subset}{If given, this is a numeric vector describing a subset of loc to be used.}
-   \item{data.name}{character vector giving (same as input argument).}
+   \item{data.name, obs.name, model.name}{character vector giving the names of the data sets (same as input arguments).}
    \item{nforecast}{single numeric giving the number of different forecast models contained in the object.}
    \item{field.type, units}{character strings, same as input arguments.}
    \item{projection}{logical, is the grid a projection?}
@@ -117,30 +118,35 @@ Eric Gilleland
 \code{\link{hoods2d}}, \code{\link{poly.image}}
 }
 \examples{
-data(UKobs6)
-data(UKfcst6)
-data(UKloc)
+data( "UKobs6" )
+data( "UKfcst6" )
+data( "UKloc" )
 
-hold <- make.SpatialVx(UKobs6, UKfcst6, thresholds=c(0.01, 20.01),
-    loc=UKloc, field.type="Precipitation", units="mm/h",
-    data.name=c("Nimrod", "Observations 6", "Forecast 6"), map=TRUE)
+hold <- make.SpatialVx( UKobs6, UKfcst6, thresholds = c(0.01, 20.01),
+    loc = UKloc, field.type = "Precipitation", units = "mm/h",
+    data.name = "Nimrod", obs.name = "Observations 6", model.name = "Forecast 6",
+    map = TRUE)
 
 hold
 
-plot(hold)
+plot( hold )
+
+hist( hold )
+
+hist( hold, threshold.num = 2 )
 
 \dontrun{
 # Stage 2 Observation files from
 # NSSL/NCEP Spring 2005 Forecast Experiment.
-data(obs0426)
-data(obs0513)
-data(obs0514)
-data(obs0518)
-data(obs0519)
-data(obs0525)
-data(obs0601)
-data(obs0603)
-data(obs0604)
+data( "obs0426" )
+data( "obs0513" )
+data( "obs0514" )
+data( "obs0518" )
+data( "obs0519" )
+data( "obs0525" )
+data( "obs0601" )
+data( "obs0603" )
+data( "obs0604" )
 
 st2 <- array(c(c(obs0426), c(obs0513), c(obs0514), c(obs0518),
     c(obs0519), c(obs0525), c(obs0601), c(obs0603), c(obs0604)),
@@ -150,37 +156,37 @@ rm(obs0426, obs0513, obs0514, obs0518, obs0519, obs0525, obs0601,
     obs0603, obs0604)
 
 # wrf2caps
-data(wrf2caps0425)
-data(wrf2caps0512)
-data(wrf2caps0513)
-data(wrf2caps0517)
-data(wrf2caps0518)
-data(wrf2caps0524)
-data(wrf2caps0531)
-data(wrf2caps0602)
-data(wrf2caps0603)
+data( "wrf2caps0425" )
+data( "wrf2caps0512" )
+data( "wrf2caps0513" )
+data( "wrf2caps0517" )
+data( "wrf2caps0518" )
+data( "wrf2caps0524" )
+data( "wrf2caps0531" )
+data( "wrf2caps0602" )
+data( "wrf2caps0603" )
 
 # wrf4ncar
-data(wrf4ncar0425)
-data(wrf4ncar0512)
-data(wrf4ncar0513)
-data(wrf4ncar0517)
-data(wrf4ncar0518)
-data(wrf4ncar0524)
-data(wrf4ncar0531)
-data(wrf4ncar0602)
-data(wrf4ncar0603)
+data( "wrf4ncar0425" )
+data( "wrf4ncar0512" )
+data( "wrf4ncar0513" )
+data( "wrf4ncar0517" )
+data( "wrf4ncar0518" )
+data( "wrf4ncar0524" )
+data( "wrf4ncar0531" )
+data( "wrf4ncar0602" )
+data( "wrf4ncar0603" )
 
 # wrf4ncep
-data(wrf4ncep0425)
-data(wrf4ncep0512)
-data(wrf4ncep0513)
-data(wrf4ncep0517)
-data(wrf4ncep0518)
-data(wrf4ncep0524)
-data(wrf4ncep0531)
-data(wrf4ncep0602)
-data(wrf4ncep0603)
+data( "wrf4ncep0425" )
+data( "wrf4ncep0512" )
+data( "wrf4ncep0513" )
+data( "wrf4ncep0517" )
+data( "wrf4ncep0518" )
+data( "wrf4ncep0524" )
+data( "wrf4ncep0531" )
+data( "wrf4ncep0602" )
+data( "wrf4ncep0603" )
 
 wrf2caps <- array(c(c(wrf2caps0425), c(wrf2caps0512),
     c(wrf2caps0513), c(wrf2caps0517), c(wrf2caps0518),
@@ -213,19 +219,26 @@ fcst <- list(wrf2caps, wrf4ncar, wrf4ncep)
 rm(wrf2caps, wrf4ncar, wrf4ncep)
 
 # Now, create the object.
-data(ICPg240Locs)
+data( "ICPg240Locs" )
 
-ICPreal <- make.SpatialVx(st2, fcst, thresholds=c(0.1, 20.1),
-    loc=ICPg240Locs, projection=TRUE, loc.byrow = TRUE,
-    time.vals=c(2005042600, 2005051300, 2005051400, 2005051800,
+ICPreal <- make.SpatialVx( st2, fcst, thresholds = c(0.1, 20.1),
+    loc = ICPg240Locs, projection = TRUE, loc.byrow = TRUE,
+    time.vals = c(2005042600, 2005051300, 2005051400, 2005051800,
         2005051900, 2005052500, 2005060100, 2005060300, 2005060400),
-    map=TRUE, field.type="Precipitation", units="mm/h",
-    data.name=c("Stage II Analysis", "WRF 2 CAPS", "WRF 4 NCAR",
-        "WRF 4 NCEP"))
+    map = TRUE, field.type = "Precipitation", units = "mm/h",
+    data.name = "ICP Real Test Cases",
+    obs.name = "Stage II Analysis",
+    model.name = c( "WRF 2 CAPS", "WRF 4 NCAR", "WRF 4 NCEP"))
 
-pdf("ICPreal.pdf")
-plot(ICPreal, set.pw=FALSE)
-dev.off()
+plot( ICPreal )
+
+plot( ICPreal, time.point = mean )
+
+plot( ICPreal, model = 2 )
+
+plot( ICPreal, model = 3 )
+
+plot( ICPreal, time.point = 2, model = 2 )
 
 }
 }

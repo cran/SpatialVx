@@ -19,8 +19,9 @@ multicon2dfun(sIy, Ix, subset = NULL)
 
 pragmatic2dfun(sPy, Ix, mIx = NULL, subset = NULL)
 
-upscale2dfun(sYy, sYx, threshold = NULL, which.stats = c("rmse", "bias", "ts", "ets"),
-            subset = NULL)
+upscale2dfun(sYy, sYx, threshold = NULL, which.stats = c("rmse",
+                 "bias", "ts", "ets"), rule = ">=", subset = NULL)
+
 }
 \arguments{
   \item{sPy}{n by m matrix giving a smoothed binary forecast field.}
@@ -34,6 +35,7 @@ upscale2dfun(sYy, sYx, threshold = NULL, which.stats = c("rmse", "bias", "ts", "
   \item{threshold}{(optional) numeric vector of length 2 giving the threshold over which to calculate the verification statistics: bias, ts and ets.  If NULL, only the rmse will be calculated.}
   \item{which.stats}{character vector naming which statistic(s) should be caluclated for \code{upscale2dfun}.}
   \item{subset}{(optional) numeric indicating over which points the summary scores should be calculated.  If NULL, all of the points are used.}
+  \item{rule}{character string giving the sort of thresholding process desired.  See the help file for \code{thresholder} for more information.}
   \item{verbose}{logical, should progress information be printed to the screen?}
 }
 \details{
@@ -65,7 +67,7 @@ Gilleland, E., Ahijevych, D. A., Brown, B. G. and Ebert, E. E. (2010) Verifying 
 
 Roberts, N. M. and Lean, H. W. (2008) Scale-selective verification of rainfall accumulations from high-resolution forecasts of convective events.  \emph{Mon. Wea. Rev.}, \bold{136}, 78--97. doi:10.1175/2007MWR2123.1.}
 \author{Eric Gilleland}
-\seealso{\code{\link{hoods2d}},\code{\link{kernel2dsmooth}},\code{\link{vxstats}}}
+\seealso{\code{\link{hoods2d}},\code{\link{kernel2dsmooth}},\code{\link{vxstats}}, \code{\link{thresholder}} }
 \examples{
 x <- y <- matrix( 0, 100, 100)
 x[ sample(1:100, 10), sample(1:100, 10)] <- 1
@@ -80,21 +82,32 @@ image( Py, col=c("grey", tim.colors(256)), main="Smoothed Observed Events (9 nea
 fss2dfun( Py, Px)
 
 \dontrun{
-data(pert004)
-data(pert000)
+data( "pert004" )
+data( "pert000" )
+
 fbin <- obin <- matrix(0, 601, 501)
+
 fbin[ pert004 >= 12] <- 1
 obin[ pert000 >= 12] <- 1
+
 Pf <- kernel2dsmooth( fbin, kernel.type="boxcar", n=33, xdim=c(601, 501))
 Po <- kernel2dsmooth( obin, kernel.type="boxcar", n=33, xdim=c(601, 501))
+
 fss2dfun(Pf, Po)
+
 fuzzyjoint2dfun(Pf, Po)
+
 Pe <- 1/(33^2) # At least one event in the neighborhood.
+
 MinCvg2dfun(Pf >= Pe, Po >= Pe)
+
 multicon2dfun(Pf >= Pe, obin)
+
 pragmatic2dfun(Pf, obin, mIx=mean( obin, na.rm=TRUE))
+
 Sf <- kernel2dsmooth( pert004, kernel.type="boxcar", n=33, xdim=c(601, 501))
 So <- kernel2dsmooth( pert000, kernel.type="boxcar", n=33, xdim=c(601, 501))
+
 upscale2dfun( Sf, So, threshold=12)
 }
 }

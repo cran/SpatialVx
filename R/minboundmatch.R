@@ -4,6 +4,10 @@ minboundmatch <- function(x, type = c("single", "multiple"), mindist = Inf, verb
 
     if(class( x ) != "features") stop("minboundmatch: invalid x argument.")
 
+    if( is.null( x$X.feats ) && is.null( x$Y.feats ) ) stop( "minboundmatch: no features to match!" )
+    if( is.null( x$X.feats ) ) stop( "minboundmatch: no verification features to match." )
+    if( is.null( x$Y.feats ) ) stop( "minboundmatch: no model features to match." )
+
     type <- tolower( type )
     type <- match.arg( type )
 

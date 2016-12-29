@@ -94,15 +94,16 @@ To indentify features and create objects of class \dQuote{features}, see, for ex
 }
 \examples{
 
-data(geom000)
-data(geom001)
-data(geom004)
-data(ICPg240Locs)
+data( "geom000" )
+data( "geom001" )
+data( "geom004" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx(geom000, geom001, thresholds=c(0.01,50.01),
-    projection=TRUE, map=TRUE, loc=ICPg240Locs, loc.byrow = TRUE,
-    field.type="Geometric Objects Pretending to be Precipitation",
-    units="mm/h", data.name=c("ICP Geometric Cases", "geom000", "geom001"))
+hold <- make.SpatialVx( geom000, geom001, thresholds = c(0.01, 50.01),
+    projection = TRUE, map = TRUE, loc = ICPg240Locs, loc.byrow = TRUE,
+    field.type = "Geometric Objects Pretending to be Precipitation",
+    units = "mm/h", data.name = "ICP Geometric Cases", obs.name = "geom000",
+    model.name = "geom001" )
 
 look <- FeatureFinder(hold, do.smooth = FALSE, thresh = 2, min.size = 200)
 
@@ -122,10 +123,11 @@ plot(look)
 plot(look, which = "Xhat")
 
 \dontrun{
-hold <- make.SpatialVx(geom000, geom004, thresholds=c(0.01,50.01),
-    projection=TRUE, map=TRUE, loc=ICPg240Locs, loc.byrow = TRUE,
-    field.type="Geometric Objects Pretending to be Precipitation",
-    units="mm/h", data.name=c("ICP Geometric Cases", "geom000", "geom004"))
+hold <- make.SpatialVx( geom000, geom004, thresholds = c(0.01, 50.01),
+    projection = TRUE, map = TRUE, loc = ICPg240Locs, loc.byrow = TRUE,
+    field.type = "Geometric Objects Pretending to be Precipitation",
+    units = "mm/h", data.name = "ICP Geometric Cases", obs.name = "geom000",
+    model.name = "geom004" )
 
 look <- FeatureFinder(hold, do.smooth = FALSE)
 

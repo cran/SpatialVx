@@ -33,9 +33,9 @@ UK Met Office
 Casati, B., Ross, G. and Stephenson, D. B. (2004) A new intensity-scale approach for the verification of spatial precipitation forecasts. \emph{Meteorol. Appl.}, \bold{11}, 141--154, doi:10.1017/S1350482704001239.
 }
 \examples{
-data(UKobs6)
-data(UKfcst6)
-data(UKloc)
+data( "UKobs6" )
+data( "UKfcst6" )
+data( "UKloc" )
 
 zl <- range(c(c(UKobs6), c(UKfcst6)))
 par(mfrow=c(1,2))

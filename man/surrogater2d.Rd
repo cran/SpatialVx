@@ -95,7 +95,7 @@ Eric Gilleland, this code was adapted from matlab code written by Sukanta Basu (
 \code{\link{fft}}, \code{\link{locmeasures2d}}, \code{\link{UIQI}}, \code{\link{ampstats}}
 }
 \examples{
-data(ExampleSpatialVxSet)
+data( "ExampleSpatialVxSet" )
 
 x <- ExampleSpatialVxSet$vx
 

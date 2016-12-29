@@ -54,8 +54,8 @@ y[c(4:7, 9:10),c(7:9, 11:12)] <- 1
 x[30:50,45:65] <- 1
 y[c(22:24, 99:100),c(50:52, 99:100)] <- 1
 
-hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
-    data.name=c("Example", "x", "y"))
+hold <- make.SpatialVx( x, y, field.type="contrived", units="none",
+    data.name = "Example", obs.name = "x", model.name = "y" )
 
 look <- FeatureFinder(hold, smoothpar=0.5)
 
@@ -64,14 +64,15 @@ look2 <- deltamm(look)
 look2 <- MergeForce(look2)
 
 \dontrun{
-data(pert000)
-data(pert004)
-data(ICPg240Locs)
+data( "pert000" )
+data( "pert004" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx(pert000, pert004,
-    loc=ICPg240Locs, projection=TRUE, map=TRUE, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
+hold <- make.SpatialVx( pert000, pert004,
+    loc=ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
+    field.type = "Precipitation", units="mm/h",
+    data.name = "ICP Perturbed Cases", obs.name = "pert000",
+    model.name = "pert004" )
 
 look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
 

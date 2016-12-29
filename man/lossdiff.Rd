@@ -19,7 +19,7 @@ lossdiff(x, ...)
 \method{lossdiff}{default}(x, ..., xhat1, xhat2, threshold = NULL,
     lossfun = "corrskill", loc = NULL, zero.out = FALSE)
 
-\method{lossdiff}{SpatialVx}(x, ..., time.point = 1, model = c(1, 2),
+\method{lossdiff}{SpatialVx}(x, ..., time.point = 1, obs = 1, model = c(1, 2),
     threshold = NULL, lossfun = "corrskill", zero.out = FALSE)
 
 empiricalVG.lossdiff( x, trend = 0, maxrad, dx = 1, dy = 1 )
@@ -54,7 +54,7 @@ numeric giving the maximum radius for finding variogram differences per the \cod
   \item{zero.out}{logical, should the variogram be computed only over non-zero values of the process?  If TRUE, a modified version of \code{vgram.matrix} is used (\code{variogram.matrix}).}
   \item{vgmodel}{character string naming a variogram model function to use.  Default is the exponential variogram, \code{expvg}. }
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-    \item{model}{numeric indicating which forecast model to select for the analysis.}
+    \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
     \item{icol}{(optional) color scheme.}
   \item{\dots}{
 \code{lossdiff}: optional additional arguments to \code{lossfun}.  Not used by the summary or plot functions.
@@ -158,15 +158,16 @@ res <- summary( res )
 plot( res )
 
 \dontrun{
-data(pert000)
-data(pert004)
-data(pert006)
-data(ICPg240Locs)
+data( "pert000" )
+data( "pert004" )
+data( "pert006" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx( pert000, list(pert004, pert006), loc = ICPg240Locs,
+hold <- make.SpatialVx( pert000, list( pert004, pert006 ), loc = ICPg240Locs,
     projection = TRUE, map = TRUE, loc.byrow = TRUE,
     field.type = "Precipitation", units = "mm/h",
-    data.name = c("ICP Perturbed Cases", "pert000", "pert004", "pert006") )
+    data.name = "ICP Perturbed Cases", obs.name = "pert000",
+    model.name = c( "pert004", "pert006" ) )
 
 look <- lossdiff( hold, lossfun = "abserrloss" )
 look <- empiricalVG.lossdiff( look, maxrad = 8 )

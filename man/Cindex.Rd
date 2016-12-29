@@ -14,7 +14,7 @@ Cindex(x, thresh = NULL, connect.method = "C", ...)
 \method{Cindex}{default}(x, thresh = NULL, connect.method = "C", ...)
 
 \method{Cindex}{SpatialVx}(x, thresh = NULL, connect.method = "C", ...,
-    time.point = 1, model = 1)
+    time.point = 1, obs = 1, model = 1)
 }
 \arguments{
     \item{x}{
@@ -29,7 +29,7 @@ Set values under (strictly less than) this threshold to zero, and calculate the 
 character string giving the \code{method} argument for the \code{connected} function of package \pkg{spatstat}.  This must be one of \dQuote{C} or \dQuote{interpreted}.  See the help file for \code{connected} for more details.
 }
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-    \item{model}{numeric indicating which forecast model to select for the analysis.}
+    \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
     \item{\dots}{Not used.}
 }
 \details{
@@ -54,25 +54,26 @@ Eric Gilleland
 \code{\link{connected}}, \code{\link{as.im}}, \code{\link{Sindex}}, \code{\link{Aindex}}
 }
 \examples{
-data(geom000)
-Cindex(geom000)
+data( "geom000" )
+Cindex( geom000 )
 
-data(pert000)
-Cindex(pert000)
+data( "pert000" )
+Cindex( pert000 )
 
 \dontrun{
 # Two separate areas with highly structured shapes, but far away from each other.
-data(pert006)
-data(ICPg240Locs)
+data( "pert006" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx(pert000, pert006, loc=ICPg240Locs,
-    projection=TRUE, map=TRUE, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("ICP Perturbed Cases", "pert000", "pert006"))
+hold <- make.SpatialVx(pert000, pert006, loc = ICPg240Locs,
+    projection = TRUE, map = TRUE, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "mm/h",
+    data.name = "ICP Perturbed Cases", obs.name = "pert000",
+    model.name = "pert006" )
 
-plot(hold, set.pw=TRUE)
+plot( hold )
 
-Cindex(hold)
+Cindex( hold )
 }
 
 }

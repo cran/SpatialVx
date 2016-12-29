@@ -100,6 +100,10 @@ y <- im( y)
 x <- solutionset( x > 0)
 y <- solutionset( y > 0)
 locperf( x, y)
+
+# Note that ph is NA because there is only 1 event.
+# need to have at least k events if k > 1.
+
 par( mfrow=c(1,2))
 image.plot( distmapfun(x))
 image.plot( distmapfun(y))

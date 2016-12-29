@@ -30,14 +30,11 @@ S1 <- function(x, ...) {
     UseMethod("S1", x)
 } # end of 'S1' function.
 
-S1.SpatialVx <- function(x, ..., xhat, gradFUN="KernelGradFUN", time.point=1, model=1) {
+S1.SpatialVx <- function(x, ..., xhat, gradFUN="KernelGradFUN", time.point=1, obs = 1, model=1) {
     a <- attributes(x)
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(x, model=model)
-    else dat <- datagrabber(x)
+    dat <- datagrabber(x, time.point=time.point, obs = obs, model=model)
 
     X <- dat$X
     Xhat <- dat$Xhat
@@ -45,17 +42,7 @@ S1.SpatialVx <- function(x, ..., xhat, gradFUN="KernelGradFUN", time.point=1, mo
 
     res <- S1.default(x=X, ..., xhat=Xhat, gradFUN=gradFUN)
 
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    names(res) <- paste(vxname, " vs ", dn[model.num], sep="")
+    names(res) <- paste(a$obs.name[ obs ], " vs ", a$model.name[ model ], sep="")
 
     attr(res, "time.point") <- time.point
     attr(res, "model") <- model
@@ -75,14 +62,12 @@ ACC <- function(x, ...) {
     UseMethod("ACC", x)
 } # end of 'ACC' function.
 
-ACC.SpatialVx <- function(x, ..., xclim=NULL, xhatclim=NULL, time.point=1, model=1) {
+ACC.SpatialVx <- function(x, ..., xclim=NULL, xhatclim=NULL, time.point=1, obs = 1, model=1) {
+
     a <- attributes(x)
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(x, model=model)
-    else dat <- datagrabber(x)
+    dat <- datagrabber(x, time.point=time.point, obs = obs, model=model)
 
     X <- dat$X
     Xhat <- dat$Xhat
@@ -90,19 +75,10 @@ ACC.SpatialVx <- function(x, ..., xclim=NULL, xhatclim=NULL, time.point=1, model
 
     res <- ACC.default(x=X, ..., xhat=Xhat, xclim=xclim, xhatclim=xhatclim)
 
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    names(res) <- paste(vxname, " vs ", dn[model.num], sep="")
+    names(res) <- paste( a$obs.name[ obs ], " vs ", a$model.name[ model ], sep="")
 
     attr(res, "time.point") <- time.point
+    attr(res, "obs" ) <- obs
     attr(res, "model") <- model
 
     return(res)

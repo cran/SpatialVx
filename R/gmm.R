@@ -18,16 +18,13 @@ gmm2d <- function(x, ...) {
     UseMethod("gmm2d", x)
 } # end of 'gmm2d' function.
 
-gmm2d.SpatialVx <- function(x, ..., time.point=1, model=1, K=3, gamma=1, threshold=NULL, initFUN="initGMM",
+gmm2d.SpatialVx <- function(x, ..., time.point=1, obs = 1, model=1, K=3, gamma=1, threshold=NULL, initFUN="initGMM",
     verbose=FALSE) {
 
     a <- attributes(x)
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(x, model=model)
-    else dat <- datagrabber(x)
+    dat <- datagrabber(x, time.point=time.point, obs = obs, model=model)
    
     X <- dat$X
     Xhat <- dat$Xhat
@@ -35,17 +32,7 @@ gmm2d.SpatialVx <- function(x, ..., time.point=1, model=1, K=3, gamma=1, thresho
 
     out <- gmm2d.default(x=X, xhat=Xhat, K=K, gamma=gamma, threshold=threshold, initFUN=initFUN, verbose=verbose)
 
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[1:2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    attr(out, "data.name") <- c(vxname, dn[model.num])
+    attr(out, "data.name") <- c(a$obs.name[ obs ], a$model.name[ model ] )
     attr(out, "projection") <- a$projection
     attr(out, "map") <- a$map
     attr(out, "loc") <- a$loc

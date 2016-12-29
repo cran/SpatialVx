@@ -4,15 +4,12 @@ Cindex <- function(x, thresh=NULL, connect.method="C", ...) {
 
 } # end of 'Cindex' function.
 
-Cindex.SpatialVx <- function(x, thresh=NULL, connect.method="C", ..., time.point=1, model=1) {
+Cindex.SpatialVx <- function(x, thresh=NULL, connect.method="C", ..., time.point=1, obs = 1, model=1) {
 
     a <- attributes(x)
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(x, model=model)
-    else dat <- datagrabber(x)
+    dat <- datagrabber(x, time.point = time.point, obs = obs, model = model)
 
     X <- dat$X
     Xhat <- dat$Xhat
@@ -23,22 +20,7 @@ Cindex.SpatialVx <- function(x, thresh=NULL, connect.method="C", ..., time.point
 
     res <- c(res1, res2)
 
-    if(length(a$data.name) == a$nforecast + 2) {
-
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[2]
-
-    } else {
-
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-
-    }
-
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    names(res) <- c(vxname, dn[model.num])
+    names(res) <- c(a$obs.name[ obs ], a$model.name[ model ] )
 
     return(res)
 
@@ -66,15 +48,13 @@ Sindex <- function(x, thresh=NULL, ...) {
 
 } # end of 'Sindex' function.
 
-Sindex.SpatialVx <- function(x, thresh=NULL, ..., time.point=1, model=1) {
+Sindex.SpatialVx <- function(x, thresh=NULL, ..., time.point = 1, obs = 1, model = 1) {
 
     a <- attributes(x)
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(x, model=model)
-    else dat <- datagrabber(x)
+    dat <- datagrabber(x, time.point = time.point, obs = obs, model = model)
+
 
     X <- dat$X
     Xhat <- dat$Xhat
@@ -85,17 +65,7 @@ Sindex.SpatialVx <- function(x, thresh=NULL, ..., time.point=1, model=1) {
 
     res <- rbind(res1, res2)
 
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    rownames(res) <- c(vxname, dn[model.num])
+    rownames(res) <- c(a$obs.name[ obs ], a$model.name[ model ] )
 
     return(res)
 
@@ -134,14 +104,12 @@ Aindex <- function(x, thresh=NULL, dx=1, dy=1, ...) {
 
 } # end of 'Aindex' function.
 
-Aindex.SpatialVx <- function(x, thresh=NULL, dx=1, dy=1, ..., time.point=1, model=1) {
+Aindex.SpatialVx <- function(x, thresh=NULL, dx=1, dy=1, ..., time.point = 1, obs = 1, model = 1) {
+
     a <- attributes(x)
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(x, model=model)
-    else dat <- datagrabber(x)
+    dat <- datagrabber(x, time.point = time.point, obs = obs, model = model)
    
     X <- dat$X
     Xhat <- dat$Xhat
@@ -152,17 +120,7 @@ Aindex.SpatialVx <- function(x, thresh=NULL, dx=1, dy=1, ..., time.point=1, mode
 
     res <- rbind(res1, res2)
 
-    if(length(a$data.name) == a$nforecast + 2) {
-        dn <- a$data.name[-(1:2)]
-        vxname <- a$data.name[2]
-    } else {
-        dn <- a$data.name[-1]
-        vxname <- a$data.name[1]
-    }
-    if(!is.numeric(model)) model.num <- (1:a$nforecast)[dn == model]
-    else model.num <- model
-
-    rownames(res) <- c(vxname, dn[model.num])
+    rownames(res) <- c(a$obs.name[ obs ], a$model.name[ model ])
 
     return(res)
 } # end of 'Aindex.SpatialVx' function.

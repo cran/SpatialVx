@@ -40,13 +40,13 @@ locmeasures2d.default <- function(object, which.stats=c("bdelta", "haus", "qdmap
 } # end of 'locmeasures2d.default' function.
 
 locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "qdmapdiff", "med", "msd", "ph", "fom"),
-	distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ..., time.point=1, model=1) {
+	distfun="distmapfun", distfun.params=NULL, k=NULL, alpha=0.1, bdconst=NULL, p=2, ..., time.point = 1, obs = 1, model = 1 ) {
 
     object <- locmeasures2dPrep(object=object, k=k, alpha=alpha, bdconst=bdconst, p=p)
     a <- attributes(object)
 
     thresholds <- a$thresholds
-    q <- dim( thresholds)[1]
+    q <- dim( thresholds$X )[ 1 ]
 
     if(is.null(a$k) && "qdmapdiff" %in% which.stats) stop("locmeasures2d: must supply k in call to locmeasures2dPrep to do qdmapdiff method.")
 
@@ -64,30 +64,15 @@ locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "qdm
     attr(out, "model") <- model
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(object, model=model)
-    else dat <- datagrabber(object)
+    dat <- datagrabber( object, time.point = time.point, obs = obs, model = model )
 
     Obs <- dat$X
     Fcst <- dat$Xhat
 
-    dn <- a$data.name
-    if(length(dn) == a$nforecast + 2) {
-	mainname <- dn[1]
-	dn <- dn[-1]
-    } else mainname <- NULL
-
-    vxname <- dn[1]
-    dn <- dn[-1]
-
-    if(!is.numeric(model)) {
-	model.num <- (1:a$nforecast)[model == dn]
-    } else model.num <- model
-    attr(out, "data.name") <- c(mainname, vxname, dn[model.num])
-    if( dim( thresholds )[ 2 ] > 2 ) thresholds <- cbind(thresholds[,1], thresholds[,model.num + 1])
-    colnames(thresholds) <- c(vxname, dn[model.num])
-    attr(out, "thresholds") <- thresholds
+    mainname <- a$data.name
+    vxname <- a$obs.name[ obs ]
+    attr(out, "data.name") <- c(mainname, vxname, a$model.name[ model ] )
+    attr(out, "thresholds") <- list( X = thresholds$X[, obs ], Xhat = thresholds$Xhat[ , model ] )
     ## End: Get the data sets
 
     xdim <- a$xdim
@@ -96,8 +81,8 @@ locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "qdm
 
     for(threshold in 1:q) {
 
-	Ix <- solutionset(x.id>=thresholds[threshold,1])
-	Iy <- solutionset(y.id>=thresholds[threshold,2])
+	Ix <- solutionset( x.id >= thresholds$X[threshold, obs ] )
+	Iy <- solutionset( y.id >= thresholds$Xhat[threshold, model ] )
 
 	if( "bdelta" %in% which.stats) for(p in 1:np) { 
 			tmpDelta <- try(deltametric(Iy,Ix,p=a$p[p], c=a$bdconst, ...))
@@ -148,43 +133,23 @@ metrV <- function(x, ...) {
     UseMethod("metrV", x)
 } # end of 'metrV' function.
 
-metrV.SpatialVx <- function(x, time.point=1, model=1, lam1=0.5, lam2=0.5, distfun="distmapfun", verbose=FALSE, ...) {
+metrV.SpatialVx <- function(x, time.point=1, obs = 1, model=1, lam1=0.5, lam2=0.5, distfun="distmapfun", verbose=FALSE, ...) {
 
     a <- attributes(x)
     out <- list()
     attributes(out) <- a
 
-    thresholds <- a$thresholds
+    u <- a$thresholds
+    thresholds <- cbind( u$X[, obs ], u$Xhat[, model ] )
 
-    ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(x, time.point=time.point, model=model[1])
-    else if(!missing(time.point)) dat <- datagrabber(x, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(x, model=model[1])
-    else dat <- datagrabber(x)
-
-    X <- dat$X
-    Xhat <- dat$Xhat
-
-    dn <- a$data.name
-    if(length(dn) == a$nforecast + 2) {
-        mainname <- dn[1]
-        dn <- dn[-1]
-    } else mainname <- NULL
-
-    vxname <- dn[1]
-    dn <- dn[-1]
+    mainname <- a$data.name
+    vxname <- a$obs.name[ obs ]
 
     if(length(model) == 1) {
 
-        if(!is.numeric(model)) {
-            model.num <- (1:a$nforecast)[model == dn]
-        } else model.num <- model
-
-        attr(out, "data.name") <- c(mainname, vxname, dn[model.num])
-        if(dim(thresholds)[2] > 2) thresholds <- cbind(thresholds[,1], thresholds[,model.num + 1])
-        colnames(thresholds) <- c(vxname, dn[model.num])
-        attr(out, "thresholds") <- thresholds
-	a <- attributes(out)
+	dat <- datagrabber(x, time.point=time.point, obs = obs, model = model )
+	X <- dat$X
+        Xhat <- dat$Xhat
 
 	out <- metrV.default(x=X, xhat=Xhat, thresholds=thresholds, lam1=lam1, lam2=lam2, distfun=distfun,
 				a=a, verbose=verbose, ...)
@@ -193,30 +158,21 @@ metrV.SpatialVx <- function(x, time.point=1, model=1, lam1=0.5, lam2=0.5, distfu
 
 	if(length(model) != 2) stop("metrV.SpatialVx: invalid model argument.  Must have length 1 or 2.")
 
-	if(!is.numeric(model)) {
-	    model1.num <- (1:a$nforecast)[model[1] == dn]
-	    model2.num <- (1:a$nforecast)[model[2] == dn]
-	    model.num <- c(model1.num, model2.num)
-	} else model.num <- model
+	dat <- datagrabber(x, time.point=time.point, obs = obs, model = model[ 1 ] )
+	dat2 <- datagrabber(x, time.point=time.point, obs = obs, model=model[ 2 ] )
 
-	if(!missing(time.point)) dat2 <- datagrabber(x, time.point=time.point, model=model[2])
-        else dat2 <- datagrabber(x, model=model[2])
-
+	X <- dat$X
+        Xhat <- dat$Xhat
         Xhat2 <- dat2$Xhat
-
-	attr(out, "data.name") <- c(mainname, vxname, dn[model.num])
-        if(dim(thresholds)[2] == 2) thresholds <- cbind(thresholds, thresholds[,2])
-	else thresholds <- cbind(thresholds[,1], thresholds[,model.num + 1])
-        colnames(thresholds) <- c(vxname, dn[model.num])
-
-	attr(out, "thresholds") <- thresholds
-        a <- attributes(out)
 
 	out <- metrV.default(x=X, xhat=Xhat, xhat2=Xhat2, thresholds=thresholds, lam1=lam1, lam2=lam2, distfun=distfun,
                                 a=a, verbose=verbose, ...)
 
     } # end of if else 1 or 2 models stmts.
-    ## End: Get the data sets
+
+    attr(out, "data.name") <- c(mainname, vxname, a$model.name[ model ] )
+    attr(out, "thresholds") <- thresholds
+    a <- attributes(out)
 
     return(out)
 } # end of 'metrV.SpatialVx' function.
@@ -352,7 +308,7 @@ locperf <- function(X, Y, which.stats = c("qdmapdiff", "med", "msd", "ph", "fom"
 	else if(any(as.matrix( X ))) {
 
 	    Z = as.matrix( X ) + NA
-	    Z[ as.matrix( X ) ] = dY
+	    Z[ as.matrix( X ) ] <- dY
 
 	} else Z = 0
 
@@ -360,7 +316,7 @@ locperf <- function(X, Y, which.stats = c("qdmapdiff", "med", "msd", "ph", "fom"
 	else if( any( as.matrix( Y ) ) ) {
 
 	    Zother = as.matrix( Y ) + NA
-	    Zother[ as.matrix( Y ) ] = dX
+	    Zother[ as.matrix( Y ) ] <- dX
 
 	} else Zother = 0
 
@@ -385,14 +341,23 @@ locperf <- function(X, Y, which.stats = c("qdmapdiff", "med", "msd", "ph", "fom"
 
   if( "ph" %in% which.stats ) {
 
-	if( dXcheck || dYcheck ) {
+    if( k < 1 || 
+	(k <= sum( colSums( as.matrix( X ), na.rm = TRUE ), na.rm = TRUE ) || 
+	 k <= sum( colSums( as.matrix( Y ), na.rm = TRUE ), na.rm = TRUE ) ) ) {
 
-	    if( k >= 1 ) out$ph = max( sort( Z )[ k ], sort( Zother )[ k ], na.rm = TRUE )
-	    else if( k >= 0 && k < 1 ) out$ph = max( quantile( Z, probs = k ), quantile( Zother, probs = k ), na.rm = TRUE )
-	    else out$ph = NA
+	    if( dXcheck || dYcheck ) {
 
-	} else out$ph = max( sort( Z )[ 1 ], sort( Zother )[ 1 ], na.rm = TRUE )
+	        if( k >= 1 ) out$ph <- max( c( sort( Z, decreasing = TRUE )[ k ], sort( Zother, decreasing = TRUE )[ k ] ), na.rm = TRUE )
+	        else if( k >= 0 && k < 1 ) out$ph <- max( quantile( Z, probs = k ), quantile( Zother, probs = k ), na.rm = TRUE )
+	        else out$ph <- NA
 
+	    } else out$ph = max( sort( Z, decreasing = TRUE )[ 1 ], sort( Zother, decreasing = TRUE )[ 1 ], na.rm = TRUE )
+
+       } else {
+
+	out$ph <- NA
+
+	} # end of if else make sure there are enough events to calculate the k-th highest value.
    }
 
    if( "qdmapdiff" %in% which.stats ) {

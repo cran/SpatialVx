@@ -18,7 +18,7 @@ OF(x, ...)
 \method{OF}{default}(x, ..., xhat, W = 5, grads.diff = 1, center = TRUE, 
     cutoffpar = 4, verbose = FALSE)
 
-\method{OF}{SpatialVx}(x, ..., time.point = 1, model = 1, W = 5, grads.diff = 1, 
+\method{OF}{SpatialVx}(x, ..., time.point = 1, obs = 1, model = 1, W = 5, grads.diff = 1,
     center = TRUE, cutoffpar = 4, verbose = FALSE)
 
 \method{plot}{OF}(x, ...)
@@ -56,7 +56,7 @@ numeric, set to NaN everything exceeding median +/- \code{cutoffpar}*sd.
 logical, should progress information be printed to the screen?
 }
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-    \item{model}{numeric indicating which forecast model to select for the analysis.}
+    \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
   \item{\dots}{
 For \code{OF}: optional arguments to the \code{optim} function (cannot be \code{par}, \code{fn}, \code{gr} or \code{method}).  See details section for \code{plot} and \code{hist} method functions.  Not used by the \code{summary} method function.
 }
@@ -122,8 +122,8 @@ plot(look, full=TRUE) # More plots.
 summary(look)
 
 # Another way to skin the cat.
-hold <- make.SpatialVx(final, initial, field.type="Bi-variate Gaussian",
-    data.name=c("final", "initial"))
+hold <- make.SpatialVx( final, initial, field.type = "Bi-variate Gaussian",
+    obs.name = "final", model.name = "initial" )
 
 look2 <- OF(hold, W=9, verbose=TRUE)
 plot(look2)

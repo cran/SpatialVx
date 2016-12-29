@@ -28,7 +28,14 @@
 \alias{gmmNegLogLik}
 \alias{grads1}
 \alias{grads2}
+\alias{plot.matchedMap}
+\alias{plot.matchedNoMap}
 \alias{plot.saller}
+\alias{plot.SpatialVxMap}
+\alias{plot.SpatialVxNoMap}
+\alias{plot.wavePurifyVxFieldsMap}
+\alias{plot.wavePurifyVxFieldsNoMap}
+\alias{plot.wavePurifyVxStats}
 \alias{print.summary.interester}
 \alias{shrinkgrid}
 \title{

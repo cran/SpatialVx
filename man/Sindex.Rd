@@ -15,7 +15,7 @@ Sindex(x, thresh = NULL, ...)
     loc = NULL)
 
 \method{Sindex}{SpatialVx}(x, thresh = NULL, ...,
-    time.point = 1, model = 1)
+    time.point = 1, obs = 1, model = 1)
 }
 \arguments{
     \item{x}{
@@ -30,7 +30,7 @@ numeric giving a threshold under which (and including, i.e., <=) all values are 
 (optional) mn by 2 numeric matrix giving the grid point locations.  If NULL, the expanded grid with x=1:m and y=1:n is used.
 }
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-    \item{model}{numeric indicating which forecast model to select for the analysis.}
+    \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
     \item{\dots}{Not used.}
 }
 \details{
@@ -67,18 +67,19 @@ Sindex(tmp)
 
 \dontrun{
 # Two separate areas with highly structured shapes, but far away from each other.
-data(pert000)
-data(pert006)
-data(ICPg240Locs)
+data( "pert000" )
+data( "pert006" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx(pert000, pert006, loc=ICPg240Locs,
-    projection=TRUE, map=TRUE, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("ICP Perturbed Cases", "pert000", "pert006"))
+hold <- make.SpatialVx( pert000, pert006, loc = ICPg240Locs,
+    projection = TRUE, map = TRUE, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "mm/h",
+    data.name = "ICP Perturbed Cases", obs.name = "pert000",
+    model.name = "pert006" )
 
-plot(hold, set.pw=TRUE)
+plot( hold )
 
-Sindex(hold)
+Sindex( hold )
 }
 
 }

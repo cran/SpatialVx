@@ -170,7 +170,7 @@ aaft2d <- function(Im, bigdim=NULL) {
         return( out)
    } # end of 'aaft2d' function.
 
-FQI <- function(object, surr=NULL, k=4, time.point=1, model=1, ...) {
+FQI <- function(object, surr=NULL, k=4, time.point=1, obs = 1, model=1, ...) {
 
     object <- locmeasures2dPrep(object=object, k=k)
 
@@ -179,30 +179,14 @@ FQI <- function(object, surr=NULL, k=4, time.point=1, model=1, ...) {
     attributes(out) <- a
 
     ## Begin: Get the data sets
-    if(!missing(time.point) && !missing(model)) dat <- datagrabber(object, time.point=time.point, model=model)
-    else if(!missing(time.point)) dat <- datagrabber(object, time.point=time.point)
-    else if(!missing(model)) dat <- datagrabber(object, model=model)
-    else dat <- datagrabber(object)
+    dat <- datagrabber(object, time.point=time.point, obs = obs, model=model)
 
     X <- dat$X
     Y <- dat$Xhat
 
-    dn <- a$data.name
-    if(length(dn) == a$nforecast + 2) {
-        mainname <- dn[1]
-        dn <- dn[-1]
-    } else mainname <- NULL
-
-    vxname <- dn[1]
-    dn <- dn[-1]
-
-    if(!is.numeric(model)) {
-        model.num <- (1:a$nforecast)[model == dn]
-    } else model.num <- model
-    attr(out, "data.name") <- c(mainname, vxname, dn[model.num])
+    attr(out, "data.name") <- c(a$data.name, a$obs.name[ obs ], a$model.name[ model ] )
     thresholds <- a$thresholds
-    thresholds <- cbind(thresholds[,1], thresholds[,model.num + 1])
-    colnames(thresholds) <- c(vxname, dn[model.num])
+    thresholds <- cbind(thresholds$X[, obs], thresholds$Xhat[, model ])
     attr(out, "thresholds") <- thresholds
     ## End: Get the data sets
 
@@ -221,8 +205,8 @@ FQI <- function(object, surr=NULL, k=4, time.point=1, model=1, ...) {
 	return( locperf( X=x2, Y=Ix1, which.stats="ph", k=k, ...)$ph)
     } # end of 'locperfer' internal function.
     for( threshold in 1:q) {
-	Ix <- solutionset( Xim >= thresholds[ threshold,1])
-	Iy <- solutionset( Yim >= thresholds[ threshold,2])
+	Ix <- solutionset( Xim >= thresholds[ threshold,1] )
+	Iy <- solutionset( Yim >= thresholds[ threshold,2] )
 	idx <- X >= thresholds[ threshold,1]
 	idy <- Y >= thresholds[ threshold,2]
 	X2 <- X

@@ -16,7 +16,7 @@ deltamm(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...)
 centmatch(x, criteria = 1, const = 14, distfun = "rdist", areafac = 1,
     verbose = FALSE, ...)
 
-\method{plot}{matched}(x, ...)
+\method{plot}{matched}(x, mfrow = c(1, 2), ...)
 
 \method{print}{matched}(x, ...)
 
@@ -36,6 +36,7 @@ For \code{deltamm} and \code{centmatch}, an object of class \dQuote{features} wi
    \item{criteria}{1, 2 or 3 telling which criteria for determining a match based on centroid distance, D, to use.  The first (1) is a match if D is less than the sum of the sizes of the two features in question (size is the square root of the area of the feature).  The second is a match if D is less than the average size of the two features in question.  The third is a match if D is less than a constant given by the argument \code{const}.}
     \item{distfun}{character string naming a distance function.  Default uses \code{rdist} from the \pkg{fields} package.}
     \item{areafac}{single numeric used to multiply by grid-space based area in order to at least approximate the correct distance (e.g., using the ICP test cases, 4 would make the areas approximately square km instead of grid points).  This should not be used unless \code{distfun} is \dQuote{rdist.earth} in which case it will use the locations given in the call to \code{make.SpatialVx}, which are assumed to be lat/lon coordinates.}
+    \item{mfrow}{mfrow parameter (see help file for \code{par}).  If NULL, then the parameter is not re-set.  }
   \item{verbose}{
 logical, should progress information be printed to the screen?
 }
@@ -139,10 +140,10 @@ y[c(4:7, 9:10),c(7:9, 11:12)] <- 1
 x[30:50,45:65] <- 1
 y[c(22:24, 99:100),c(50:52, 99:100)] <- 1
 
-hold <- make.SpatialVx(x, y, field.type="contrived", units="none",
-    data.name=c("Example", "x", "y"))
+hold <- make.SpatialVx( x, y, field.type = "contrived", units = "none",
+    data.name = "Example", obs.name = "x", model.name = "y" )
 
-look <- FeatureFinder(hold, smoothpar=0.5) 
+look <- FeatureFinder( hold, smoothpar = 0.5 ) 
 
 look2 <- deltamm(look)
 look2 <- MergeForce( look2 )
@@ -162,20 +163,24 @@ look3 <- MergeForce( look3 )
 plot( look3 )
 
 \dontrun{
-data(pert000)
-data(pert004)
-data(ICPg240Locs)
+data( "pert000" )
+data( "pert004" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx(pert000, pert004,
-    loc=ICPg240Locs, projection=TRUE, map=TRUE, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("ICP Perturbed Cases", "pert000", "pert004"))
+hold <- make.SpatialVx( pert000, pert004,
+    loc = ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "mm/h",
+    data.name = "ICP Perturbed Cases", obs.name = "pert000",
+    model.name = "pert004"))
 
-look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
-plot(look)
+look <- FeatureFinder(hold, smoothpar = 10.5, thresh = 5 )
+
+plot( look )
 
 look2 <- deltamm(look, verbose = TRUE)
-plot(look2)
+
+plot( look2 )
+
    }
 
 }

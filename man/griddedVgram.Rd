@@ -9,9 +9,9 @@ Find (and plot) variograms for each field in a gridded verification set.
 }
 \usage{
 griddedVgram(object, zero.in = TRUE, zero.out = TRUE, time.point = 1, 
-    model = 1, ...)
+    obs = 1, model = 1, ...)
 
-\method{plot}{griddedVgram}(x, ..., set.pw = FALSE)
+\method{plot}{griddedVgram}(x, ... )
 }
 \arguments{
   \item{object}{
@@ -20,8 +20,7 @@ list object of class \dQuote{SpatialVx} containing information on the verificati
    \item{zero.in,zero.out}{logical, should the variogram be calculated over the entire field (zero.in), and/or over only the non-zero values (zero.out)?}
    \item{x}{list object as returned by \code{griddedVgram}.}
     \item{time.point}{numeric or character indicating which time point from the \dQuote{SpatialVx} verification set to select for analysis.}
-  \item{model}{numeric indicating which forecast model to select for the analysis.}
-    \item{set.pw}{logical, should a panel of plots be determined and set by the function.}
+  \item{obs, model}{numeric indicating which observation/forecast model to select for the analysis.}
   \item{\dots}{
 In the case of \code{griddedVgram}, these are optional arguments to the \code{vgram.matrix} function from package \code{fields}.  In the case of \code{plot.griddedVgram}, these are optional arguments to \code{plot.vgram.matrix}, which in turn are optional arguments to \code{image.plot}.
 }
@@ -49,29 +48,31 @@ Eric Gilleland
 \code{\link{vgram.matrix}}, \code{\link{make.SpatialVx}}}
 
 \examples{
-data(ExampleSpatialVxSet)
+data( "ExampleSpatialVxSet" )
 
 x <- ExampleSpatialVxSet$vx
 xhat <- ExampleSpatialVxSet$fcst
 
-hold <- make.SpatialVx(x, xhat, field.type="contrived",
-    units="none", data.name=c("Example", "x", "xhat"))
+hold <- make.SpatialVx( x, xhat, field.type = "contrived",
+    units="none", data.name = "Example", obs.name = "x",
+    model.name = "xhat" )
 
-res <- griddedVgram(hold,R=8)
-plot(res, set.pw=TRUE)
+res <- griddedVgram( hold, R = 8 )
+plot( res )
 
 \dontrun{
-data(pert004)
-data(pert000)
-data(ICPg240Locs)
+data( "pert004" )
+data( "pert000" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
-    projection=TRUE, map=TRUE, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
+hold <- make.SpatialVx( pert000, pert004, loc = ICPg240Locs,
+    projection = TRUE, map = TRUE, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "mm/h",
+    data.name = "Perturbed ICP Cases", obs.name = "pert000",
+    model.name = "pert004" )
 
 res <- griddedVgram(hold, R=8)
-plot(res, set.pw=TRUE)
+plot( res )
 }
 }
 \keyword{ math }

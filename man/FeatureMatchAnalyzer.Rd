@@ -125,13 +125,14 @@ Functions to compute feature properties: \code{\link{locperf}}, \code{\link{delt
 Function to calculate fuzzy logic interest values: \code{\link{interester}}
 }
 \examples{
-data(ExampleSpatialVxSet)
+data( "ExampleSpatialVxSet" )
 
 x <- ExampleSpatialVxSet$vx
 xhat <- ExampleSpatialVxSet$fcst
 
-hold <- make.SpatialVx(x, xhat, field.type="Example",
-    units="units", data.name=c("Example", "x", "xhat"))
+hold <- make.SpatialVx( x, xhat, field.type="Example",
+    units = "units", data.name = "Example", 
+    obs.name = "x", model.name = "xhat" )
 
 look <- FeatureFinder(hold, smoothpar=1.5)
 look2 <- centmatch(look)
@@ -143,14 +144,15 @@ plot(tmp)
 
 
 \dontrun{
-data(pert000)
-data(pert004)
-data(ICPg240Locs)
+data( "pert000" )
+data( "pert004" )
+data( "ICPg240Locs" )
 
-hold <- make.SpatialVx(pert000, pert004, loc=ICPg240Locs,
-    projection=TRUE, map=TRUE, loc.byrow = TRUE,
-    field.type="Precipitation", units="mm/h",
-    data.name=c("Perturbed ICP Cases", "pert000", "pert004"))
+hold <- make.SpatialVx( pert000, pert004, loc = ICPg240Locs,
+    projection = TRUE, map = TRUE, loc.byrow = TRUE,
+    field.type = "Precipitation", units = "mm/h",
+    data.name = "Perturbed ICP Cases", obs.name = "pert000",
+    model.name = "pert004" )
 
 look <- FeatureFinder(hold, smoothpar=10.5)
 look2 <- centmatch(look)
