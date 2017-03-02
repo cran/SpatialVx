@@ -1,5 +1,5 @@
-696704b9ef61b6a555420471a47846a8 *DESCRIPTION
-ad5535ec6d2a41e5c6cb689daf62fb2e *NAMESPACE
+2c8b0816f7b8e9f4df15a143c106268c *DESCRIPTION
+d34e87b3c560457e30646e4bbed9e74b *NAMESPACE
 16f6f2cac20136f3220e6bed9afae3a2 *R/CA.R
 b16bcebf0f655ca445e42804db5f16d9 *R/DataObjects.R
 d3961772be21017ad201e842001a245e *R/FeatureFinder.R
@@ -14,7 +14,7 @@ af37c5981ed5720c48390f8dd6a51c43 *R/Misc.R
 c3a733adc959ec8f6de6876cc92c4b7c *R/OF.R
 e644c9cc54344e719a6f4b698ed705b6 *R/QlossRigid.R
 81b2b18123d171329015d8b27bd6e3fd *R/SigFuns.R
-1a559b00ed40d5a969a337f32c2133a5 *R/Vgrams.R
+e6057af866a4a07a444725469ebf8e10 *R/Vgrams.R
 8dcada8543c7537b079b09c2066b0d63 *R/combiner.R
 351e9e96ef7e0feebfc8d808ef4c3b51 *R/compositer.R
 2cc1f2082d5372ce0611c9d314d7d4dd *R/craer.R
@@ -25,7 +25,7 @@ d583f4a4f1a015083ef262c0a593672a *R/functionals.R
 17f9498a671929be70a364836417a7a0 *R/imomenter.R
 4ff49b4d87e07043179a16313bfeeaa6 *R/interester.R
 4c9a4f968a6d20945dddb28b0d511b7e *R/minboundmatch.R
-d0725079103896e39c554c5d7ef01b29 *R/plot.matched.R
+1102e8c07b07a7f40eca1347d8a16fa7 *R/plot.matched.R
 a616b3c90c49c542154b396a4b4040b8 *R/rigider.R
 469b7469d663f297efdafdfd8ee87415 *R/spct.R
 a751943cea1c4a58726e95d68e66672d *R/waveIS.R
@@ -112,7 +112,7 @@ cf7251f4222229e7b0f4ad9ce12908f4 *man/Mij.Rd
 125de469b3fccd9e2c83e426e69842aa *man/OF.Rd
 f618e4a30f1e89d3c1c6ff4b30930a4d *man/S1.Rd
 f35469a615fdfef9653237a9731178cf *man/Sindex.Rd
-587e530be50e8fdf00bac3e685746827 *man/SpatialVx-internal.Rd
+7b891debb73d3dbbbbb1998a306a2fb6 *man/SpatialVx-internal.Rd
 b757380f8f17671d678cf03e9b27d785 *man/SpatialVx-package.Rd
 d6440769c24901fb22a4193ca125e4f9 *man/UKobs6.Rd
 c6c7c55e8836fef18352d0812986417e *man/abserrloss.Rd
@@ -142,7 +142,7 @@ c4bbccc1921d0a16c3841777691fea79 *man/locmeasures2d.Rd
 ac069643ee53ef1f16a15facbd407cab *man/lossdiff.Rd
 768a7f0e02e432dac462f658a600e890 *man/make.SpatialVx.Rd
 4c5a856dd8bb8d851965548c68d1f5a5 *man/metrV.Rd
-0ab104a80c457a1ed03b82969202f261 *man/minboundmatch.Rd
+126dffd3dd73a0e65c4fda5d466a62c2 *man/minboundmatch.Rd
 33e3ddd86befbc8ce2b8290ff095083a *man/optflow.Rd
 bdbae164afb1d40601aeb48782a4b03b *man/pphindcast2d.Rd
 3707a2558616a1168299f9bab152ada0 *man/rigider.Rd
@@ -154,6 +154,7 @@ c13e8d806e973161eace995b85619bef *man/structurogram.matrix.Rd
 b9ad0953eeebfade5925e1115320b1f7 *man/surrogater2d.Rd
 179fb81bc770508bb7c4787a33e8fb2e *man/thresholder.Rd
 a00e6bb8d570c8bf3a3ceda7dfd17af3 *man/upscale2d.Rd
+de6e0f947e0d1c9dc1546826030bfcba *man/variographier.Rd
 06e4e656a523ead204301cdc167cf327 *man/vxstats.Rd
 1777892174bba54dac28586efee05163 *man/waveIS.Rd
 849e1bfcda852ff4f7330e939b313a7b *man/wavePurifyVx.Rd

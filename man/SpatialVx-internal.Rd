@@ -33,10 +33,12 @@
 \alias{plot.saller}
 \alias{plot.SpatialVxMap}
 \alias{plot.SpatialVxNoMap}
+\alias{plot.variographied}
 \alias{plot.wavePurifyVxFieldsMap}
 \alias{plot.wavePurifyVxFieldsNoMap}
 \alias{plot.wavePurifyVxStats}
 \alias{print.summary.interester}
+\alias{print.variographied}
 \alias{shrinkgrid}
 \title{
 Internal functions for the SpatialVx package

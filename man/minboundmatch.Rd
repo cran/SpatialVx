@@ -55,6 +55,8 @@ look <- FeatureFinder(hold, smoothpar=0.5)
 
 look2 <- minboundmatch( look )
 
+look2 <- MergeForce( look2 )
+
 par( mfrow = c(1,2) )
 plot( look2 )
 

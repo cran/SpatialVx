@@ -20,8 +20,16 @@ plot.matchedMap <- function( x, mfrow = c(1, 2), ... ) {
 
     }
 
-    if( !( "deltamm" %in% x$match.type[ 1 ] ) && ( is.null( x$MergeForced ) || !x$MergeForced ) )
-	warning("plot.matched: If MergeForce is not run, then colors will not identify matches.")
+    # if( !( "deltamm" %in% x$match.type[ 1 ] ) && ( is.null( x$MergeForced ) || !x$MergeForced ) )
+# 	warning("plot.matched: If MergeForce is not run, then colors will not identify matches.")
+
+    # If MergeForce was not run, then first run it.
+    if( is.null( x$MergeForced ) || !x$MergeForced ) {
+
+	warning( "MergeForce had not been applied.  Applying it now, so object numbers on plot might not correspond to what is in object." )
+	x <- MergeForce( x )
+
+    }
 
     matches <- x$matches
 
@@ -38,16 +46,14 @@ plot.matchedMap <- function( x, mfrow = c(1, 2), ... ) {
     if ( any( dim( matches ) == 0 ) ) {
 
         nm <- 0
-        X[ X > 0 ] <- 1
-
-        Xhat <- x$Y.labeled
+        X[ X > 0 ] <- 1 
         Xhat[ Xhat > 0 ] <- 1
-        icolX <- icolXhat <- icol <- c("white", "gray")
+        icolX <- icolXhat <- icol <- c( "white", "gray" )
 
     } else {
 
         nm <- dim( matches )[ 1 ]
-	icolX <- icolXhat <- icol <- c( "white", rainbow( nm ) )
+	icolX <- icolXhat <- icol <- c( rainbow( nm ) )
 
 	if( nX > 0 ) {
 
@@ -63,7 +69,17 @@ plot.matchedMap <- function( x, mfrow = c(1, 2), ... ) {
 
 	}
 
-	if( nX > 0 || nY > 0 ) icol <- c( icol, "gray" )
+	if( nX > 0 || nY > 0 ) {
+
+	    icol <- c( icol, "gray" )
+
+	}
+
+	if( any( X < 1 ) ) X[ X < 1 ] <- NA
+	if( any( Xhat < 1 ) ) Xhat[ Xhat < 1 ] <- NA
+
+	if( all( is.na( X ) ) ) X[ is.na( X ) ] <- 0
+	if( all( is.na( Xhat ) ) ) Xhat[ is.na( Xhat ) ] <- 0
 
     }
 
@@ -80,12 +96,15 @@ plot.matchedMap <- function( x, mfrow = c(1, 2), ... ) {
     map( xlim = lr[, 1], ylim = lr[, 2], type = "n" )
     title( a$obs.name )
     poly.image( l$x, l$y, X, col = icolX, add = TRUE )
+     
     map( add = TRUE )
     map( database = "state", add = TRUE )
 
     map( xlim = lr[, 1], ylim = lr[, 2], type = "n" )
     title( a$model.name )
-    poly.image( l$x, l$y, Xhat, col = icolX, add = TRUE )
+
+    poly.image( l$x, l$y, Xhat, col = icolXhat, add = TRUE )
+
     map( add = TRUE )
     map( database = "state", add = TRUE )
 
@@ -115,8 +134,16 @@ plot.matchedNoMap <- function( x, mfrow = c(1, 2), ... ) {
 
     }
 
-    if( !( "deltamm" %in% x$match.type[ 1 ] ) && ( is.null( x$MergeForced ) || !x$MergeForced ) )
-        warning("plot.matched: If MergeForce is not run, then colors will not identify matches.")
+#    if( !( "deltamm" %in% x$match.type[ 1 ] ) && ( is.null( x$MergeForced ) || !x$MergeForced ) )
+#        warning("plot.matched: If MergeForce is not run, then colors will not identify matches.")
+
+    # If MergeForce was not run, then first run it.
+    if( is.null( x$MergeForced ) || !x$MergeForced ) {
+
+        warning( "MergeForce had not been applied.  Applying it now, so object numbers on plot might not correspond to what is in object." )
+        x <- MergeForce( x )
+
+    }
 
     matches <- x$matches
 
@@ -137,12 +164,12 @@ plot.matchedNoMap <- function( x, mfrow = c(1, 2), ... ) {
 
         Xhat <- x$Y.labeled
         Xhat[ Xhat > 0 ] <- 1
-        icolX <- icolXhat <- icol <- c("white", "gray")
+        icolX <- icolXhat <- icol <- c( "white", "gray" )
 
     } else {
 
         nm <- dim( matches )[ 1 ]
-        icolX <- icolXhat <- icol <- c( "white", rainbow( nm ) )
+        icolX <- icolXhat <- icol <- rainbow( nm )
 
         if( nX > 0 ) {
 
@@ -158,7 +185,17 @@ plot.matchedNoMap <- function( x, mfrow = c(1, 2), ... ) {
 
         }
 
-        if( nX > 0 || nY > 0 ) icol <- c( icol, "gray" )
+        if( nX > 0 || nY > 0 ) {
+
+	    icol <- c( icol, "gray" )
+
+	}
+
+	if( any( X < 1 ) ) X[ X < 1 ] <- NA
+        if( any( Xhat < 1 ) ) Xhat[ Xhat < 1 ] <- NA
+
+        if( all( is.na( X ) ) ) X[ is.na( X ) ] <- 0
+        if( all( is.na( Xhat ) ) ) Xhat[ is.na( Xhat ) ] <- 0
 
     }
 

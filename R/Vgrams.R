@@ -649,3 +649,120 @@ plot.structurogram <- function(x,...) {
    lines(x$centers, x$stats["mean",], col="darkblue")
    invisible()
 } # end of 'plot.structurogram' function.
+
+variographier <- function( x, init, zero.out = FALSE, ... ) {
+
+    UseMethod( "variographier", x )
+
+} # end of 'variographier' function.
+
+variographier.default <- function( x, init, zero.out = FALSE, ..., y ) {
+
+    if( !zero.out ) {
+
+	vgx <- try( vgram.matrix( dat = x, ... ) )
+	vgy <- try( vgram.matrix( dat = y, ... ) )
+
+    } else {
+
+	vgx <- try( variogram.matrix( dat = x, zero.out = zero.out, ... ) )
+	vgy <- try( variogram.matrix( dat = y, zero.out = zero.out, ... ) )
+
+    }
+
+    if( class( vgx ) == "try-error" || class( vgy ) == "try-error" ) return( NA )
+
+    if( missing( init ) ) {
+
+        px <- c( sqrt( vgx$vgram[ 1 ] ), ifelse( vgx$vgram[ 2 ] > 0, -(vgx$vgram[ 2 ] - vgx$vgram[ 1 ]), -(0 - vgx$vgram[ 1 ]) ) )
+	py <- c( sqrt( vgy$vgram[ 1 ] ), ifelse( vgy$vgram[ 2 ] > 0, -(vgy$vgram[ 2 ] - vgy$vgram[ 1 ]), -(0 - vgy$vgram[ 1 ]) ) )
+
+    } else {
+
+	px <- init$px
+	py <- init$py
+
+    }
+
+    fitx <- try( nlminb( px, ORSS, vg = vgx, model = "expvg", ..., lower = c(0, 0), upper = c(Inf, Inf) ) )
+    if( class( fitx ) == "try-error" ) return( NA )
+    fity <- try( nlminb( py, ORSS, vg = vgy, model = "expvg", ..., lower = c(0, 0), upper = c(Inf, Inf) ) )
+    if( class( fity ) == "try-error" ) return( NA )
+
+    res <- 1 / sqrt( fitx$par[ 1 ]^2 + fity$par[ 1 ]^2 + ( 3 / fitx$par[ 2 ] - 3 / fity$par[ 2 ] )^2 )
+
+    out <- list( obs.vg = vgx, mod.vg = vgy, obs.parvg = fitx, mod.parvg = fity, variography = res )
+
+    class( out ) <- "variographied"
+
+    return( out )
+
+} # end of 'variographier.default' function.
+
+variographier.SpatialVx <- function( x, init, zero.out = FALSE, ..., obs = 1, model = 1, time.point = 1 ) {
+
+    a <- attributes( x )
+
+    dat <- datagrabber( x, time.point = time.point, obs = obs, model = model)
+    Obs <- dat$X
+    Fcst <- dat$Xhat
+    mainname <- a$data.name
+    vxname <- a$obs.name[obs]
+
+    if( !missing( init ) ) out <- variographier( x = Obs, y = Fcst, init = init, zero.out = zero.out, ... )
+    else out <- variographier( x = Obs, y = Fcst, zero.out = zero.out, ... )
+
+    attr( out, "time.point") <- time.point
+    attr( out, "model") <- model
+    attr( out, "model.name" ) <- a$model.name[ model ]
+    attr( out, "obs.name" ) <- a$obs.name[ obs ]
+    attr( out, "data.name" ) <- c( mainname, vxname, a$model.name[ model ] )
+
+    return( out )
+
+} # end of 'variographier.SpatialVx' function.
+
+print.variographied <- function( x, ... ) {
+
+    a <- attributes( x )
+
+    if( !is.null( x$data.name ) ) print( a$data.name )
+
+    cat( "\nEstimated Variography Value = ", x$variography, "\n\n" )
+
+    invisible()
+
+} # end of 'print.variographied' function.
+
+plot.variographied <- function( x, ... ) {
+
+    yl <- range( c( x$obs.vg$vgram, x$mod.vg$vgram ), finite = TRUE )
+
+    vg <- x$obs.vg
+    plot( vg$d, vg$vgram, col = "darkblue", xlab = "distance (grid squares)", ylab = "variogram", ylim = yl, ... )
+    vg <- x$mod.vg
+    points( vg$d, vg$vgram, col = "darkred", ... )
+
+    p <- x$obs.parvg$par
+    modvg <- p[1] * ( 1 - exp( -vg$d * p[2] ) )
+    lines( vg$d, modvg, col = "darkblue" )
+    p <- x$mod.parvg$par
+    modvg <- p[1] * (1 - exp(-vg$d * p[2] ) )
+    lines( vg$d, modvg, col = "darkred", lty = 2 )
+
+    a <- attributes( x )
+    if( !is.null( a$obs.name ) ) xname <- a$obs.name
+    else xname <- "observation"
+    if( !is.null( a$mod.name ) ) yname <- a$mod.name
+    else yname <- "model"
+
+    zname <- paste( "variography = ", x$variography )
+
+    legend( "topleft", legend = c( xname, yname, zname ), pch = c( 1, 1, 0 ), col = c( "darkblue", "darkred", "white" ), bty = "n" )
+
+    invisible()
+
+} # end of 'plot.variographied' function
+
+
+
