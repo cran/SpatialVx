@@ -3,6 +3,8 @@
 \alias{datagrabber.SpatialVx}
 \alias{datagrabber.features}
 \alias{datagrabber.matched}
+\alias{deltammSqCen}
+\alias{deltammOrig}
 \alias{FeatureMatchAnalyzer.matched}
 \alias{MergeIdentifier}
 \alias{hoods2dPrep}

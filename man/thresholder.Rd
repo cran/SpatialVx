@@ -72,7 +72,7 @@ image.plot( thresholder( x, type = "replace.below", th = 12, rule = "<=" ),
     main = "replace.below with rule <=" )
 
 par( mfrow = c(1,1) )
-
+\dontrun{
 data("geom000")
 data("geom004")
 data("ICPg240Locs")
@@ -99,5 +99,6 @@ look <- thresholder( hold, th = 1, rule = "<" )
 
 image.plot( look$X )
 contour( look$Xhat, add = TRUE, col = "white" )
+}
 }
 \keyword{ manip }

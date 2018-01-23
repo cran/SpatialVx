@@ -3,11 +3,12 @@
 \title{Quilt Plot and a Matrix Plot.}
 \description{Function to make a quilt plot and a matrix plot for a matrix whose rows represent neighborhood lengths, and whose columns represent different threshold choices.}
 \usage{
-hoods2dPlot(x, args, ...)
+hoods2dPlot(x, args, matplotcol = 1:6, ...)
 }
 \arguments{
   \item{x}{l by q numeric matrix.}
   \item{args}{list object with components: threshold (numeric vector giving the threshold values), qs (optional numeric vector giving the quantiles used if the thresholds represent quantiles rather than hard values), levels (numeric giving the neighborhood lengths (in grid squares) used, units (optional character giving the units for the thresholds)}
+  \item{matplotcol}{col argument to \code{matplot}.}
   \item{\dots}{optional arguments to \code{image} and \code{image.plot} functions.  May not include xaxt, yaxt, lab, lab, col, or legend.only}
 }
 \details{Used by \code{plot.hoods2d}, but can be useful for other functions.  Generally, however, this is an internal function that should not be called by the user.  However, it might be called instead of \code{plot.hoods2d} in order to make a subset of the available plots.}

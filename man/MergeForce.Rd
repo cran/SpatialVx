@@ -59,11 +59,20 @@ hold <- make.SpatialVx( x, y, field.type="contrived", units="none",
 
 look <- FeatureFinder(hold, smoothpar=0.5)
 
-look2 <- deltamm(look)
+look2 <- centmatch( look )
 
-look2 <- MergeForce(look2)
+look2
+
+look2 <- MergeForce( look2 )
+
+look2
+
+plot( look2 )
 
 \dontrun{
+look3 <- deltamm( look, N = 201 )
+look3 <- MergeForce( look3 )
+
 data( "pert000" )
 data( "pert004" )
 data( "ICPg240Locs" )
@@ -76,17 +85,12 @@ hold <- make.SpatialVx( pert000, pert004,
 
 look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
 
-look2 <- deltamm(look, verbose = TRUE)
+look2 <- centmatch( look, verbose = TRUE )
 
-plot(look2)
+look2 <- MergeForce( look2 )
 
-look3 <- MergeForce(look2)
+plot( look2 )
 
-plot(look3) # same plot as for look2.
-
-look4 <- deltamm(look3, verbose = TRUE) # Nothing changed.
-
-plot(look4) # Nothing changed.
    }
 
 }

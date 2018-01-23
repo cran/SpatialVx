@@ -38,8 +38,8 @@ character naming a 2-d smoothing function from package \pkg{smoothie}.  Not used
 logical, should the field first be smoothed before trying to identify features (resulting field will not be smoothed, this is just for identifying features).  Default is to do convolution smoothing using a disc kernel as is recommended by Davis et al (2006a).
 }
   \item{smoothpar}{
-numeric of length one or two giving the smoothing parameter for \code{smoothfun}.  If length is two, the first value is applied to the forecast field and the second to the verification field.
-}
+numeric of length one or two giving the smoothing parameter for \code{smoothfun}.  If length is two, the first value is applied to the forecast field and the second to the verification field.  The default smooth function (\code{smoothfun} argument) is the disk kernel smoother, so this argument gives the radius of the disk.  See the help file for \code{hoods2dsmooth} from package \pkg{smoothie} for other smoother choices; this argument corresponds to the \code{lambda} argument of these functions.}
+
   \item{smoothfunargs}{
 list object with named additional arguments to \code{smoothfun}.
 }
@@ -136,6 +136,7 @@ To force merges (implicit or otherwise; recommended): \code{\link{MergeForce}}
 }
 \examples{
 
+\dontrun{
 x <- y <- matrix(0, 100, 100)
 x[2:3,c(3:6, 8:10)] <- 1
 y[c(4:7, 9:10),c(7:9, 11:12)] <- 1
@@ -152,15 +153,13 @@ par( mfrow=c(1,2))
 image.plot(look$X.labeled)
 image.plot(look$Y.labeled)
      
-look2 <- deltamm(look)
+look2 <- centmatch(look)
      
 FeatureTable(look2)
      
-look3 <- centmatch(look)
-     
-FeatureTable(look3)
-     
-\dontrun{
+look3 <- deltamm( look, N = 201, verbose = TRUE ) 
+FeatureTable( look3 )
+
 
 data( "pert000" )
 data( "pert004" )
@@ -175,7 +174,10 @@ hold <- make.SpatialVx( pert000, pert004,
 look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
 plot(look)
 
-look2 <- deltamm(look, verbose = TRUE)
+look2 <- deltamm( look, N = 701, verbose = TRUE )
+
+look2 <- MergeForce( look2 )
+
 plot(look2)
 
 summary( look2 )

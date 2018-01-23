@@ -11,7 +11,8 @@ Merge and/or Match Identified Features Within Two Fields
 Merge and/or match identified features within two fields using the delta metric method described in Gilleland et al. (2008), or the matching only method of Davis et al. (2006a).
 }
 \usage{
-deltamm(x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE, ...)
+deltamm(x, p = 2, max.delta = Inf, const = Inf, type = c( "sqcen", "original" ),
+    N = NULL, verbose = FALSE, ...)
 
 centmatch(x, criteria = 1, const = 14, distfun = "rdist", areafac = 1,
     verbose = FALSE, ...)
@@ -30,8 +31,10 @@ For \code{deltamm} and \code{centmatch}, an object of class \dQuote{features} wi
   \item{object}{list object of class \dQuote{matched}.}
   \item{p}{Baddeley delta metric parameter.  A value of 1 gives arithmetic averages, Inf gives the Hausdorff metric and -Inf gives a minimum.  The default of 2 is most common.}
   \item{max.delta}{single numeric giving a cut-off value for delta that disallows two features to be merged or matched if the delta between them is larger than this value.}
-  \item{const}{\code{deltamm}: a constant value over which the shortest distances in a distance map are set.  See Gilleland (2011) and Schwedler and Baldwin (2011) for more information about this parameter.
-  \code{centmatch}: numeric giving the number of grid squares whereby if the centroid distance (D) is less than this value, a match is declared (only used if \code{criteria} is 3.
+  \item{const}{\code{deltamm}: a constant value over which the shortest distances in a distance map are set.  See Gilleland (2011) and Schwedler and Baldwin (2011) for more information about this parameter.}
+  \item{type}{character specifying whether Baddeley's delta metric should be calculated after centering object pairs on a new square grid (default) or performed in their original positions on the original grid.  }
+  \item{N}{If \code{type} is \dQuote{sqcen}, then \code{N} is the argument to \code{censqdelta} that specifies the common grid size.  If not specified the maximum side of the original domain is used (possibly adding one first to make it an odd number).  It is possible that values could be pushed off the new grid, and making \code{N} larger might alleviate the issue.}
+  \code{centmatch}{ numeric giving the number of grid squares whereby if the centroid distance (D) is less than this value, a match is declared (only used if \code{criteria} is 3.
 }
    \item{criteria}{1, 2 or 3 telling which criteria for determining a match based on centroid distance, D, to use.  The first (1) is a match if D is less than the sum of the sizes of the two features in question (size is the square root of the area of the feature).  The second is a match if D is less than the average size of the two features in question.  The third is a match if D is less than a constant given by the argument \code{const}.}
     \item{distfun}{character string naming a distance function.  Default uses \code{rdist} from the \pkg{fields} package.}
@@ -133,6 +136,7 @@ Other functions used to identify features within the above mentioned functions (
 \code{\link{disjointer}}, \code{\link{deltametric}}, \code{\link{owin}}, \code{\link{tess}}, \code{\link{tiles}}, \code{\link{connected}}
 }
 \examples{
+\dontrun{
 x <- y <- matrix(0, 100, 100)
 x[2:3,c(3:6, 8:10)] <- 1
 y[c(4:7, 9:10),c(7:9, 11:12)] <- 1
@@ -145,7 +149,10 @@ hold <- make.SpatialVx( x, y, field.type = "contrived", units = "none",
 
 look <- FeatureFinder( hold, smoothpar = 0.5 ) 
 
-look2 <- deltamm(look)
+# The next line fails because the centering pushes one object out of the new domain.
+# look2 <- deltamm( look )
+# Setting N larger fixes the problem.
+look2 <- deltamm( look, N = 300 )
 look2 <- MergeForce( look2 )
 
 look2
@@ -161,7 +168,7 @@ FeatureTable(look3)
 look3 <- MergeForce( look3 )
 
 plot( look3 )
-
+}
 \dontrun{
 data( "pert000" )
 data( "pert004" )
@@ -171,15 +178,24 @@ hold <- make.SpatialVx( pert000, pert004,
     loc = ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
     field.type = "Precipitation", units = "mm/h",
     data.name = "ICP Perturbed Cases", obs.name = "pert000",
-    model.name = "pert004"))
+    model.name = "pert004")
 
 look <- FeatureFinder(hold, smoothpar = 10.5, thresh = 5 )
 
 plot( look )
 
-look2 <- deltamm(look, verbose = TRUE)
+look2 <- deltamm( look, N = 701, verbose = TRUE )
+
+look2
+
+look2 <- MergeForce( look2 )
+
+look2
 
 plot( look2 )
+
+# No false alarm objects, one missed object.
+FeatureTable( look2 )
 
    }
 

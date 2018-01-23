@@ -1063,6 +1063,8 @@ centmatch <- function(x, criteria = 1, const = 14, distfun = "rdist", areafac = 
     out$criteria.values <- Dcomp
     out$centroid.distances <- Dcent
 
+    out$MergeForced <- FALSE
+
     class(out) <- "matched"
     return(out)
 

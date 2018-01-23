@@ -147,6 +147,8 @@ minboundmatch <- function(x, type = c("single", "multiple"), mindist = Inf, verb
 
     if(verbose) print(Sys.time() - begin.tiid)
 
+    out$MergeForced <- FALSE
+
     class( out ) <- "matched"
     return( out )
 

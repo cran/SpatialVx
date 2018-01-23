@@ -33,7 +33,7 @@ function( object, which.methods = c("mincvr", "multi.event", "fuzzy", "joint", "
    if( verbose) cat("Looping through thresholds.\n")
    for( threshold in 1:q) {
       	if( any( c("mincvr", "mincvr", "multi.event", "fuzzy", "joint", "fss", "pragmatic") %in% which.methods)) {
-	   if( verbose) cat("\n", "Setting up binary objects for thresholds = ", thresholds[ threshold,], "\n")
+	   if( verbose) cat("\n", "Setting up binary objects for threshold ", threshold, "\n")
 	   # Ix <- Iy <- binmat
 	   # Ix[ X >= thresholds[threshold,"X"]] <- 1
 	   # Iy[ Y >= thresholds[threshold,"Xhat"]] <- 1
@@ -250,7 +250,7 @@ function( x, ..., add.text = FALSE ) {
 
 } # end of 'plot.hoods2d' function.
 
-fss2dPlot <- function(x, ..., mfrow = c(1, 2), add.text = FALSE) {
+fss2dPlot <- function(x, ..., matplotcol = 1:6, mfrow = c(1, 2), add.text = FALSE ) {
 
    odim <- dim( x$values)
    q <- odim[2]
@@ -284,7 +284,7 @@ fss2dPlot <- function(x, ..., mfrow = c(1, 2), add.text = FALSE) {
    # line plot
    look <- x$values
    matplot( look, ylim = c(0,1), ylab = "FSS", xlab = "Neighborhood size (grid squares)",
-	    type = "l", lty = 1, axes = FALSE , lwd = 2)
+	    type = "l", lty = 1, axes = FALSE , lwd = 2, col = matplotcol )
 
    abline(h=c(x$fss.uniform), col=1:q, lty=2)
    abline(h=c(x$fss.random), col=1:q, lty=3)
@@ -375,8 +375,8 @@ function(X, Xhat, which.stats=c("bias", "ts", "ets", "pod", "far", "f", "hk", "b
 	}
 
 	if( "bias" %in% which.stats) {
-	   if( (hits + fa == 0) & (hits + miss == 0)) out$bias <- 1
-	   else if( hits + miss == 0) out$bias <- (hits + fa)/(1e-8)
+	   if( (hits + fa == 0) && (hits + miss == 0)) out$bias <- 1
+	   # else if( hits + miss == 0) out$bias <- NA # out$bias <- (hits + fa)/(1e-8) # Changed 8/7/2017 per Anastasia Bundel's suggestion.
 	   else out$bias <- (hits + fa)/(hits + miss)
  	}
 	if( "ts" %in% which.stats) {
@@ -497,38 +497,60 @@ function( sPy, sPx, subset=NULL) {
    ## Value: list object with components: "fuzzy" and "joint", each of which are themselves
    ##	list objects each with components: "pod", "far" and "ets".
    ##
+
    out <- list()
+
    vxfun <- function(n11, n01, n10, n00) {
+
 	pod <- n11/(n11 + n01)
 	far <- n10/(n11 + n10)
 	hits.random <- (n11 + n01)*(n11 + n10)/(n11 + n01 + n10 + n00)
 	ets <- (n11 - hits.random)/(n11 + n01 + n10 - hits.random)
 	return( list(pod=pod, far=far, ets=ets))
+
    } # end of internal 'vxfun' function.
+
    if( is.null( subset)) {
-      hits <- sum( colSums( sPx < sPy, na.rm=TRUE), na.rm=TRUE)
-      miss <- sum( colSums( sPx < (1-sPy), na.rm=TRUE), na.rm=TRUE)
-      fa   <- sum( colSums( (1-sPx) < sPy, na.rm=TRUE), na.rm=TRUE)
-      cn   <- sum( colSums( (1-sPx) < (1-sPy), na.rm=TRUE), na.rm=TRUE)
+
+      # hits <- sum( colSums( sPx < sPy, na.rm=TRUE), na.rm=TRUE)
+      # miss <- sum( colSums( sPx < (1-sPy), na.rm=TRUE), na.rm=TRUE)
+      # fa   <- sum( colSums( (1-sPx) < sPy, na.rm=TRUE), na.rm=TRUE)
+      # cn   <- sum( colSums( (1-sPx) < (1-sPy), na.rm=TRUE), na.rm=TRUE)
+
+	hits <- sum( colSums( pmin( sPx, sPy, na.rm = TRUE ), na.rm = TRUE ), na.rm = TRUE )
+	miss <- sum( colSums( pmin( sPx, 1 - sPy, na.rm = TRUE ), na.rm = TRUE ), na.rm = TRUE )
+	fa <- sum( colSums( pmin( 1 - sPx, sPy, na.rm = TRUE ), na.rm = TRUE ), na.rm = TRUE )
+	cn <- sum( colSums( pmin( 1 - sPx, 1 - sPy, na.rm = TRUE ), na.rm = TRUE ), na.rm = TRUE )
+
       out$fuzzy <- vxfun( hits, miss, fa, cn)
+
       hits <- sum( colSums( sPx*sPy, na.rm=TRUE), na.rm=TRUE)
       miss <- sum( colSums( sPx*(1-sPy), na.rm=TRUE), na.rm=TRUE)
       fa   <- sum( colSums( (1-sPx)*sPy, na.rm=TRUE), na.rm=TRUE)
       cn   <- sum( colSums( (1-sPx)*(1-sPy), na.rm=TRUE), na.rm=TRUE)
+
       out$joint <- vxfun( hits, miss, fa, cn)
+
    } else {
+
       hits <- sum( c(sPx)[subset] < c(sPy)[subset], na.rm=TRUE)
       miss <- sum( c( sPx)[subset] < (1-c(sPy)[subset]), na.rm=TRUE)
       fa   <- sum( (1-c(sPx)[subset]) < c(sPy)[subset], na.rm=TRUE)
       cn   <- sum( (1-c(sPx)[subset]) < (1-c(sPy)[subset]), na.rm=TRUE)
+
       out$fuzzy <- vxfun( hits, miss, fa, cn)
+
       hits <- sum( (c(sPx)[subset])*(c(sPy)[subset]), na.rm=TRUE)
       miss <- sum( (c( sPx)[subset])*(1-c(sPy)[subset]), na.rm=TRUE) 
       fa   <- sum( (1-c(sPx)[subset])*c(sPy)[subset], na.rm=TRUE)
       cn   <- sum( (1-c(sPx)[subset])*(1-c(sPy)[subset]), na.rm=TRUE)
+
       out$joint <- vxfun( hits, miss, fa, cn)
+
    } # end of if else 'subset' stmt.
+
    return( out)
+
 } # end of 'fuzzyjoint2dfun' function.
 
 pragmatic2dfun <-
@@ -666,7 +688,7 @@ function(sYy, sYx, threshold=NULL, which.stats=c("rmse", "bias", "ts", "ets"), r
 } # end of 'upscale2dfun'.
 
 hoods2dPlot <-
-function(x, args, ...) {
+function(x, args, matplotcol = 1:6, ...) {
 
    odim <- dim(x)
 
@@ -693,7 +715,7 @@ function(x, args, ...) {
    axis( 2, at=seq(0,1,,length(args$levels)), labels=args$levels)
    image.plot( t( x), legend.only=TRUE, col=c("grey", heat.colors(12)), ...)
 
-   matplot( x, ylab=args$ylab, xlab="Neighborhood size (grid squares)", type = "l", lty = 1, axes = FALSE , lwd = 2)
+   matplot( x, ylab=args$ylab, xlab="Neighborhood size (grid squares)", type = "l", lty = 1, axes = FALSE , lwd = 2, col = matplotcol )
    axis(2)
    box()
    axis(1, at = 1:l, labels = args$levels)

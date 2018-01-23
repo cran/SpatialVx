@@ -1,4 +1,4 @@
-rigidTransform <- function(theta, p0, N, cen) {
+rigidTransform <- function( theta, p0, N, cen ) {
 
     if(missing(N)) N <- dim(p0)[1]
 
@@ -113,7 +113,7 @@ rigider <- function(x1, x0, p0, init = c(0, 0, 0), type = c("regular", "fast"), 
                     p1 <- rigidTransform(theta = c(theta, 0), p0 = p0, N = N, cen = cen)
        
                     # rigidly transformed image of x1.
-                    y1 <- Fint2d(X = x1, Ws = p1, s = p0, method = interp)
+                    y1 <- Fint2d( X = x1, Ws = p1, s = p0, method = interp )
     
                     # loss
                     res <- do.call(loss, c(list(y1 = y1, x0 = x0, p1 = p1, p0 = p0), loss.args))
@@ -135,7 +135,7 @@ rigider <- function(x1, x0, p0, init = c(0, 0, 0), type = c("regular", "fast"), 
                 # res$method <- method
     
                 p1 <- rigidTransform(theta = c(res$par, init[ 3 ]), p0 = p0, N = bigN, cen = field.center)
-                y1 <- Fint2d(X = x1, Ws = p1, s = p0, method = interp)
+                y1 <- Fint2d( X = x1, Ws = p1, s = p0, method = interp )
     
                 res$p1 <- p1
                 out$x1.translated <- y1

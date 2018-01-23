@@ -8,7 +8,7 @@ Create Several Graphics for List Objects Returned from hoods2d
 Creates several graphics for list objects returned from hoods2d.  Mostly quilt and matrix plots for displaying results of smoothing fields over different neighborhood lengths and thresholds.
 }
 \usage{
-fss2dPlot(x, ..., mfrow = c(1, 2), add.text = FALSE)
+fss2dPlot(x, ..., matplotcol = 1:6, mfrow = c(1, 2), add.text = FALSE)
 
 upscale2dPlot(object, args, ..., type = c("all",
                  "gss", "ts", "bias", "rmse"))
@@ -21,6 +21,7 @@ upscale2dPlot(object, args, ..., type = c("all",
     \item{add.text}{logical, if TRUE, FSS values will be added to the quilt plot as text (in addition to the color).}
     \item{type}{character string stating which plots to make (default is \dQuote{all}).}
   \item{\dots}{Optional arguments to \code{image} and \code{image.plot} for \code{fss2dPlot}, and optional arguments to \code{hoods2dPlot} for \code{upscale2dPlot}}
+  \item{matplotcol}{col argument to function \code{matplot}.}
 }
 \details{makes quilt and matrix plots for output from \code{hoods2d}.}
 \value{
