@@ -7,7 +7,7 @@ Centered on Square Domain Baddeley's Delta Metric
 Baddeley's delta metric is sensitive to the position of non-zero grid points within the domain, as well as to the size of the domain.  In order to obtain consistent values of the metric across cases, it is recommended to first position the sets to be compared so that they are centered with respect to one another on a square domain; where the square domain is the same for all comparison sets.
 }
 \usage{
-censqdelta(x, y, N, ...)
+censqdelta(x, y, N, const = Inf, p = 2, ...)
 }
 \arguments{
   \item{x, y}{ Matrices representing binary images to be compared.  If they are not binary, then they will be forced to binary by setting anything above zero to one.
@@ -15,6 +15,8 @@ censqdelta(x, y, N, ...)
   \item{N}{
 The size of the square domain.  If missing, it will be the size of the largest side, and if it is even, one will be added to it.
 }
+  \item{const}{ single numeric giving the \code{c} argument to \code{deltametric}, which is the constant value over which the distance map is reduced to this value.}
+  \item{p}{ single numeric giving the \code{p} argument to \code{deltametric}, which specifies the type of Lp norm used to calculate the delta maetric.}
   \item{\dots}{ Not used.
 }
 }
@@ -48,7 +50,7 @@ Schwedler, B. R. J. and Baldwin, M. E. (2011) Diagnosing the sensitivity of bina
 Eric Gilleland
 }
 \seealso{
-\code{\link{deltametric}}
+\code{\link{deltametric}}, \code{\link{locmeasures2d} }
 }
 \examples{
 x <- y <- matrix( 0, 100, 200 )

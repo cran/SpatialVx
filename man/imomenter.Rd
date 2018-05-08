@@ -32,7 +32,7 @@ Not used.
 }
 }
 \details{
-Calculates Hu's image moments (Hu 1962).  Calculates the raw moments: M00 (aka area), M10, M01, M11, M20, and M02, as well as the (normalized) central moments: mu11', mu20', and mu02', which are returned as the image covariance matrix: rbind(c(mu20', mu11'), c(mu11', mu02')).  In addition, the image centroid and orientation angle are returned, as calculated using the image moments.
+Calculates Hu's image moments (Hu 1962).  Calculates the raw moments: M00 (aka area), M10, M01, M11, M20, and M02, as well as the (normalized) central moments: mu11', mu20', and mu02', which are returned as the image covariance matrix: rbind(c(mu20', mu11'), c(mu11', mu02')).  In addition, the image centroid and orientation angle are returned, as calculated using the image moments.  It should be noted that while the centroid is technically defined for the null case (all zero-valued grid points), the way it is calculated using image moments means that it will be undefined because of division by zero in the formulation.
 
 The orientation angle calculated here is that which is used by MODE, although not currently used in the MODE analyses in this package (smatr is used instead to find the major axis, etc).  The eigenvalues of the image covariance correspond to the major and minor axes of the image.
 

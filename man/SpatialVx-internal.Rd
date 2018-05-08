@@ -1,4 +1,10 @@
 \name{SpatialVx-internal}
+\alias{calculate_FSS_from_enlarged_summed_fields}
+\alias{calculate_FSSvector_from_enlarged_summed_fields}
+\alias{calculate_fractions_from_enlarged_summed_field}
+\alias{calculate_n05_using_bisection_from_the_summed_fields}
+\alias{calculate_summed_field}
+\alias{enlarge_matrix}
 \alias{datagrabber}
 \alias{datagrabber.SpatialVx}
 \alias{datagrabber.features}

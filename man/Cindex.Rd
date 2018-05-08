@@ -33,7 +33,7 @@ character string giving the \code{method} argument for the \code{connected} func
     \item{\dots}{Not used.}
 }
 \details{
-The connectivity index is introduced in AghaKouchak et al. (2011), and is designed to automaticlaly determine how connected an image is.  It is defined by
+The connectivity index is introduced in AghaKouchak et al. (2011), and is designed to automatically determine how connected an image is.  It is defined by
 
 Cindex = 1 - (NC - 1)/(sqrt(NP) + NC),
 

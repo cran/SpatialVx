@@ -1,4 +1,4 @@
-censqdelta <- function( x, y, N, ... ) {
+censqdelta <- function( x, y, N, const = Inf, p = 2, ... ) {
 
     # op <- par()
 
@@ -12,14 +12,16 @@ censqdelta <- function( x, y, N, ... ) {
     # image( y, col = c( "white", "darkblue" ) )
     # contour( x, add = TRUE )
 
-    dx <- as.im( x )
-    dy <- as.im( y )
+    # dx <- as.im( x )
+    # dy <- as.im( y )
 
-    dx <- solutionset( dx > 0 )
-    dy <- solutionset( dy > 0 )
+    # dx <- solutionset( dx > 0 )
+    # dy <- solutionset( dy > 0 )
 
-    dx <- distmap( dx )
-    dy <- distmap( dy )
+    # dx <- distmap( dx )
+    # if( is.finite( const ) ) dx$v[ dx$v > const ] <- const
+    # dy <- distmap( dy )
+    # if( is.finite( const ) ) dy$v[ dy$v > const ] <- const
 
     # image( x + y, col = c( "white", "lightblue", "darkblue" ) )
     # title( "Binary A and B superimposed" )
@@ -76,14 +78,16 @@ censqdelta <- function( x, y, N, ... ) {
     X[ idX ] <- 1
     Y[ idY ] <- 1
 
-    dX <- as.im( X )
-    dY <- as.im( Y )
+    # dX <- as.im( X )
+    # dY <- as.im( Y )
 
-    dX <- solutionset( dX > 0 )
-    dY <- solutionset( dY > 0 )
+    # dX <- solutionset( dX > 0 )
+    # dY <- solutionset( dY > 0 )
 
-    dX <- distmap( dX )
-    dY <- distmap( dY )
+    # dX <- distmap( dX )
+    # if( is.finite( const ) ) dX$v[ dX$v > const ] <- const
+    # dY <- distmap( dY )
+    # if( is.finite( const ) ) dY$v[ dY$v > const ] <- const
 
     # image( X + Y, col = c( "white", "lightblue", "darkblue" ) )
     # title( "Binary A and B superimposed\n centered on new square grid" )
@@ -101,6 +105,6 @@ censqdelta <- function( x, y, N, ... ) {
 
     # par( mfrow = op$mfrow )
 
-    return( deltametric( X, Y ) )
+    return( deltametric( X, Y, p = p, c = const ) )
 
 } # end of 'modBadder' function.

@@ -67,7 +67,7 @@ look2 <- MergeForce( look2 )
 
 look2
 
-plot( look2 )
+# plot( look2 )
 
 \dontrun{
 look3 <- deltamm( look, N = 201 )

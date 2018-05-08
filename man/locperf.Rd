@@ -89,7 +89,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{distmap}}, \code{\link{solutionset}}, \code{\link{im}}, \code{\link{bounding.box}}, \code{\link{as.rectangle}}, \code{\link{metrV}}, \code{\link{locmeasures2d}}
+\code{\link{distmap}}, \code{\link{solutionset}}, \code{\link{im}}, \code{\link{boundingbox}}, \code{\link{as.rectangle}}, \code{\link{metrV}}, \code{\link{locmeasures2d}}
 }
 \examples{
 x <- y <- matrix( 0, 10, 12)

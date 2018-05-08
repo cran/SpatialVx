@@ -67,7 +67,7 @@ deltammSqCen <- function(x, p = 2, max.delta = Inf, const = Inf, N = NULL, verbo
 	B <- as.matrix( FC[[k]] )
         # else B <- FC[[ j ]][[ k ]]
 
-	res <- censqdelta( x = A, y = B, N = N, p = p, c = const, ... )
+	res <- censqdelta( x = A, y = B, N = N, p = p, const = const, ... )
 
     } # end of internal 'bdfun' function.
 

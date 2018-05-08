@@ -573,7 +573,7 @@ structurogram.matrix <- function(dat, q=2, R=5, dx=1, dy=1, zero.out=FALSE) {
     n <- min(c(round(R/dy), N))
     ind <- rbind(as.matrix(expand.grid(0, 1:n)), as.matrix(expand.grid(1:m,
         0)), as.matrix(expand.grid(c(-(m:1), 1:m), 1:n)))
-    d <- sqrt((dx * ind[, 1])^2 + (dy * ind[, 2])^2)
+    d <- sqrt(abs(dx * ind[, 1])^2 + abs(dy * ind[, 2])^2)
     good <- (d > 0) & (d <= R)
     ind <- ind[good, ]
     d <- d[good]
@@ -626,7 +626,7 @@ structurogram <- function(loc, y, q=2, id = NULL, d = NULL, lon.lat = FALSE, dma
             d <- rdist(loc, loc)[id]
         }
     }
-    vg <- 0.5 * rowMeans(cbind((y[id[, 1], ] - y[id[, 2], ])^q), 
+    vg <- 0.5 * rowMeans(cbind(abs(y[id[, 1], ] - y[id[, 2], ])^q), 
         na.rm = TRUE)
     call <- match.call()
     if (is.null(dmax)) {

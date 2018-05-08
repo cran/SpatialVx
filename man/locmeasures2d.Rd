@@ -66,7 +66,7 @@ Calculates one or more of the following binary image measures:
 
 \dQuote{haus} Hausdorff distance (Baddeley, 1992b; Schwedler and Baldwin, 2011)
 
-\dQuote{qdmapdiff} Quantile (or rank) of the differences in disstance maps.  See the help file for \code{locperf}.
+\dQuote{qdmapdiff} Quantile (or rank) of the differences in distance maps.  See the help file for \code{locperf}.
 
 \dQuote{med} Mean Error Distance (Peli and Malah, 1982; Baddeley, 1992a).  See the help file for \code{locperf}.
 

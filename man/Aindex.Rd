@@ -37,7 +37,7 @@ The area index introduced in AghaKouchak et al. (2011) is given by
 
 	Aindex = A/Aconvex,
 
-where A is the area of the pattern, and Aconvex the area of its convex hull (area.owin from package spatstat is used to calculate this latter area, and the functions as.im and solutionset from spatstat are also used by this function).  Values are between 0 and 1.  Values closer to unity indicate a more structured pattern, and values closer to zero indicate higher dispersiveness of the pattern, but note that two highly structured patterns far away from each other may also give a low value (see examples below).  Because of this, this measure is perhaps best applied to individual features in a field.
+where A is the area of the pattern, and Aconvex the area of its convex hull (area.owin from package spatstat is used to calculate this latter area, and the functions as.im and solutionset from spatstat are also used by this function).  Values are between 0 and 1.  Values closer to unity indicate a more structured pattern, and values closer to zero indicate higher dispersiveness of the pattern, but note that two highly structured patterns far away from each other may also give a low value (see examples below).  Because of this property, this measure is perhaps best applied to individual features in a field.
 }
 \value{
 numeric vector (or two-row matrix in the case of \code{Aindex.SpatialVx}) with named components (columns):
