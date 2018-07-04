@@ -406,11 +406,36 @@ plot.wavePurifyVx <- function(x, ..., col = c( "gray", tim.colors(64) ), zlim, m
     type <- tolower( type )
     type <- match.arg( type )
 
-    if( type == "stats" ) class( x ) <- "wavePurifyVxStats"
-    else if( type == "fields" && a$map ) class( x ) <- "wavePurifyVxFieldsMap"
-    else if( type == "fields" && !a$map ) class( x ) <- "wavePurifyVxFieldsNoMap"
+    if( type == "stats" ) {
 
-    UseMethod( "plot", x )
+	if( !missing( zlim ) && !missing( mfrow ) ) plot.wavePurifyVxStats( x = x, ..., col = col, zlim = zlim, mfrow = mfrow, horizontal = horizontal, type = type  )
+	else if( missing( zlim ) && !missing( mfrow ) ) plot.wavePurifyVxStats( x = x, ..., col = col, mfrow = mfrow, horizontal = horizontal, type = type  )
+	else if( !missing( zlim ) && missing( mfrow ) ) plot.wavePurifyVxStats( x = x, ..., col = col, zlim = zlim, horizontal = horizontal, type = type  )
+	else  plot.wavePurifyVxStats( x = x, ..., col = col, horizontal = horizontal, type = type  )
+
+	# class( x ) <- "wavePurifyVxStats"
+
+    } else if( type == "fields" && a$map ) {
+
+	if( !missing( zlim ) && !missing( mfrow ) ) plot.wavePurifyVxFieldsMap( x = x, ..., col = col, zlim = zlim, mfrow = mfrow, horizontal = horizontal, type = type  )
+        else if( missing( zlim ) && !missing( mfrow ) ) plot.wavePurifyVxFieldsMap( x = x, ..., col = col, mfrow = mfrow, horizontal = horizontal, type = type  )
+        else if( !missing( zlim ) && missing( mfrow ) ) plot.wavePurifyVxFieldsMap( x = x, ..., col = col, zlim = zlim, horizontal = horizontal, type = type  )
+        else  plot.wavePurifyVxFieldsMap( x = x, ..., col = col, horizontal = horizontal, type = type  )
+
+	# class( x ) <- "wavePurifyVxFieldsMap"
+
+    } else if( type == "fields" && !a$map ) {
+
+	if( !missing( zlim ) && !missing( mfrow ) ) plot.wavePurifyVxFieldsNoMap( x = x, ..., col = col, zlim = zlim, mfrow = mfrow, horizontal = horizontal, type = type  )
+        else if( missing( zlim ) && !missing( mfrow ) ) plot.wavePurifyVxFieldsNoMap( x = x, ..., col = col, mfrow = mfrow, horizontal = horizontal, type = type  )
+        else if( !missing( zlim ) && missing( mfrow ) ) plot.wavePurifyVxFieldsNoMap( x = x, ..., col = col, zlim = zlim, horizontal = horizontal, type = type  )
+        else  plot.wavePurifyVxFieldsNoMap( x = x, ..., col = col, horizontal = horizontal, type = type  )
+
+	# class( x ) <- "wavePurifyVxFieldsNoMap"
+
+    }
+
+    # UseMethod( "plot", x )
 
 } # end of 'plot.wavePurifyVx' function.
 

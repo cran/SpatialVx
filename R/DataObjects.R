@@ -202,10 +202,22 @@ plot.SpatialVx <- function( x, ..., time.point = 1, obs = 1, model = 1, col = c(
 
     a <- attributes( x )
 
-    if( a$map ) class( x ) <- "SpatialVxMap"
-    else class( x ) <- "SpatialVxNoMap"
+    # if( a$map ) class( x ) <- "SpatialVxMap"
+    # else class( x ) <- "SpatialVxNoMap"
 
-    UseMethod( "plot", x )
+    if( a$map ) {
+
+	if( !missing( zlim ) ) plot.SpatialVxMap( x = x, ..., time.point = time.point, obs = obs, model = model, col = col, zlim = zlim, mfrow = mfrow )
+	else plot.SpatialVxMap( x = x, ..., time.point = time.point, obs = obs, model = model, col = col, mfrow = mfrow )
+
+    } else {
+
+	if( !missing( zlim ) ) plot.SpatialVxNoMap( x = x, ..., time.point = time.point, obs = obs, model = model, col = col, zlim = zlim, mfrow = mfrow )
+	else plot.SpatialVxNoMap(  x = x, ..., time.point = time.point, obs = obs, model = model, col = col, mfrow = mfrow )
+
+    }
+
+    # UseMethod( "plot", x )
 
 }
 

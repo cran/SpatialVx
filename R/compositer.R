@@ -7,8 +7,9 @@ compositer <- function(x, level = 0, verbose = FALSE, ...) {
 
 compositer.matched <- function(x, level = 0, verbose = FALSE, ...) {
 
-    class(x) <- "features"
-    UseMethod("compositer", x)
+    # class(x) <- "features"
+    # UseMethod("compositer", x)
+    compositer.features( x = x, level = level, verbose = verbose, ... )
 
 } # end of 'compositer.matched' function.
 

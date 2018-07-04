@@ -148,7 +148,7 @@ Ahijevych, D., Gilleland, E., Brown, B. G. and Ebert, E. E. (2009) Application o
 
 Kain, J. S., Weiss, S. J., Bright, D. R., Baldwin, M. E. Levit, J. J. Carbin, G. W. Schwartz, C. S. Weisman, M. L. Droegemeier, K. K. Weber, and D. B. Thomas, K. W. (2008)  Some Practical Considerations Regarding Horizontal Resolution in the First Generation of Operational Convection-Allowing NWP. \emph{Wea. Forecasting}, \bold{23}, 931--952.
 
-Weiss, S., Kain, J. Levit, J. Baldwin, M. E., Bright, D. Carbin, G. and Hart, J. (2005) NOAA Hazardous Weather Testbed. SPC/NSSL Spring Program 2005 Program Overview and Operations Plan. 61pp. Available at: \url{http://www.spc.ncep.noaa.gov/exper/Spring_2005/2005_ops_plan.pdf}
+Weiss, S., Kain, J. Levit, J. Baldwin, M. E., Bright, D. Carbin, G. and Hart, J. (2005) NOAA Hazardous Weather Testbed. SPC/NSSL Spring Program 2005 Program Overview and Operations Plan. 61pp.
 }
 \examples{
 \dontrun{

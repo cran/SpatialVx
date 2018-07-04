@@ -1340,8 +1340,9 @@ FeatureMatchAnalyzer.matched <- function(x, which.comps=c("cent.dist", "angle.di
                     "bdelta", "haus", "ph", "med", "msd", "fom", "minsep", "bearing"),
                     sizefac=1, alpha=0.1, k=4, p=2, c=Inf, distfun="distmapfun", ...) {
 
-    class(x) <- paste(class(x), x$match.type, sep = ".")
-    UseMethod("FeatureMatchAnalyzer", x)
+    # class(x) <- paste(class(x), x$match.type, sep = ".")
+    # UseMethod("FeatureMatchAnalyzer", x)
+    get( paste( "FeatureMatchAnalyzer.", class( x ), ".", x$match.type, sep = "" ) )( x = x, which.comps = which.comps, sizefac = sizefac, alpha = alpha, k = k, p = p, c = c, distfun = distfun, ... )
 
 } # end of 'FeatureMatchAnalyzer.matched' function.
 

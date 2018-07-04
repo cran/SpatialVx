@@ -1,10 +1,10 @@
-5587da0c7ef08831c4d8dc7688dfdba4 *DESCRIPTION
+4d636c0e2e74ef657f36ea8e7d8c1e44 *DESCRIPTION
 d34e87b3c560457e30646e4bbed9e74b *NAMESPACE
 16f6f2cac20136f3220e6bed9afae3a2 *R/CA.R
-b16bcebf0f655ca445e42804db5f16d9 *R/DataObjects.R
+69ea39a025ebba3fbb237c03e3c2022f *R/DataObjects.R
 d3961772be21017ad201e842001a245e *R/FeatureFinder.R
 1df1b302515d5a9be33cc950dae0d05a *R/FeatureTable.R
-1249fc368b64e5d64987003da69b3929 *R/Features.R
+e0d94f1a9a8caaa009a323c756805341 *R/Features.R
 8f0f822a61bd6141e91efd2fb0493c54 *R/Fint2d.R
 ec8f3c6584e2816116f66e522215a710 *R/Geom.R
 c8e776518a98de867b36f01c4f0496f4 *R/Hoods2d.R
@@ -17,7 +17,7 @@ e644c9cc54344e719a6f4b698ed705b6 *R/QlossRigid.R
 0ddfa00e6a1523644f55337f8690ba25 *R/Vgrams.R
 f4d3349ea0f6569ee952a7eb54febd0f *R/censqdelta.R
 8dcada8543c7537b079b09c2066b0d63 *R/combiner.R
-351e9e96ef7e0feebfc8d808ef4c3b51 *R/compositer.R
+c5725ad7f9f7baa9de50243f50e551a8 *R/compositer.R
 2cc1f2082d5372ce0611c9d314d7d4dd *R/craer.R
 074d2d7965450720167603c083478c80 *R/dFSS.R
 4267789af89e8a630a2a2cb5ef6bb733 *R/deltamm.R
@@ -27,11 +27,11 @@ d583f4a4f1a015083ef262c0a593672a *R/functionals.R
 17f9498a671929be70a364836417a7a0 *R/imomenter.R
 4ff49b4d87e07043179a16313bfeeaa6 *R/interester.R
 f69d2528afa3c74eaad0cea0accedf77 *R/minboundmatch.R
-1102e8c07b07a7f40eca1347d8a16fa7 *R/plot.matched.R
+f1f180e11514ca39b9feb10150530a5a *R/plot.matched.R
 868079f40ce7e8afc1e0669d0ae9ace9 *R/rigider.R
 469b7469d663f297efdafdfd8ee87415 *R/spct.R
 a751943cea1c4a58726e95d68e66672d *R/waveIS.R
-357245dd2fa286fb2ed932c7da467644 *R/wavePurifyVx.R
+28487cf42ad62959ad78f4a9817708a5 *R/wavePurifyVx.R
 658e0e092715f9c75c481040bc80d875 *R/waverify.R
 1964270408fe842e62ddfdcd6a78ea05 *data/ExampleSpatialVxSet.rda
 dbdb03c1e4fb85890c6153e171ecc803 *data/GFSNAMfcstEx.rda
@@ -128,7 +128,7 @@ a78a42e53d4a1ad5ce6afa77855b3222 *man/calculate_FSSwind.Rd
 26972436f78c17e4c93f0680b13f1a8d *man/combiner.Rd
 3197c9bb29765fa3f7accf7ec096dc05 *man/compositer.Rd
 0f2df0005783d3776bca54c2106a4df5 *man/craer.Rd
-4a5620639b0271b290663b4513cb40e5 *man/datasets.Rd
+e9add6048a4a85ed92810d5b9aed5a0f *man/datasets.Rd
 d71c006e8feebda433029cfc2efc4c7e *man/deltamm.Rd
 b10641936bff8db8038f99a0da5ae0a1 *man/disjointer.Rd
 ace32c3a0a39546ff025572815b8e0ca *man/expvg.Rd

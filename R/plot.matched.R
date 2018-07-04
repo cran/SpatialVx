@@ -1,10 +1,13 @@
 plot.matched <- function( x, mfrow = c(1, 2), ... ) {
 
     a <- attributes( x )
-    if( a$map ) class( x ) <- "matchedMap"
-    else class( x ) <- "matchedNoMap"
+    # if( a$map ) class( x ) <- "matchedMap"
+    # else class( x ) <- "matchedNoMap"
 
-    UseMethod( "plot", x )
+    # UseMethod( "plot", x )
+
+    if( a$map ) plot.matchedMap( x = x, mfor = mfrow, ... )
+    else plot.matchedNoMap( x = x, mfrow = mfrow, ... )
 
 } # end of 'plot.matched' function.
 
