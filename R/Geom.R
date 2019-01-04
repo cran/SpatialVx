@@ -30,15 +30,15 @@ Cindex.default <- function(x, thresh=NULL, connect.method="C", ...) {
 
    if(!is.null(thresh)) x[x < thresh] <- 0
 
-   NP <- sum(colSums(x==0,na.rm=TRUE),na.rm=TRUE)
+   NP <- sum( colSums( x > 0, na.rm = TRUE ), na.rm = TRUE )
 
    x[x==0] <- NA
    x <- as.im(x)
    x <- connected(x, method = connect.method)
 
-   NC <- max(as.numeric(x$v), na.rm = TRUE)
+   NC <- max( as.numeric( as.matrix( x ) ), na.rm = TRUE )
 
-   return(1 - (NC - 1)/(sqrt(NP) + NC))
+   return( 1 - ( NC - 1 ) / ( sqrt( NP ) + NC ) )
 
 } # end of 'Cindex.default' function.
 
@@ -130,7 +130,7 @@ Aindex.default <- function(x, thresh=NULL, dx=1, dy=1, ...) {
     x <- as.im(x)
     x <- solutionset(x>=thresh)
     ch <- convexhull(x)
-    A <- sum(colSums(x$m,na.rm=TRUE),na.rm=TRUE)*dx*dy
+    A <- sum( colSums( as.matrix( x ), na.rm = TRUE ), na.rm = TRUE ) * dx * dy
     Aconvex <- area.owin(ch)*dx*dy
     Aindex <- A/Aconvex
 
