@@ -494,8 +494,8 @@ plot.wavePurifyVxFieldsMap <- function( x, ..., col = c( "gray", tim.colors(64) 
     # Image of Verification field (X)
     map( xlim = lr[, 1 ], ylim = lr[, 2 ], type = "n" )
 
-    axis( 1, at = ax$x, labels = ax$x )
-    axis( 2, at = ax$y, labels = ax$y )
+    # axis( 1, at = ax$x, labels = ax$x )
+    # axis( 2, at = ax$y, labels = ax$y )
 
     if( !is.null( a$obs.name ) ) title( a$obs.name )
     else title( "X" )
@@ -504,12 +504,13 @@ plot.wavePurifyVxFieldsMap <- function( x, ..., col = c( "gray", tim.colors(64) 
 
     map( add = TRUE, lwd = 1.5 )
     map( add = TRUE, database = "state" )
+    map.axes()
 
     # Image of Model field (Xhat)
     map( xlim = lr[, 1 ], ylim = lr[, 2 ], type = "n" )
 
-    axis( 1, at = ax$x, labels = ax$x )
-    axis( 2, at = ax$y, labels = ax$y )
+    # axis( 1, at = ax$x, labels = ax$x )
+    # axis( 2, at = ax$y, labels = ax$y )
 
     if( !is.null( a$model.name ) ) title( a$model.name )
     else title( "Xhat" )
@@ -518,14 +519,15 @@ plot.wavePurifyVxFieldsMap <- function( x, ..., col = c( "gray", tim.colors(64) 
 
     map( add = TRUE, lwd = 1.5 )
     map( add = TRUE, database = "state" )
+    map.axes()
 
     # Cllimate field (if present)
     if (!is.null(x$Climate)) {
 
 	 map( xlim = lr[, 1 ], ylim = lr[, 2 ], type = "n" )
 
-        axis( 1, at = ax$x, labels = ax$x )
-        axis( 2, at = ax$y, labels = ax$y )
+        # axis( 1, at = ax$x, labels = ax$x )
+        # axis( 2, at = ax$y, labels = ax$y )
 
         title( "Climatology" )
 
@@ -533,14 +535,15 @@ plot.wavePurifyVxFieldsMap <- function( x, ..., col = c( "gray", tim.colors(64) 
 
         map( add = TRUE, lwd = 1.5 )
         map( add = TRUE, database = "state" )
+	map.axes()
 
     } # end of if climatology present stmts.
 
     # Image of de-noised Verification field (X2)
     map( xlim = lr[, 1 ], ylim = lr[, 2 ], type = "n" )
 
-    axis( 1, at = ax$x, labels = ax$x )
-    axis( 2, at = ax$y, labels = ax$y )
+    # axis( 1, at = ax$x, labels = ax$x )
+    # axis( 2, at = ax$y, labels = ax$y )
 
     if( !is.null( a$obs.name ) ) title( paste( a$obs.name, " (de-noised)", sep = "" ) )
     else title( "X (de-noised)" )
@@ -549,12 +552,13 @@ plot.wavePurifyVxFieldsMap <- function( x, ..., col = c( "gray", tim.colors(64) 
 
     map( add = TRUE, lwd = 1.5 )
     map( add = TRUE, database = "state" )
+    map.axes()
 
     # Image of de-noised Model field (Y2)
     map( xlim = lr[, 1 ], ylim = lr[, 2 ], type = "n" )
 
-    axis( 1, at = ax$x, labels = ax$x )
-    axis( 2, at = ax$y, labels = ax$y )
+    # axis( 1, at = ax$x, labels = ax$x )
+    # axis( 2, at = ax$y, labels = ax$y )
 
     if( !is.null( a$model.name ) ) title( paste( a$model.name, " (de-noised)", sep = "" ) )
     else title( "Xhat (de-noised)" )
@@ -563,14 +567,15 @@ plot.wavePurifyVxFieldsMap <- function( x, ..., col = c( "gray", tim.colors(64) 
 
     map( add = TRUE, lwd = 1.5 )
     map( add = TRUE, database = "state" )
+    map.axes()
 
      # Cllimate field (if present)
     if (!is.null(x$Climate)) {
 
          map( xlim = lr[, 1 ], ylim = lr[, 2 ], type = "n" )
 
-        axis( 1, at = ax$x, labels = ax$x )
-        axis( 2, at = ax$y, labels = ax$y )
+        # axis( 1, at = ax$x, labels = ax$x )
+        # axis( 2, at = ax$y, labels = ax$y )
 
         title( "Climatology (de-noised)" )
 
@@ -578,6 +583,7 @@ plot.wavePurifyVxFieldsMap <- function( x, ..., col = c( "gray", tim.colors(64) 
 
         map( add = TRUE, lwd = 1.5 )
         map( add = TRUE, database = "state" )
+	map.axes()
 
     } # end of if climatology present stmts.
 

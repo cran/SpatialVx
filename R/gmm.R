@@ -258,34 +258,38 @@ plot.gmm2d <- function(x, ..., col=c("gray", tim.colors(64)), zlim=c(0,1), horiz
      if(domap) {
  	if(proj) {
  	    map(xlim=locr[,1], ylim=locr[,2], type="n")
-	    axis(1, at=ax$x, labels=ax$x)
-	    axis(2, at=ax$y, labels=ax$y)
+	    # axis(1, at=ax$x, labels=ax$x)
+	    # axis(2, at=ax$y, labels=ax$y)
  	    poly.image(loc$x, loc$y, predX, col=col, zlim=zlim, main=ptitle[1], add=TRUE)
  	    map(add=TRUE, lwd=1.5)
  	    map(add=TRUE, database="state")
+	    map.axes()
  
  	    map(xlim=locr[,1], ylim=locr[,2], type="n")
-	    axis(1, at=ax$x, labels=ax$x)
-	    axis(2, at=ax$y, labels=ax$y)
+	    # axis(1, at=ax$x, labels=ax$x)
+	    # axis(2, at=ax$y, labels=ax$y)
              poly.image(loc$x, loc$y, predY, col=col, zlim=zlim, main=ptitle[2], add=TRUE)
              map(add=TRUE, lwd=1.5)
              map(add=TRUE, database="state")
+	     map.axes()
  	} else {
  	    map(xlim=locr[,1], ylim=locr[,2], type="n")
-	    axis(1, at=ax$x, labels=ax$x)
-	    axis(2, at=ax$y, labels=ax$y)
+	    # axis(1, at=ax$x, labels=ax$x)
+	    # axis(2, at=ax$y, labels=ax$y)
  	    image(as.image(c(predX), x=a$loc, nrow=xd[1], ncol=xd[2], na.rm=TRUE), col=col, zlim=zlim, main=ptitle[1],
  		add=TRUE)
  	    map(add=TRUE, lwd=1.5)
              map(add=TRUE, database="state")
+	    map.axes()
  
  	    map(xlim=locr[,1], ylim=locr[,2], type="n")
-	    axis(1, at=ax$x, labels=ax$x)
-	    axis(2, at=ax$y, labels=ax$y)
+	    # axis(1, at=ax$x, labels=ax$x)
+	    # axis(2, at=ax$y, labels=ax$y)
  	    image(as.image(c(predY), x=a$loc, nrow=xd[1], ncol=xd[2], na.rm=TRUE), col=col, zlim=zlim, main=ptitle[2],
  		add=TRUE)
  	    map(add=TRUE, lwd=1.5)
              map(add=TRUE, database="state")
+	    map.axes()
  	}
      } else {
 	if(proj) {

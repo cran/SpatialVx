@@ -224,22 +224,24 @@ plot.EBS <- function(x, ..., mfrow = c(1, 2), col, horizontal) {
 	else r <- apply(a$loc[a$subset,], 2, range, finite=TRUE)
 
 	map(xlim=r[,1], ylim=r[,2], type="n")
-	axis(1, at=ax$x, labels=ax$x)
-	axis(2, at=ax$y, labels=ax$y)
+	# axis(1, at=ax$x, labels=ax$x)
+	# axis(2, at=ax$y, labels=ax$y)
 	if(a$projection && a$reg.grid && is.null(a$subset)) image.plot(xloc, yloc, Zest, add=TRUE, col=col, main="Mean of Estimate", horizontal=horizontal, ...)
 	else if(a$reg.grid && is.null(a$subset)) image.plot(Zest, add=TRUE, col=col, main="Mean of Estimate", horizontal=horizontal, ...)
 	else image.plot(Zest, add=TRUE, col=col, main="Mean of Estimate", horizontal=horizontal, ...)
 	map(add=TRUE, lwd=1.5)
 	map(database="state", add=TRUE)
+	map.axes()
 
 	map(xlim=r[,1], ylim=r[,2], type="n")
-	axis(1, at=ax$x, labels=ax$x)
-	axis(2, at=ax$y, labels=ax$y)
+	# axis(1, at=ax$x, labels=ax$x)
+	# axis(2, at=ax$y, labels=ax$y)
         if(a$projection && a$reg.grid && is.null(a$subset)) image.plot(xloc, yloc, ZciR, add=TRUE, col=col, main="CI Range", horizontal=horizontal, ...)
         else if(a$reg.grid && is.null(a$subset)) image.plot(ZciR, add=TRUE, col=col, main="Mean of Estimate", horizontal=horizontal, ...)
         else image.plot(ZciR, add=TRUE, col=col, main="CI Range", horizontal=horizontal, ...)
         map(add=TRUE, lwd=1.5)
         map(database="state", add=TRUE)
+	map.axes()
 
     } else {
 

@@ -102,6 +102,7 @@ plot.matchedMap <- function( x, mfrow = c(1, 2), ... ) {
      
     map( add = TRUE )
     map( database = "state", add = TRUE )
+    map.axes()
 
     map( xlim = lr[, 1], ylim = lr[, 2], type = "n" )
     title( a$model.name )
@@ -110,6 +111,7 @@ plot.matchedMap <- function( x, mfrow = c(1, 2), ... ) {
 
     map( add = TRUE )
     map( database = "state", add = TRUE )
+    map.axes()
 
     image.plot( Z, col = icol, legend.only = TRUE, ... )
 

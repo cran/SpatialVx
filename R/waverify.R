@@ -319,54 +319,60 @@ plot.waverify2d <- function(x, ..., main1="X", main2="Y", main3="Climate",
 	if(domap) {
 	    if(proj) {
 		map(xlim=locr[,1], ylim=locr[,2], type="n")
-		axis(1, at=ax$x, labels=ax$x)
-		axis(2, at=ax$y, labels=ax$y)
+		# axis(1, at=ax$x, labels=ax$x)
+		# axis(2, at=ax$y, labels=ax$y)
 		poly.image(loc2$x, loc2$y, invX, main=paste(main1, " (level ", i, ")", sep=""),
 				zlim=zl, col=col, axes=FALSE, add=TRUE, ...)
 		map(add=TRUE, lwd=2)
 		map(add=TRUE, database="state")
+		map.axes()
 
 		map(xlim=locr[,1], ylim=locr[,2], type="n")
-		axis(1, at=ax$x, labels=ax$x)
-		axis(2, at=ax$y, labels=ax$y)
+		# axis(1, at=ax$x, labels=ax$x)
+		# axis(2, at=ax$y, labels=ax$y)
 		poly.image(loc2$x, loc2$y, invY, main=paste(main2, " (level ", i, ")", sep=""), zlim=zl, col=col, axes=FALSE, add=TRUE, ...)
 		map(add=TRUE, lwd=2)
                 map(add=TRUE, database="state")
+		map.axes()
 
 		if(climate) {
                     map(xlim=locr[,1], ylim=locr[,2], type="n")
-		    axis(1, at=ax$x, labels=ax$x)
-		    axis(2, at=ax$y, labels=ax$y)
+		    # axis(1, at=ax$x, labels=ax$x)
+		    # axis(2, at=ax$y, labels=ax$y)
 		    poly.image(loc2$x, loc2$y, invClim, main=paste(main3, " (level ", i, ")", sep=""), zlim=zl, axes=FALSE, add=TRUE, ...)
 		    map(add=TRUE, lwd=2)
                     map(add=TRUE, database="state")
+		    map.axes()
 		}
 		title("")
 	    } else {
 		map(xlim=locr[,1], ylim=locr[,2], type="n")
-		axis(1, at=ax$x, labels=ax$x)
-		axis(2, at=ax$y, labels=ax$y)
+		# axis(1, at=ax$x, labels=ax$x)
+		# axis(2, at=ax$y, labels=ax$y)
 		image(as.image(invX, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=paste(main1, " (level ", i, ")", sep=""),
                                 zlim=zl, col=col, axes=FALSE, add=TRUE, ...)
 		map(add=TRUE, lwd=2)
                 map(add=TRUE, database="state")
+		map.axes()
 
 		map(xlim=locr[,1], ylim=locr[,2], type="n")
-		axis(1, at=ax$x, labels=ax$x)
-		axis(2, at=ax$y, labels=ax$y)
+		# axis(1, at=ax$x, labels=ax$x)
+		# axis(2, at=ax$y, labels=ax$y)
 		image(as.image(invY, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE), main=paste(main2, " (level ", i, ")", sep=""),
 				zlim=zl, col=col, axes=FALSE, add=TRUE, ...)
 		map(add=TRUE, lwd=2)
                 map(add=TRUE, database="state")
+		map.axes()
 
 		if(climate) {
 		    map(xlim=locr[,1], ylim=locr[,2], type="n")
-		    axis(1, at=ax$x, labels=ax$x)
-		    axis(2, at=ax$y, labels=ax$y)
+		    # axis(1, at=ax$x, labels=ax$x)
+		    # axis(2, at=ax$y, labels=ax$y)
 		    image(as.image(invClim, nx=xd[1], ny=xd[2], x=loc, na.rm=TRUE),
 				main=paste(main3, " (level ", i, ")", sep=""), zlim=zl, axes=FALSE, add=TRUE, ...)
 		    map(add=TRUE, lwd=2)
                     map(add=TRUE, database="state")
+		    map.axes()
 		}
 		title("")
 	    }

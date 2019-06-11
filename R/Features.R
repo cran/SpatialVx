@@ -172,6 +172,7 @@ plot.features <- function(x, ..., type = c("both", "obs", "model")) {
 
 	        map(add=TRUE, lwd=1.5)
 	        map(add=TRUE, database="state")
+		map.axes()
 	        title(vxname)
 
 	    }
@@ -186,6 +187,7 @@ plot.features <- function(x, ..., type = c("both", "obs", "model")) {
 
                 map(add=TRUE, lwd=1.5)
                 map(add=TRUE, database="state")
+		map.axes()
 	        title(fcstname)
 
 	    }
@@ -203,6 +205,7 @@ plot.features <- function(x, ..., type = c("both", "obs", "model")) {
 
 	        map(add=TRUE, lwd=1.5)
                 map(add=TRUE, database="state")
+		map.axes()
 	        title(vxname)
 
 	    }
@@ -218,6 +221,7 @@ plot.features <- function(x, ..., type = c("both", "obs", "model")) {
 
 	        map(add=TRUE, lwd=1.5)
                 map(add=TRUE, database="state")
+		map.axes()
 
 	        title(fcstname)
 

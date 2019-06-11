@@ -259,12 +259,14 @@ plot.SpatialVxMap <- function( x, ..., time.point = 1, obs = 1, model = 1, col =
     poly.image( l$x, l$y, X, col = col, zlim = zlim, add = TRUE, ... )
     map( add = TRUE )
     map( database = "state", add = TRUE )
+    map.axes()
 
     map( xlim = lr[,1], ylim = lr[,2], type = "n" )
     title( msgXhat )
     poly.image( l$x, l$y, Xhat, col = col, zlim = zlim, add = TRUE, ... )
     map( add = TRUE )
     map( database = "state", add = TRUE )
+    map.axes()
 
     image.plot( X, zlim = zlim, col = col, legend.only = TRUE, ... )
 

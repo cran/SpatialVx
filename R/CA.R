@@ -359,6 +359,7 @@ plot.clusterer <- function(x, ..., mfrow = c(1, 2), col=c("gray", tim.colors(64)
 	    poly.image(loc$x, loc$y, X, add=TRUE, col=col, zlim=zl, main=mainX)
 	    map(add=TRUE, lwd=1.5)
 	    map(add=TRUE, database="state")
+	    map.axes()
 
 	    map(xlim=locr[,1], ylim=locr[,2], type="n")
 	    axis(1, at=ax$x, labels=ax$x)
@@ -366,6 +367,7 @@ plot.clusterer <- function(x, ..., mfrow = c(1, 2), col=c("gray", tim.colors(64)
 	    poly.image(loc$x, loc$y, Y, add=TRUE, col=col, zlim=zl, main=mainY)
 	    map(add=TRUE, lwd=1.5)
             map(add=TRUE, database="state")
+	    map.axes()
 	} else {
 	    map(xlim=locr[,1], ylim=locr[,2], type="n")
 	    axis(1, at=ax$x, labels=ax$x)
@@ -373,6 +375,7 @@ plot.clusterer <- function(x, ..., mfrow = c(1, 2), col=c("gray", tim.colors(64)
 	    image(as.image(X, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE), add=TRUE, col=col, zlim=zl, main=mainX)
 	    map(add=TRUE, lwd=1.5)
             map(add=TRUE, database="state")
+	    map.axes()
 
 	    map(xlim=locr[,1], ylim=locr[,2], type="n")
 	    axis(1, at=ax$x, labels=ax$x)
@@ -380,6 +383,7 @@ plot.clusterer <- function(x, ..., mfrow = c(1, 2), col=c("gray", tim.colors(64)
             image(as.image(Y, nx=xd[1], ny=xd[2], x=a$loc, na.rm=TRUE), add=TRUE, col=col, zlim=zl, main=mainY)
             map(add=TRUE, lwd=1.5)
             map(add=TRUE, database="state")
+	    map.axes()
 	}
 
     } else {

@@ -415,12 +415,13 @@ plot.lossdiff <- function(x, ..., icol=c("gray", tim.colors(64))) {
 
     if(domap) {
 	map(xlim=locr[,1], ylim=locr[,2], type="n")
-	axis(1, at=ax$x, labels=ax$x)
-	axis(2, at=ax$y, labels=ax$y)
+	# axis(1, at=ax$x, labels=ax$x)
+	# axis(2, at=ax$y, labels=ax$y)
         if(proj) image.plot(loc$x, loc$y, Im, col=icol, add=TRUE, ...)
         else image.plot(Im, col=icol, add=TRUE, ...)
         map(add=TRUE, lwd=1.5)
         map(add=TRUE, database="state")
+	map.axes()
     } else {
 	if(proj) image.plot(loc$x, loc$y, Im, col=icol, ...)
         else image.plot(Im, col=icol, ...)
