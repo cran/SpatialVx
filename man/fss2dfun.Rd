@@ -81,34 +81,5 @@ image( Px, col=c("grey", tim.colors(256)), main="Forecast Event Frequencies (9 n
 image( Py, col=c("grey", tim.colors(256)), main="Smoothed Observed Events (9 nearest neighbors)")
 fss2dfun( Py, Px)
 
-\dontrun{
-data( "pert004" )
-data( "pert000" )
-
-fbin <- obin <- matrix(0, 601, 501)
-
-fbin[ pert004 >= 12] <- 1
-obin[ pert000 >= 12] <- 1
-
-Pf <- kernel2dsmooth( fbin, kernel.type="boxcar", n=33, xdim=c(601, 501))
-Po <- kernel2dsmooth( obin, kernel.type="boxcar", n=33, xdim=c(601, 501))
-
-fss2dfun(Pf, Po)
-
-fuzzyjoint2dfun(Pf, Po)
-
-Pe <- 1/(33^2) # At least one event in the neighborhood.
-
-MinCvg2dfun(Pf >= Pe, Po >= Pe)
-
-multicon2dfun(Pf >= Pe, obin)
-
-pragmatic2dfun(Pf, obin, mIx=mean( obin, na.rm=TRUE))
-
-Sf <- kernel2dsmooth( pert004, kernel.type="boxcar", n=33, xdim=c(601, 501))
-So <- kernel2dsmooth( pert000, kernel.type="boxcar", n=33, xdim=c(601, 501))
-
-upscale2dfun( Sf, So, threshold=12)
-}
 }
 \keyword{ math }

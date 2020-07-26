@@ -60,19 +60,5 @@ hold <- make.SpatialVx( x, xhat, field.type = "contrived",
 res <- griddedVgram( hold, R = 8 )
 plot( res )
 
-\dontrun{
-data( "pert004" )
-data( "pert000" )
-data( "ICPg240Locs" )
-
-hold <- make.SpatialVx( pert000, pert004, loc = ICPg240Locs,
-    projection = TRUE, map = TRUE, loc.byrow = TRUE,
-    field.type = "Precipitation", units = "mm/h",
-    data.name = "Perturbed ICP Cases", obs.name = "pert000",
-    model.name = "pert004" )
-
-res <- griddedVgram(hold, R=8)
-plot( res )
-}
 }
 \keyword{ math }

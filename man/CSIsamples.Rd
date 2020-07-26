@@ -104,9 +104,9 @@ y <- summary(res)
 plot(y)
 }
 \dontrun{
-data(UKfcst6)
-data(UKobs6)
-data(UKloc)
+data( "UKfcst6" )
+data( "UKobs6" )
+data( "UKloc" )
 
 hold <- make.SpatialVx(UKobs6, UKfcst6, thresholds=0,
     loc=UKloc, map=TRUE, field.type="Rainfall", units="mm/h",

@@ -108,9 +108,6 @@ image.plot( look2[,,1])
 image.plot( look2[,,2])
 image.plot( look2[,,3])
 
-data( pert000)
-tmp <- surrogater( pert000, n=10, verbose=TRUE)
-boxplot( cbind( c(pert000), apply( tmp, 3, c)))
   }
 }
 \keyword{ math }

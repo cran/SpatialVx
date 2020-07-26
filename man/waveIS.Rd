@@ -110,22 +110,5 @@ plot(look, which.plots="ss")
 plot(look, which.plots="energy")
 summary(look)
 
-\dontrun{
-data( "pert004" )
-data( "pert000" )
-
-hold <- make.SpatialVx( pert000, pert004, thresholds = c(1, 10, 50),
-    loc = ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
-    field.type = "Precipitation", units = "mm/h",
-    data.name = "Perturbed ICP", obs.name = "pert000", model.name = "pert004" )
-
-look <- waveIS(hold, levels=1:4, verbose=TRUE)
-plot(look, which.plots="mse")
-plot(look, which.plots="ss")
-plot(look, which.plots="energy")
-summary(look)
-
-}
-
 }
 \keyword{ math }

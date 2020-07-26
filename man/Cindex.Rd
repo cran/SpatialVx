@@ -57,24 +57,5 @@ Eric Gilleland
 data( "geom000" )
 Cindex( geom000 )
 
-data( "pert000" )
-Cindex( pert000 )
-
-\dontrun{
-# Two separate areas with highly structured shapes, but far away from each other.
-data( "pert006" )
-data( "ICPg240Locs" )
-
-hold <- make.SpatialVx(pert000, pert006, loc = ICPg240Locs,
-    projection = TRUE, map = TRUE, loc.byrow = TRUE,
-    field.type = "Precipitation", units = "mm/h",
-    data.name = "ICP Perturbed Cases", obs.name = "pert000",
-    model.name = "pert006" )
-
-plot( hold )
-
-Cindex( hold )
-}
-
 }
 \keyword{ math }

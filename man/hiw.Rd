@@ -122,20 +122,5 @@ par(mfrow=c(1,2))
 plot(look)
 plot(look, which = "Xhat")
 
-\dontrun{
-hold <- make.SpatialVx( geom000, geom004, thresholds = c(0.01, 50.01),
-    projection = TRUE, map = TRUE, loc = ICPg240Locs, loc.byrow = TRUE,
-    field.type = "Geometric Objects Pretending to be Precipitation",
-    units = "mm/h", data.name = "ICP Geometric Cases", obs.name = "geom000",
-    model.name = "geom004" )
-
-look <- FeatureFinder(hold, do.smooth = FALSE)
-
-look <- hiw(look)
-
-par(mfrow=c(1,2))
-plot(look)
-plot(look, which = "Xhat")
-}
 }
 \keyword{ misc }

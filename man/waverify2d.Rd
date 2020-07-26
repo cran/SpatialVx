@@ -151,37 +151,6 @@ look <- waverify2d(hold)
 
 plot(look, which.plots="details")
 
-data( "pert000" )
-data( "pert004" )
-
-# The following is slow, but does not require fields to be dyadic.
-look <- mowaverify2d(pert000, Y=pert004, J=8, verbose=TRUE)
-
-# Also can just do plot(look), but should print to a pdf file (e.g., using pdf()).
-plot(look, which.plots="energy")
-
-# Using a "SpatialVx" object.
-data( "ICPg240Locs" )
-
-hold <- make.SpatialVx( pert000, pert004, loc = ICPg240Locs,
-    projection = TRUE, map = TRUE, loc.byrow = TRUE,
-    field.type = "Precipitation", units = "mm/h",
-    data.name = "ICP Perturbed Cases", obs.name = "pert000",
-    model.name = "pert004" )
-
-look <- mowaverify2d( hold, verbose = TRUE )
-
-plot(look, which.plots = "details")
-
-# Try one with some kind of climatology field.  Here using surrogater2d function.
-hold <- surrogater2d(UKobs6, n=1, maxiter=50, verbose=TRUE)
-hold <- matrix(hold, 256, 256)
-image(hold, col=c("grey",tim.colors(64)), axes=FALSE)
-image.plot(UKloc, col=c("grey",tim.colors(64)), legend.only=TRUE, horizontal=TRUE)
-
-look <- waverify2d(UKobs6, Y=UKfcst6, Clim=hold)
-
-plot(look)
 
 }
 }

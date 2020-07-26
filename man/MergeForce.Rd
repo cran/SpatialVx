@@ -69,29 +69,6 @@ look2
 
 # plot( look2 )
 
-\dontrun{
-look3 <- deltamm( look, N = 201 )
-look3 <- MergeForce( look3 )
-
-data( "pert000" )
-data( "pert004" )
-data( "ICPg240Locs" )
-
-hold <- make.SpatialVx( pert000, pert004,
-    loc=ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
-    field.type = "Precipitation", units="mm/h",
-    data.name = "ICP Perturbed Cases", obs.name = "pert000",
-    model.name = "pert004" )
-
-look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
-
-look2 <- centmatch( look, verbose = TRUE )
-
-look2 <- MergeForce( look2 )
-
-plot( look2 )
-
-   }
 
 }
 \keyword{ manip }

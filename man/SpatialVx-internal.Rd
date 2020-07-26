@@ -1,4 +1,8 @@
 \name{SpatialVx-internal}
+\alias{print.G2IL} 
+\alias{print.Gbeta}
+\alias{print.GbetaIL} 
+\alias{ubalancer}
 \alias{calculate_FSS_from_enlarged_summed_fields}
 \alias{calculate_FSSvector_from_enlarged_summed_fields}
 \alias{calculate_fractions_from_enlarged_summed_field}

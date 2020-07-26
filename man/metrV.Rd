@@ -104,19 +104,6 @@ metrV(hold)
 metrV(hold, model = c(1,2) )
 
 \dontrun{
-data( "pert000" )
-data( "pert001" )
-data( "ICPg240Locs" )
-
-testobj <- make.SpatialVx( pert000, pert001, thresholds = 1e-8,
-    projection = TRUE, map = TRUE, loc = ICPg240Locs, loc.byrow = TRUE,
-    field.type = "Precipitation", units = "mm/h",
-    data.name = "ICP Perturbed Cases", obs.name = "pert000",
-    model.name = "pert001" )
-
-metrV(testobj)
-
-# compare above to results in Fig. 3 (top right panel) of Zhu et al. (2011).
 
 data( "geom000" )
 data( "geom001" )

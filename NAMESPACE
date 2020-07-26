@@ -11,6 +11,7 @@ importFrom("boot", boot, tsboot, boot.ci)
 importFrom("CircStats", circ.plot, rad, rose.diag, circ.summary)
 importFrom("fastcluster", hclust, hclust.vector)
 importFrom("waveslim", dwt, dwt.2d, idwt, idwt.2d, modwt, modwt.2d, imodwt, imodwt.2d, plot.dwt.2d, denoise.dwt.2d, denoise.modwt.2d)
+importFrom("graphics", "polygon")
 
 importFrom("grDevices", "gray", "heat.colors", "rainbow")
 importFrom("graphics", "abline", "arrows", "axis", "barplot", "box",
@@ -19,7 +20,7 @@ importFrom("graphics", "abline", "arrows", "axis", "barplot", "box",
              "plot", "points", "text", "title")
 importFrom("stats", "cor", "cor.test", "cov", "cutree", "dist", "fft",
              "kmeans", "lm", "median", "nlminb", "optim", "pnorm",
-             "predict", "pt", "qnorm", "qt", "quantile", "rnorm", "runif",
+             "predict", "pt", "qnorm", "qqplot", "qt", "quantile", "rnorm", "runif",
              "sd", "var")
 
 import(
@@ -100,10 +101,12 @@ S3method(print, CSIsamples)
 S3method(print, FeatureMatchAnalyzer)
 S3method(print, FeatureTable)
 S3method(print, flossdiff.expvg)
+S3method(print, Gbeta)
+S3method(print, GbetaIL)
+S3method(print, G2IL)
 S3method(print, OF)
 S3method(print, SpatialVx)
 S3method(print, clusterer)
-S3method(print, craered)
 S3method(print, features)
 S3method(print, fqi)
 S3method(print, gmm2d)

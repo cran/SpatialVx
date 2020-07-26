@@ -152,19 +152,6 @@ look2 <- gmm2d( hold, threshold = u, verbose = TRUE)
 summary(look2)
 plot(look2)
 
-data( "pert000" )
-data( "pert004" )
-data( "ICPg240Locs" )
-
-hold <- make.SpatialVx( pert000, pert004, loc = ICPg240Locs,
-    map = TRUE, projection = TRUE, loc.byrow = TRUE,
-    field.type = "Precipitation", units = "mm/h",
-    data.name = "ICP Perturbed Cases", obs.name = "pert000",
-    model.name = "pert004" )
-
-look <- gmm2d(hold, threshold=10, verbose=TRUE)
-plot(look) # This will take a long time!
-summary(look)
 }
 }
 \keyword{math }

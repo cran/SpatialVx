@@ -57,9 +57,11 @@ The latter allows for ignoring zero-valued grid points (as detailed in Harris et
 
 In Gilleland et al (2009), this category was broken into two main types as field deformation and features-based.  The former lumped together binary image measures/metrics with field deformation techniques because the binary image measures inform about the \dQuote{similarity} (or dissimilarity) between the spatial extent or pattern of two fields (across the entire field).  Here, they are broken down further into those that yield only a single (or small vector of) metric(s) or measure(s) (location measures), and those that have mechanisms for moving grid-point locations to match the fields better spatially (field deformation).
 
-2a. Location Measures: 
+2a. Distance-based and Spatial-Alignment Summary Measures: 
 
-Included here are the well-known Hausdorff metric, the partial-Hausdorff measure, FQI (Venugopal et al., 2005), Baddeley's delta metric (Baddeley, 1992; Gilleland, 2011; Schwedler et al., 2011), metrV (Zhu et al., 2011), as well as the localization performance measures described in Baddeley, 1992: mean error distance, mean square error distance, and Pratt's Figure of Merit (FOM).
+Gilleland (2020) introduced a new spatial alignment summary measure that falls between zero and one, with one representing a perfect match and zero a bad match.  There is one user-selectable parameter/argument that determines the rate of decrease of the measure towards zero.  Another two summary measures also incorporate intensity information.  These summaries are available via \code{Gbeta}, \code{GbetaIL} and \code{G2IL}.
+
+In addition to the above new measures, older well-known measures are inlcuded, including: the Hausdorff metric, partial-Hausdorff measure, FQI (Venugopal et al., 2005), Baddeley's delta metric (Baddeley, 1992; Gilleland, 2011; Schwedler et al., 2011), metrV (Zhu et al., 2011), as well as the localization performance measures described in Baddeley, 1992: mean error distance, mean square error distance, and Pratt's Figure of Merit (FOM).
 
 \code{locmeasures2d}, \code{metrV}, \code{distob}, \code{locperf}
 
@@ -94,8 +96,6 @@ The cluster analysis methods of Marzban and Sandgathe (2006; 2008) have been add
 and the latter variation was modified from code originally written by Hilary Lyons 
 
 \code{CSIsamples}.
-
-The contiguous rain area (CRA) utilizes the \code{rigider} function, and can be carried out with the function \code{craer}.
 
 The Structure, Amplitude and Location (SAL) method can be performed with \code{saller}.
 
@@ -181,6 +181,8 @@ Ebert, E. E. (2008) Fuzzy verification of high resolution gridded forecasts: A r
 Ebert, E. E. (2009) Neighborhood verification: A strategy for rewarding close forecasts.  \emph{Wea. Forecasting}, \bold{24}, 1498--1510, doi:10.1175/2009WAF2222251.1.
 
 Elmore, K. L., Baldwin, M. E. and Schultz, D. M. (2006) Field significance revisited: Spatial bias errors in forecasts as applied to the Eta model.  \emph{Mon. Wea. Rev.}, \bold{134}, 519--531.
+
+Gilleland, E., 2020. Novel measures for summarizing high-resolution forecast performance. Submitted to \emph{Advances in Statistical Climatology, Meteorology and Oceanography} on 19 July 2020.
 
 Gilleland, E. (2013) Testing competing precipitation forecasts accurately and efficiently: The spatial prediction comparison test.  \emph{Mon. Wea. Rev.}, \bold{141}, (1), 340--355.
 

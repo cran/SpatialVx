@@ -129,23 +129,6 @@ plot(look, type = "stats" )
 
 summary( look )
 
-data( "pert004" )
-data( "pert000" ) 
-
-hold <- make.SpatialVx( pert000, pert004, thresholds = c(1, 10, 50),
-    loc = ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
-    field.type = "Precipitation", units = "mm/h",
-    data.name = "Perturbed ICP Cases", obs.name = "pert000",
-    model.name = "pert004" )
-
-plot( hold )
-
-look <- wavePurifyVx( hold, return.fields = TRUE, verbose = TRUE )
-
-plot(look, type = "fields" )
-plot(look, type = "stats" )
-
-summary( look )
 }
 
 }

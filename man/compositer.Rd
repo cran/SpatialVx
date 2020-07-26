@@ -96,24 +96,6 @@ look <- FeatureFinder(hold, smoothpar=0.5)
 look2 <- compositer(look)
 plot(look2, horizontal = TRUE)
 
-\dontrun{
-data( "pert000" )
-data( "pert004" )
-data( "ICPg240Locs" )
-
-hold <- make.SpatialVx( pert000, pert004,
-    loc = ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
-    field.type = "Precipitation", units = "mm/h",
-    data.name = "ICP Perturbed Cases", obs.name = "pert000", model.name = "pert004" )
-
-look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
-plot(look)
-
-look2 <- compositer(look)
-plot(look2, horizontal = TRUE)
-
-# TO DO: show examples with combiner.
-}
 }
 \keyword{ manip }
 \keyword{ hplot }

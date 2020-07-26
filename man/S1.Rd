@@ -74,15 +74,15 @@ S1( UKobs6, xhat = UKfcst6 )
 ACC( UKobs6, xhat = UKfcst6 )
 
 \dontrun{
-data( "obs0426" )
-data( "wrf4ncar0425" )
+data( "obs0601" )
+data( "wrf4ncar0531" )
 data( "ICPg240Locs" )
 
-hold <- make.SpatialVx( obs0426, wrf4ncar0425, loc = ICPg240Locs,
+hold <- make.SpatialVx( obs0601, wrf4ncar0531, loc = ICPg240Locs,
     projection = TRUE, map = TRUE, loc.byrow = TRUE,
     field.type = "Precipitation", units = "mm/h",
     data.name = "ICP NSSL/SPC Spring 2005 Cases",
-    obs.name = "obs0426", model.name = "wrf4ncar0425" )
+    obs.name = "obs0601", model.name = "wrf4ncar0531" )
 
 plot( hold )
 

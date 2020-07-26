@@ -138,19 +138,6 @@ look <- hoods2d(hold, levels=c(1, 3, 9, 17, 33, 65, 129, 257), verbose=TRUE)
 
 plot( look) # Might want to use 'pdf' first.
 
-data( "pert004" )
-data( "pert000" )
-
-hold <- make.SpatialVx( pert000, pert004, thresholds = c(1, 10, 50),
-    projection = TRUE, map = TRUE, loc = ICPg240Locs, loc.byrow = TRUE,
-    field.type = "Precipitation", units = "mm/h",
-    data.name = "ICP Perturbed Cases", obs.name = "pert000",
-    model.name = "pert004" )
-
-plot(hold)
-
-look <- hoods2d(hold, levels=c(1, 3, 17, 33, 65, 129, 257), verbose=TRUE)
-plot(look)
     }
 }
 \keyword{ math }

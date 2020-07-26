@@ -157,24 +157,5 @@ res <- summary( res )
 
 plot( res )
 
-\dontrun{
-data( "pert000" )
-data( "pert004" )
-data( "pert006" )
-data( "ICPg240Locs" )
-
-hold <- make.SpatialVx( pert000, list( pert004, pert006 ), loc = ICPg240Locs,
-    projection = TRUE, map = TRUE, loc.byrow = TRUE,
-    field.type = "Precipitation", units = "mm/h",
-    data.name = "ICP Perturbed Cases", obs.name = "pert000",
-    model.name = c( "pert004", "pert006" ) )
-
-look <- lossdiff( hold, lossfun = "abserrloss" )
-look <- empiricalVG.lossdiff( look, maxrad = 8 )
-look <- flossdiff( look )
-
-plot( look )
-summary( look )
-}
 }
 \keyword{ htest }

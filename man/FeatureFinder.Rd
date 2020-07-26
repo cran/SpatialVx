@@ -136,6 +136,21 @@ To force merges (implicit or otherwise; recommended): \code{\link{MergeForce}}
 }
 \examples{
 
+data( "ExampleSpatialVxSet" )
+
+x <- ExampleSpatialVxSet$vx
+xhat <- ExampleSpatialVxSet$fcst
+
+hold <- make.SpatialVx( x, xhat, field.type = "simulated",
+		       units = "none", data.name = "Example",
+		       obs.name = "x", model.name = "xhat" )
+
+look <- FeatureFinder( hold, smoothpar = 0.5, thresh = 1 )
+
+par( mfrow=c(1,2))
+image.plot(look$X.labeled)
+image.plot(look$Y.labeled)
+
 \dontrun{
 x <- y <- matrix(0, 100, 100)
 x[2:3,c(3:6, 8:10)] <- 1
@@ -161,65 +176,65 @@ look3 <- deltamm( look, N = 201, verbose = TRUE )
 FeatureTable( look3 )
 
 
-data( "pert000" )
-data( "pert004" )
-data( "ICPg240Locs" )
+# data( "pert000" )
+# data( "pert004" )
+# data( "ICPg240Locs" )
      
-hold <- make.SpatialVx( pert000, pert004,
-    loc = ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
-    field.type = "Precipitation", units = "mm/h",
-    data.name = "ICP Perturbed Cases", obs.name = "pert000",
-    model.name = "pert004" )
+# hold <- make.SpatialVx( pert000, pert004,
+#    loc = ICPg240Locs, projection = TRUE, map = TRUE, loc.byrow = TRUE,
+#    field.type = "Precipitation", units = "mm/h",
+#    data.name = "ICP Perturbed Cases", obs.name = "pert000",
+#    model.name = "pert004" )
      
-look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
-plot(look)
+# look <- FeatureFinder(hold, smoothpar=10.5, thresh = 5)
+# plot(look)
 
-look2 <- deltamm( look, N = 701, verbose = TRUE )
+# look2 <- deltamm( look, N = 701, verbose = TRUE )
 
-look2 <- MergeForce( look2 )
+# look2 <- MergeForce( look2 )
 
-plot(look2)
+# plot(look2)
 
-summary( look2 )
+# summary( look2 )
 
 # Now remove smallest features ( those with fewer than 700 grid squares).
 
-look <- FeatureFinder( hold, smoothpar = 10.5, thresh = 5, min.size = 700 )
+# look <- FeatureFinder( hold, smoothpar = 10.5, thresh = 5, min.size = 700 )
 
-look # Now only two features.
+# look # Now only two features.
 
-plot( look )
+# plot( look )
 
 # Now remove the largest features (those with more than 1000 grid squares). 
 
-look <- FeatureFinder( hold, smoothpar = 10.5, thresh = 5, max.size = 1000 )
+# look <- FeatureFinder( hold, smoothpar = 10.5, thresh = 5, max.size = 1000 )
 
-look
+# look
 
-plot( look )
+# plot( look )
 
 # Remove any features smaller than 700 and larger than 2000 grid squares).
 
-look <- FeatureFinder( hold, smoothpar = 10.5, thresh = 5,
-    min.size = 700, max.size = 2000 )
+# look <- FeatureFinder( hold, smoothpar = 10.5, thresh = 5,
+ #    min.size = 700, max.size = 2000 )
 
-look
+# look
 
-plot( look )
+# plot( look )
 
 # Find features according to Wernli et al. (2008).
-look <- FeatureFinder( hold, thresh = 5, do.smooth = FALSE, fac = 1 / 15 )
+# look <- FeatureFinder( hold, thresh = 5, do.smooth = FALSE, fac = 1 / 15 )
 
-look
+# look
 
-plot( look )
+# plot( look )
 
 # Now do a mix of the two types of methods.
-look <- FeatureFinder( hold, smoothpar = 10.5, thresh = 5, fac = 1 / 15 )
+# look <- FeatureFinder( hold, smoothpar = 10.5, thresh = 5, fac = 1 / 15 )
 
-look
+# look
 
-plot( look )
+# plot( look )
 
 }
 }
