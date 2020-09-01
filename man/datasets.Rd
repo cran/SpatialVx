@@ -50,11 +50,11 @@ The five geometric cases are simple ellipses (each with two intensities) that ar
 
 The longitude and latitude information for each grid (the NCEP g240 grid) is contained in the \code{ICPg240Locs} dataset.
 
-Other data sets for the ICP can be obtained from the ICP web site (\url{http://www.ral.ucar.edu/projects/icp}).  MesoVICT data sets are also available there.  All of the ICP test cases used to be available in this package, but had to be removed because of space concerns on CRAN.
+Other data sets for the ICP can be obtained from the ICP web site (\url{https://ral.ucar.edu/projects/icp/}).  MesoVICT data sets are also available there.  All of the ICP test cases used to be available in this package, but had to be removed because of space concerns on CRAN.
 
 }
 \source{
-\url{http://www.ral.ucar.edu/projects/icp/}
+\url{https://ral.ucar.edu/projects/icp/}
 }
 \references{
 Ahijevych, D., Gilleland, E., Brown, B. G. and Ebert, E. E. (2009) Application of spatial verification methods to idealized and NWP gridded precipitation forecasts. \emph{Wea. Forecasting}, \bold{24} (6), 1485--1497.
@@ -77,10 +77,10 @@ zl <- range( c( c(obs0601), c( wrf4ncar0531) ) )
 par( mfrow=c(2,1), mar=rep(0.1,4))
 image( obs0601, axes=FALSE, col=c("grey", tim.colors(256)), zlim=zl)
 par( usr=locr)
-if( map.available) map( add=TRUE, database="state")
+# if( map.available) map( add=TRUE, database="state") # from library( "maps" )
 image( wrf4ncar0531, axes=FALSE, col=c("grey", tim.colors(256)), zlim=zl)
 par( usr=locr)
-if( map.available) map( add=TRUE, database="state")
+# if( map.available) map( add=TRUE, database="state")
 image.plot( obs0601, legend.only=TRUE, horizontal=TRUE, 
 		col=c("grey", tim.colors(256)), zlim=zl)
 
@@ -89,8 +89,8 @@ zl <- range( c( c(obs0601), c( wrf4ncar0531) ) )
 par( mfrow=c(2,2), mar=rep(2.1,4))
 image(as.image(c(t(obs0601)), x=ICPg240Locs, nx=601, ny=501, na.rm=TRUE), zlim=zl,
         col=c("grey", tim.colors(64)), axes=FALSE, main="Stage II Reanalysis 4/26/05 0000 UTC")
-map(add=TRUE, lwd=1.5)
-map(add=TRUE, database="state", lty=2)
+# map(add=TRUE, lwd=1.5)
+# map(add=TRUE, database="state", lty=2)
 image(as.image(c(t(wrf4ncar0531)), x=ICPg240Locs, nx=601, ny=501, na.rm=TRUE), zlim=zl,
         col=c("grey", tim.colors(64)), axes=FALSE, main="WRF NCAR valid 4/26/05 0000 UTC")
 image.plot(obs0601, col=c("grey", tim.colors(64)), zlim=zl, legend.only=TRUE, horizontal=TRUE)

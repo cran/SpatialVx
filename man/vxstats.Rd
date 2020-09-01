@@ -21,7 +21,7 @@ character vector giving the names of the desired statistics.  See Details below.
   \item{subset}{numeric vector indicating a subset of the verification set over which to calculate the verification statistics.}
 }
 \details{
-Computes several traditional verification statistics (see Wilks, 2006, Ch. 7; Jolliffe and Stephenson, 2012 for more on these forecast verification statistics; as well as the Issues, Methods and FAQ web page of the Joint Working Group on Forecast Verification of the World Meteorological Organization at: \url{http://www.cawcr.gov.au/projects/verification/})
+Computes several traditional verification statistics (see Wilks, 2006, Ch. 7; Jolliffe and Stephenson, 2012 for more on these forecast verification statistics; as well as the Issues, Methods and FAQ web page of the Joint Working Group on Forecast Verification of the World Meteorological Organization at: \url{https://www.cawcr.gov.au/projects/verification/})
 The possible statistics that can be computed, as determined by \code{which.stats} are:
 
 \dQuote{bias} the number of forecast events divided by the number of observed events (sometimes called frequency bias).
@@ -54,7 +54,7 @@ The possible statistics that can be computed, as determined by \code{which.stats
 \item{mse}{numeric giving the mean square error.}
 }
 \author{Eric Gilleland}
-\note{See the web page: http://www.cawcr.gov.au/projects/verification/ for more details about these statistics, and references.}
+\note{See the web page: https://www.cawcr.gov.au/projects/verification/ for more details about these statistics, and references.}
 \section{Warning }{ It is up to the user to provide the appropriate type of fields for the given statistics to be computed.  For example, they must be binary for all types of which.stats except mse.} 
 \references{
 Brill, K. F. and Mesinger, F. (2009) Applying a general analytic method for assessing bias sensitivity to bias-adjusted threat and equitable threat scores.  \emph{Wea. Forecasting}, \bold{24}, 1748--1754.

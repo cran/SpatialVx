@@ -52,6 +52,24 @@
 \alias{print.summary.interester}
 \alias{print.variographied}
 \alias{shrinkgrid}
+\alias{Q}
+\alias{Qgauss}
+\alias{Qnonzero}
+\alias{dF}
+\alias{iwarper}
+\alias{plot.iwarped}
+\alias{plot.warped}
+\alias{plot.warped.lonlat}
+\alias{print.warped}
+\alias{prinwarp}
+\alias{summary.iwarped}
+\alias{summary.warped}
+\alias{warpTps}
+\alias{warpTpsConverter}
+\alias{warpTpsMatrices} 
+\alias{warper}
+\alias{warpingRadialBasis}
+\alias{equal.axis}
 \title{
 Internal functions for the SpatialVx package
 }

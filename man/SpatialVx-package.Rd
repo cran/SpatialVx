@@ -135,7 +135,7 @@ Also included is a function to do the geographic box-plot of Willmott et al. (20
 
 Datasets:
 
-All of the initial Spatial Forecast Verification Inter-Comparison Project (ICP, \url{http://www.ral.ucar.edu/projects/icp}) data sets used in the special collection of the Weather and Forecasting journal are included.  See the help file for 
+All of the initial Spatial Forecast Verification Inter-Comparison Project (ICP, \url{https://ral.ucar.edu/projects/icp/}) data sets used in the special collection of the Weather and Forecasting journal are included.  See the help file for 
 
 \code{obs0426},
 
