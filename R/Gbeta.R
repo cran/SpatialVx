@@ -22,6 +22,9 @@ Gbeta <- function( X, Xhat, threshold, beta, alpha = 0, rule = ">", ... ) {
 	# pB <- nB / N
 
 	term1 <- ( nA + nB - 2 * nAB )
+	term1b <- term1 / sqrt( beta - alpha )
+	term1c <- ( nB - nAB ) / sqrt( beta - alpha )
+	term1d <- ( nA - nAB ) / sqrt( beta - alpha )
 	# term1 <- min( c( nA, nB ) ) / max( c( 1, nA, nB ) ) # Could be zero
 
 	medAB <- sum( dA * IB, na.rm = TRUE ) / max( c( 1, nB ) ) # Could be zero
@@ -29,16 +32,21 @@ Gbeta <- function( X, Xhat, threshold, beta, alpha = 0, rule = ">", ... ) {
 
 	# term2 <- max( c( 1e-16, min( c( medAB, medBA ) ) ) ) / max( c( 1e-16, medAB, medBA ) )
 	term2 <- medAB * nB
+	term2b <- term2 / sqrt( beta - alpha )
 	term3 <- medBA * nA
-	term4 <- term2 + term3
+	term3b <- term3 / sqrt( beta - alpha )
+	term4 <- ( term2 + term3 ) / sqrt( beta - alpha )
 
-	x <- term1 * term4
+	x <- term1b * term4
 	# Ind <- as.numeric( x <= beta + 1 / alpha )
 
 	# out <- wobbler( x = x, alpha = alpha, beta = beta )
-	outAB <- ubalancer( x = ( nB - nAB ) * term2, alpha = alpha, beta = beta )
-	outBA <- ubalancer( x = ( nA - nAB ) * term3, alpha = alpha, beta = beta )
-	out <- ubalancer( x = x, alpha = alpha, beta = beta )
+	# outAB <- ubalancer( x = ( nB - nAB ) * term2, alpha = alpha, beta = beta )
+	# outBA <- ubalancer( x = ( nA - nAB ) * term3, alpha = alpha, beta = beta )
+	# out <- ubalancer( x = x, alpha = alpha, beta = beta )
+	outAB <- pmax( 1 - ( term1c * term2b - alpha ), 0 )
+	outBA <- pmax( 1 - ( term1d * term3b - alpha ), 0 )
+	out <- pmax( 1 - ( x - alpha ), 0 )
 
 	res <- c( nA, nB, nAB, term1, medAB, medBA, term2, term3, outAB, outBA )
 
