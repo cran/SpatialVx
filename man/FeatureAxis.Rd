@@ -34,7 +34,7 @@ logical, should the major axis angle be forced to be between +/- 90 degrees?
    \item{\dots}{For \code{plot.FeatureAxis} these are additional arguments to the \code{plot} function.  Not used by \code{summary.FeatureAxis}.}
 }
 \details{
-This function attempts to identify the major and minor axes for a pre-defined feature (sometimes referred to as an object).  This function relies heavily on the \pkg{spatstat} and \pkg{smatr} packages.  First, the convex hull of the feature is determined using the \code{convexhull} function from the \pkg{spatstat} package.  The major axis is then found using the \code{sma} function from package \pkg{smatr}, which is then converted into a \code{psp} object (see \code{as.psp} from \pkg{spatstat}) from which the axis angle and length are found (using \code{angles.psp} and \code{lengths.psp}, resp., from \pkg{spatstat}).
+This function attempts to identify the major and minor axes for a pre-defined feature (sometimes referred to as an object).  This function relies heavily on the \pkg{spatstat} and \pkg{smatr} packages.  First, the convex hull of the feature is determined using the \code{convexhull} function from the \pkg{spatstat} package.  The major axis is then found using the \code{sma} function from package \pkg{smatr}, which is then converted into a \code{psp} object (see \code{as.psp} from \pkg{spatstat}) from which the axis angle and length are found (using \code{angles.psp} and \code{lengths_psp}, resp., from \pkg{spatstat}).
 
 The minor axis anlge is easily found after rotating the major axis 90 degrees using \code{rotate.psp} from \pkg{spatstat}.  The length of the minor axis is more difficult.  Here, it is found by rotating the convex hull of the feature by the major axis angle (so that it is upright) using \code{rotate.owin} from \pkg{spatstat}, and then computing the bounding box (using \code{boundingbox} from \pkg{spatstat}).  The differnce is then taken between the range of x- coordinates of the bounding box.  This seems to give a reasonable value for the length of the minor axis.  A \code{psp} object is then created using the mid point of the major axis (which should be close to the centroid of the feature) using \code{as.psp} and \code{midpoints.psp} from \pkg{spatstat} along with the length and angle already found for the minor axis.
 
@@ -58,7 +58,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{owin}}, \code{\link{convexhull}}, \code{\link{sma}}, \code{\link{as.psp}}, \code{\link{angles.psp}}, \code{\link{rotate.owin}}, \code{\link{rotate.psp}}, \code{\link{boundingbox}}, \code{\link{midpoints.psp}}, \code{\link{lengths.psp}}, \code{\link{infline}}, \code{\link{clip.infline}}, \code{\link{deltamm}}, \code{\link{FeatureFinder}}, \code{\link{disjointer}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{solutionset}}
+\code{\link{owin}}, \code{\link{convexhull}}, \code{\link{sma}}, \code{\link{as.psp}}, \code{\link{angles.psp}}, \code{\link{rotate.owin}}, \code{\link{rotate.psp}}, \code{\link{boundingbox}}, \code{\link{midpoints.psp}}, \code{\link{lengths_psp}}, \code{\link{infline}}, \code{\link{clip.infline}}, \code{\link{deltamm}}, \code{\link{FeatureFinder}}, \code{\link{disjointer}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{solutionset}}
 }
 \examples{
 data( "ExampleSpatialVxSet" )

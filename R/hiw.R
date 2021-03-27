@@ -85,7 +85,7 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 	# unwanted line segments along the same angle).  Also, figure out if any line segments:
 	# (i) cross only on one side of the mid-point, (ii) cross in one or fewer places.
 	a2 <- round(angles.psp(res), digits = 6)
-	l2 <- lengths.psp(res)
+	l2 <- lengths_psp(res)
 
 	mat <- res$ends
 	dx <- zapsmall(mat$x1 - mat$x0) # + right, - left, 0 vertical
@@ -338,7 +338,7 @@ hiw <- function(x, simplify = 0, A = pi * c(0, 1/16, 1/8, 1/6, 1/4, 1/2, 9/16, 5
 	A <- angles.psp(X)
 	o <- order(A)
 	out <- numeric(length(a)) + NA
-	out[ id ] <- a[ id ] * lengths.psp(X)[ o ]
+	out[ id ] <- a[ id ] * lengths_psp(X)[ o ]
 
 	return(out)
 

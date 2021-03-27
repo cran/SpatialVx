@@ -25,7 +25,7 @@ importFrom("stats", "cor", "cor.test", "cov", "cutree", "dist", "fft",
              "sd", "var")
 
 import(
-  fields, smoothie, spatstat, smatr, turboEM
+  fields, smoothie, spatstat.geom,spatstat.core,spatstat.linnet,spatstat, smatr, turboEM
 )
 
 S3method(ACC, SpatialVx)
@@ -123,6 +123,7 @@ S3method(print, rigided)
 S3method(print, saller)
 S3method(print, lossdiff)
 S3method(print, summary.interester)
+S3method(print, TheBigG)
 S3method(print, upscale2d)
 S3method(print, variographied)
 S3method(print, waverify2d)

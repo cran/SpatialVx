@@ -2,6 +2,7 @@
 \alias{print.G2IL} 
 \alias{print.Gbeta}
 \alias{print.GbetaIL} 
+\alias{print.TheBigG}
 \alias{ubalancer}
 \alias{calculate_FSS_from_enlarged_summed_fields}
 \alias{calculate_FSSvector_from_enlarged_summed_fields}
@@ -70,6 +71,9 @@
 \alias{warper}
 \alias{warpingRadialBasis}
 \alias{equal.axis}
+\alias{calculate_NSS_from_enlarged_summed_fields}
+\alias{calculate_dNSS}
+\alias{calculate_n_NSS05_using_bisection_from_the_summed_fields}
 \title{
 Internal functions for the SpatialVx package
 }

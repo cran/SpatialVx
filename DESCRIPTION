@@ -1,17 +1,18 @@
 Package: SpatialVx
-Version: 0.7-1
-Date: 2020-11-21
+Version: 0.8
+Date: 2021-03-27
 Title: Spatial Forecast Verification
 Author: Eric Gilleland <EricG@ucar.edu>
 Maintainer: Eric Gilleland <EricG@ucar.edu>
-Depends: R (>= 2.10.0), spatstat, fields (>= 6.8), smoothie, smatr,
-        turboEM
-Imports: distillery, maps, boot, CircStats, fastcluster, waveslim
+Depends: R (>= 2.10.0), spatstat (>= 2.0-0), fields (>= 6.8), smoothie,
+        smatr, turboEM
+Imports: spatstat.geom, spatstat.core, spatstat.linnet, distillery,
+        maps, boot, CircStats, fastcluster, waveslim
 Description: Spatial forecast verification refers to verifying weather forecasts when the verification set (forecast and observations) is on a spatial field, usually a high-resolution gridded spatial field.  Most of the functions here require the forecast and observed fields to be gridded and on the same grid.  For a thorough review of most of the methods in this package, please see Gilleland et al. (2009) <doi: 10.1175/2009WAF2222269.1>.
 License: GPL (>= 2)
 URL: https://ral.ucar.edu/projects/icp/SpatialVx/
 BugReports: https://ral.ucar.edu/staff/ericg/
 NeedsCompilation: no
-Packaged: 2020-11-23 19:29:09 UTC; eric
+Packaged: 2021-03-27 15:25:17 UTC; eric
 Repository: CRAN
-Date/Publication: 2020-11-24 07:30:22 UTC
+Date/Publication: 2021-03-27 23:20:05 UTC

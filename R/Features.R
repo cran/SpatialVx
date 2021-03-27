@@ -1277,7 +1277,7 @@ FeatureAxis <- function(x, fac=1, flipit=FALSE, twixt=FALSE) {
 
    MidPoint <- midpoints.psp(MajorAxis)
 
-   r <- lengths.psp(MajorAxis) * fac
+   r <- lengths_psp(MajorAxis) * fac
 
    phi <- angles.psp(rotate(MajorAxis, pi/2))
 

@@ -68,7 +68,7 @@ G2IL(X, Xhat, threshold, beta, alpha = 0, rule = ">", ...)
 The attributes for GbetaIL and G2IL are the same, but the components vector also includes the value of theta.  GbetaIL has an additional attribute called weights that gives w and 1 - w.
 }
 \references{
-	Gilleland, E., 2020. Novel measures for summarizing high-resolution forecast performance. Submitted to Mon. Wea. Rev. on 31 March 2020. Re-submitted on 18 May 2020. Re-submitted to Advances in Statistical Climatology, Meteorology and Oceanography on 19 July 2020.  Temporarily available at: \url{https://ral.ucar.edu/staff/ericg/Gilleland2020.pdf}.
+	Gilleland, E. (2020) Novel measures for summarizing high-resolution forecast performance. \emph{Advances in Statistical Climatology, Meteorology and Oceanography}, \bold{7} (1), 13--34, doi: 10.5194/ascmo-7-13-2021.
 }
 \author{
 	Eric Gilleland
@@ -76,7 +76,8 @@ The attributes for GbetaIL and G2IL are the same, but the components vector also
 
 
 \seealso{
-\code{\link{qqplot}}, \code{\link{binarizer}}, \code{\link{solutionset}}, \code{\link{locperf}}
+\code{\link{TheBigG}},\link{qqplot}, \code{\link{binarizer}}, \code{\link{solutionset}}, \code{\link{locperf}}
+
 }
 \examples{
 data( "obs0601" )

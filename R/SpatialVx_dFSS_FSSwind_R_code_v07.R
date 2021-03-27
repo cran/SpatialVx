@@ -30,8 +30,7 @@ calculate_fractions_from_enlarged_summed_field <- function(fsumenl, n, d)
 
 	if (n %% 2 != 1)
 		{
-		print("ERROR: neigberhood size can only be an odd positive integer")
-		quit(save = "default")
+		stop("Neighbourhood size can only be an odd positive integer")
 		}
 		
 
@@ -89,22 +88,19 @@ calculate_FSSvector_from_binary_fields <- function(fbin1, fbin2, nvector)
 	# check that the dimensions of the two fields are the same
 	if (ncol(fbin1) != ncol(fbin2) || nrow(fbin1) != nrow(fbin2) )
 		{
-		print("ERROR: The two input binary fields don't have the same dimensions !!!")
-		quit(save = "default")
+		stop("The two input binary fields don't have the same dimensions !!!")
 		}
 
 	# check if all values in binary fields are really binary
 	if (sum(fbin1==0) + sum(fbin1==1) != length(fbin1) || sum(fbin2==0) + sum(fbin2==1) != length(fbin2))
 		{
-		print("ERROR: At least one of the two fields contains a non-binary value. Only values 0 and 1 are allowed in the binary input fields.")
-		quit(save = "default")
+		stop("At least one of the two fields contains a non-binary value. Only values 0 and 1 are allowed in the binary input fields.")
 		}
 
 	# check if nvector contains only odd positive integer values
 	if ( identical(nvector,round(nvector)) == FALSE || length(which(nvector %% 2 != 1)) > 0)
 		{
-		print("ERROR: nvector can only contain odd positive integer values representing the neigberhood size!")
-		quit(save = "default")
+		stop("nvector can only contain odd positive integer values representing the neigberhood size!")
 		}
 
 
@@ -134,8 +130,7 @@ calculate_n05_using_bisection_from_the_summed_fields <- function(fsum1or, fsum2o
 
 	if (x2 < 5)
 		{
-		print("ERROR: domain size needs to be at least 2 grid points")
-		quit(save = "default")
+		stop("Domain size needs to be at least 2 grid points")
 		}
 
 	FSS1=calculate_FSS_from_enlarged_summed_fields(fsum1or,fsum2or,x1, d);
@@ -153,8 +148,7 @@ calculate_n05_using_bisection_from_the_summed_fields <- function(fsum1or, fsum2o
 	# special case when FSS does never reach value 0.5
 	if (FSS2 <= 0.5)
 		{
-		print("ERROR: FSS does never reach value 0.5. There is something wrong.")
-		quit(save = "default")
+		stop("FSS does never reach value 0.5. There is something wrong.")
 		}
 
 	# use bisection
@@ -193,15 +187,13 @@ calculate_dFSS <- function(fbin1, fbin2)
 	# check that the dimensions of the two fields are the same
 	if (ncol(fbin1) != ncol(fbin2) || nrow(fbin1) != nrow(fbin2) )
 		{
-		print("ERROR: The two input binary fields don't have the same dimensions !!!")
-		quit(save = "default")
+		stop("The two input binary fields don't have the same dimensions !!!")
 		}
 
 	# check if all values in binary fields are really binary
 	if (sum(fbin1==0) + sum(fbin1==1) != length(fbin1) || sum(fbin2==0) + sum(fbin2==1) != length(fbin2))
 		{
-		print("ERROR: At least one of the two fields contains a non-binary value. Only values 0 and 1 are allowed in the binary input fields.")
-		quit(save = "default")
+		stop("At least one of the two fields contains a non-binary value. Only values 0 and 1 are allowed in the binary input fields.")
 		}
 
 
@@ -223,19 +215,17 @@ calculate_dFSS <- function(fbin1, fbin2)
 	
 	if (sum1 == 0 || sum2 == 0)
 		{
-		print("ERROR: One of the two input binary fields has no precipation (all values are 0) !!!")
-		quit(save = "default")
+		stop("One of the two input binary fields has no precipation (all values are 0) !!!")
 		}
 	
 	bias=max(sum1/sum2,sum2/sum1)
 	if (bias > 2) 
 		{
-		print("ERROR: The freqeuncy bias for the two input binary field is larger than 2. This is not allowed since it will produce unrealistic results for dFSS. We recomend using freqeuncy threshold to generate the binary input fields with no bias!")
-		quit(save = "default")
+		stop("The freqeuncy bias for the two input binary field is larger than 2. This is not allowed since it will produce unrealistic results for dFSS. We recomend using freqeuncy threshold to generate the binary input fields with no bias!")
 		}
 	if (bias > 1.5) 
 		{
-		print("WARNING: The freqeuncy bias for the two input binary field is larger than 1.5. In some cases this might result in unrealistic results for the dFSS. We recomend using freqeuncy threshold to generate the binary input fields with no bias!")
+		warning("The freqeuncy bias for the two input binary field is larger than 1.5. In some cases this might result in unrealistic results for the dFSS. We recomend using freqeuncy threshold to generate the binary input fields with no bias!")
 		}
 
 	# calculate FSSn1
@@ -269,19 +259,17 @@ calculate_dFSS <- function(fbin1, fbin2)
 		sum2or=fsum2or[dimy,dimx]
 		if (sum1or == 0 || sum2or == 0)
 			{
-			print("ERROR: One of the two fields with overlap removed has no precipation (all values are 0) !!!. We recomend using freqeuncy threshold to generate the binary input fields with no bias!")
-			quit(save = "default")
+			stop("One of the two fields with overlap removed has no precipation (all values are 0) !!!. We recomend using freqeuncy threshold to generate the binary input fields with no bias!")
 			}
 
 		biasor=max(sum1or/sum2or,sum2or/sum1or)
 		if (biasor > 2) 
 			{
-			print("ERROR: The freqeuncy bias for the two fields with overlap removed is larger than 2. This is not allowed since it will produce unrealistic results for dFSS. We recomend using freqeuncy threshold to generate the binary input fields with no bias!")
-			quit(save = "default")
+			stop("The freqeuncy bias for the two fields with overlap removed is larger than 2. This is not allowed since it will produce unrealistic results for dFSS. We recomend using freqeuncy threshold to generate the binary input fields with no bias!")
 			}
 		if (biasor > 1.5) 
 			{
-			print("WARNING: The freqeuncy bias for the two fields with overlap removed is larger than 1.5. In some cases this might result in unrealistic results for the dFSS. We recomend using freqeuncy threshold to generate the binary input fields with no bias!")
+			warning("The freqeuncy bias for the two fields with overlap removed is larger than 1.5. In some cases this might result in unrealistic results for the dFSS. We recomend using freqeuncy threshold to generate the binary input fields with no bias!")
 			}
 		
 				
@@ -303,8 +291,7 @@ calculate_FSSwind <- function(findex1, findex2, nvector)
 	# check that the dimensions of the two input fields are the same
 	if (ncol(findex1) != ncol(findex2) || nrow(findex1) != nrow(findex2) )
 		{
-		print("ERROR: The two input wind class index fields don't have the same dimensions !!!")
-		quit(save = "default")
+		stop("The two input wind class index fields don't have the same dimensions !!!")
 		}
 
 	# check if all values in index fields are really integers and positive
@@ -312,15 +299,13 @@ calculate_FSSwind <- function(findex1, findex2, nvector)
 	min_value=min(min(findex1),min(findex2))
 	if ( identical(findex1,round(findex1)) == FALSE || identical(findex2,round(findex2)) == FALSE || min_value < 1 )
 		{
-		print("ERROR: At least one of the two index fields contains non-integer or non-positive values. Only positive integer values that represent wind classes are allowed in the input index fields! The smallest allowed windclass index is 1 and not 0.")
-		quit(save = "default")
+		stop("At least one of the two index fields contains non-integer or non-positive values. Only positive integer values that represent wind classes are allowed in the input index fields! The smallest allowed windclass index is 1 and not 0.")
 		}
 
 	# check if nvector contains only odd positive integer values
 	if ( identical(nvector,round(nvector)) == FALSE || length(which(nvector %% 2 != 1)) > 0)
 		{
-		print("ERROR: nvector can only contain odd positive integer values representing the neigberhood size!")
-		quit(save = "default")
+		stop("nvector can only contain odd positive integer values representing the neigberhood size!")
 		}
 
 	# decompose index fields into binary fields and calculate summed fields that are used for faster calulation of fractions
