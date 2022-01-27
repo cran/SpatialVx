@@ -21,7 +21,7 @@ character vector giving the names of the desired statistics.  See Details below.
   \item{subset}{numeric vector indicating a subset of the verification set over which to calculate the verification statistics.}
 }
 \details{
-Computes several traditional verification statistics (see Wilks, 2006, Ch. 7; Jolliffe and Stephenson, 2012 for more on these forecast verification statistics; as well as the Issues, Methods and FAQ web page of the Joint Working Group on Forecast Verification of the World Meteorological Organization at: \url{https://www.cawcr.gov.au/projects/verification/})
+Computes several traditional verification statistics (see Wilks, 2006, Ch. 7; Jolliffe and Stephenson, 2012 for more on these forecast verification statistics)
 The possible statistics that can be computed, as determined by \code{which.stats} are:
 
 \dQuote{bias} the number of forecast events divided by the number of observed events (sometimes called frequency bias).

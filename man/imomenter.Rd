@@ -36,7 +36,7 @@ Calculates Hu's image moments (Hu 1962).  Calculates the raw moments: M00 (aka a
 
 The orientation angle calculated here is that which is used by MODE, although not currently used in the MODE analyses in this package (smatr is used instead to find the major axis, etc).  The eigenvalues of the image covariance correspond to the major and minor axes of the image.
 
-For more information on image moments, see http://en.wikipedia.org/wiki/Image_moments and references therein.
+For more information on image moments, see Hu (1962).
 }
 \value{
 A list object of class \dQuote{imomented} is returned with components:

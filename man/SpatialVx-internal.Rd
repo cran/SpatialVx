@@ -57,7 +57,6 @@
 \alias{Qgauss}
 \alias{Qnonzero}
 \alias{dF}
-\alias{iwarper}
 \alias{plot.iwarped}
 \alias{plot.warped}
 \alias{plot.warped.lonlat}
@@ -68,12 +67,8 @@
 \alias{warpTps}
 \alias{warpTpsConverter}
 \alias{warpTpsMatrices} 
-\alias{warper}
 \alias{warpingRadialBasis}
 \alias{equal.axis}
-\alias{calculate_NSS_from_enlarged_summed_fields}
-\alias{calculate_dNSS}
-\alias{calculate_n_NSS05_using_bisection_from_the_summed_fields}
 \title{
 Internal functions for the SpatialVx package
 }

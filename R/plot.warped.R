@@ -33,7 +33,7 @@ plot.warped.lonlat <- function( x, col = c( "gray", tim.colors(64) ), alwd = 1.5
     image.plot( x$Im1, legend.only = TRUE, horizontal = TRUE, col = col, zlim = zl1 )
 
     plot( xy$x, xy$y, type = "n", xlab = "", ylab = "", main = "Error Field", cex.main = 1.25 )
-    poly.image( lonlat$x, lonlat$y, x$Im1 - x$Im0, col = tim.colors(64), zlim = zl2, ..., add = TRUE )
+    poly.image( lonlat$x, lonlat$y, x$Im1 - x$Im0, col = col, zlim = zl2, ..., add = TRUE )
     map( add = TRUE )
     map( database = "state", add = TRUE )
     image.plot( x$Im1 - x$Im0, legend.only = TRUE, horizontal = TRUE, col = col, zlim = zl2 )
@@ -42,7 +42,7 @@ plot.warped.lonlat <- function( x, col = c( "gray", tim.colors(64) ), alwd = 1.5
     h <- matrix( sqrt( ( x$warped.locations[, 1] - x$s[, 1] )^2 + ( x$warped.locations[, 2] - x$s[, 2] )^2 ),
         xdim[ 1 ], xdim[ 2 ] )
     plot( xy$x, xy$y, type = "n", xlab = "", ylab = "", main = "Distance Travelled", cex.main = 1.25 )
-    poly.image( lonlat$x, lonlat$y, h, col = c( "gray", tim.colors(64) ), ..., add = TRUE )
+    poly.image( lonlat$x, lonlat$y, h, col = col, ..., add = TRUE )
     map( add = TRUE )
     map( database = "state", add = TRUE )
 
@@ -55,7 +55,7 @@ plot.warped.lonlat <- function( x, col = c( "gray", tim.colors(64) ), alwd = 1.5
     y2   = predict( fitY, newdata = list( y = x$p1[,2] ) )
 
     arrows(x1, x2, y1, y2, col="magenta", length=0.2, lwd = alwd )
-    image.plot( h, legend.only = TRUE, horizontal = TRUE, col = c( "gray", tim.colors(64) ) )
+    image.plot( h, legend.only = TRUE, horizontal = TRUE, col = col )
 
     plot( xy$x, xy$y, type = "n", xlab = "", ylab = "", main = "Deformed 1-energy field", cex.main = 1.25 )
     poly.image( lonlat$x, lonlat$y, x$Im1.def, col = col, ..., zlim = zl1, add = TRUE )
@@ -64,11 +64,11 @@ plot.warped.lonlat <- function( x, col = c( "gray", tim.colors(64) ), alwd = 1.5
     image.plot( x$Im1.def, legend.only = TRUE, horizontal = TRUE, col = col, zlim = zl1 )
 
     plot( xy$x, xy$y, type = "n", xlab = "", ylab = "", main = "Error Field\n(after warping)", cex.main = 1.25 )
-    poly.image( lonlat$x, lonlat$y, x$Im1.def - x$Im0, col = tim.colors(64), zlim = zl2, ..., add = TRUE )
+    poly.image( lonlat$x, lonlat$y, x$Im1.def - x$Im0, col = col, zlim = zl2, ..., add = TRUE )
     map( add = TRUE )
     map( database = "state", add = TRUE )
     image.plot( lonlat$x, lonlat$y, x$Im1.def - x$Im0, legend.only = TRUE, horizontal = TRUE,
-	col = tim.colors(64), zlim = zl2 )
+	col = col, zlim = zl2 )
 
     par( mfrow = c(1,1) )
 

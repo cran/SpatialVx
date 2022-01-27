@@ -88,7 +88,7 @@ Theiler, J., Eubank, S. Longtin, A. Galdrikian, B. and Farmer, J. D. (1992) \emp
 Venugopal, V., Basu, S. and Foufoula-Georgiou, E. (2005) A new metric for comparing precipitation patterns with an application to ensemble forecasts.  \emph{J. Geophys. Res.}, \bold{110}, D08111, doi:10.1029/2004JD005395, 11pp.
 }
 \author{
-Eric Gilleland, this code was adapted from matlab code written by Sukanta Basu (2007) available at: http://www.ral.ucar.edu/projects/icp/Software/FeaturesBased/FQI/Perturbed.m
+Eric Gilleland, this code was adapted from matlab code written by Sukanta Basu (2007) available at: http://projects.ral.ucar.edu/icp/Software/FeaturesBased/FQI/Perturbed.m
 }
 
 \seealso{

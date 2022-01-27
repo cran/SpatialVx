@@ -45,9 +45,7 @@ CircleHistogram(wspd, wdir, numPetals = 12, radians = FALSE,
   \item{number.obs }{numeric giving the number of observations.}
   \item{number.calm}{numeric giving the number of zero wspd and missing values.}
 }
-% \references{
-%% ~put references to the literature/web site here ~
-% }
+
 \author{
 	Matt Pocernich
 }

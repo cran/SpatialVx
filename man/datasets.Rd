@@ -18,14 +18,12 @@ Test cases used for the ICP.  In particular, those actually analyzed in the spec
 \usage{
 data( "obs0601" )
 data( "wrf4ncar0531" )
-
 data( "geom000" )
 data( "geom001" )
 data( "geom002" )
 data( "geom003" )
 data( "geom004" )
 data( "geom005" )
-
 data( "ICPg240Locs" )
 }
 \format{
@@ -50,11 +48,11 @@ The five geometric cases are simple ellipses (each with two intensities) that ar
 
 The longitude and latitude information for each grid (the NCEP g240 grid) is contained in the \code{ICPg240Locs} dataset.
 
-Other data sets for the ICP can be obtained from the ICP web site (\url{https://ral.ucar.edu/projects/icp/}).  MesoVICT data sets are also available there.  All of the ICP test cases used to be available in this package, but had to be removed because of space concerns on CRAN.
+Other data sets for the ICP can be obtained from the ICP web site (\url{https://projects.ral.ucar.edu/icp/}).  MesoVICT data sets are also available there.  All of the ICP test cases used to be available in this package, but had to be removed because of space concerns on CRAN.
 
 }
 \source{
-\url{https://ral.ucar.edu/projects/icp/}
+\url{https://projects.ral.ucar.edu/icp/}
 }
 \references{
 Ahijevych, D., Gilleland, E., Brown, B. G. and Ebert, E. E. (2009) Application of spatial verification methods to idealized and NWP gridded precipitation forecasts. \emph{Wea. Forecasting}, \bold{24} (6), 1485--1497.

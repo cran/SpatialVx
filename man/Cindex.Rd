@@ -18,7 +18,7 @@ Cindex(x, thresh = NULL, connect.method = "C", ...)
 }
 \arguments{
     \item{x}{
-Default: m by n numeric matrix giving the field for which the shape index is to be calculated.
+Default: m by n numeric matrix giving the field for which the connectivity index is to be calculated.
 
 \code{Sindex.SpatialVx}: list object of class \dQuote{SpatialVx}.
 }
@@ -54,8 +54,11 @@ Eric Gilleland
 \code{\link{connected}}, \code{\link{as.im}}, \code{\link{Sindex}}, \code{\link{Aindex}}
 }
 \examples{
-data( "geom000" )
-Cindex( geom000 )
-
+# Re-create Fig. 7a from AghaKouchak et al. (2011).
+tmp <- matrix(0, 8, 8)
+tmp[3,2:4] <- 1
+tmp[5,4:6] <- 1
+tmp[7,6:7] <- 1
+Cindex(tmp)
 }
 \keyword{ math }

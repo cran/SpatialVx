@@ -57,10 +57,11 @@ Eric Gilleland
 }
 \examples{
 # Gemetric shape that is highly structured.
-data( "geom000" )
-
-Aindex( geom000 )
-Aindex( geom000, dx = 4, dy = 4 )
-
+# Re-create Fig. 7a from AghaKouchak et al. (2011).
+tmp <- matrix(0, 8, 8)
+tmp[3,2:4] <- 1
+tmp[5,4:6] <- 1
+tmp[7,6:7] <- 1
+Aindex(tmp)
 }
 \keyword{ math }

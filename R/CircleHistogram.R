@@ -62,8 +62,9 @@ if (radians){
 }
 
 ## assumes data has 2 columns names dir and mag  
+opar <- par(no.readonly = TRUE)
 op<- par(mar = c(1,1,2,1))
-on.exit(par(op))
+on.exit(par(opar))
 ### rm NA ~ calms ###
 
 

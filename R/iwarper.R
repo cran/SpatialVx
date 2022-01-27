@@ -131,23 +131,23 @@ summary.iwarped <- function( object, ... ) {
 
 } # end of 'summary.iwarped' function.
 
-plot.iwarped <- function( x, col = c( "gray", tim.colors(64) ), alwd = 1.5, ... ) {
+plot.iwarped <- function( x, col = c( "gray", tim.colors(64) ), alwd = 1.5, arrow.col = "magenta", ... ) {
 
     par( mfrow = c(2,3) )
 
     image.plot( x$Im0, main = "0-energy field", col = col, ... )
     image.plot( x$Im1, main = "1-energy field", col = col, ... )
-    image.plot( x$Im1 - x$Im0, main = "Error Field", col = tim.colors(64), ... )
+    image.plot( x$Im1 - x$Im0, main = "Error Field", col = col, ... )
 
     xdim <- dim( x$Im0 ) 
     h <- matrix( sqrt( ( x$warped.locations[,1] - x$s[,1] )^2 + ( x$warped.locations[,2] - x$s[,2] )^2 ), xdim[ 1 ], xdim[ 2 ] )
     image.plot( matrix( x$s[,1], xdim[ 1 ], xdim[ 2 ] ),
 		matrix( x$s[,2], xdim[ 1 ], xdim[ 2 ] ),
-		h, main = "Distance travelled", col = c( "gray", tim.colors(64) ), ... )
-    arrows(x$p1[,1], x$p1[,2], x$p0[,1], x$p0[,2], col="magenta", length=0.2, lwd = alwd )
+		h, main = "Distance travelled", col = col, ... )
+    arrows(x$p1[,1], x$p1[,2], x$p0[,1], x$p0[,2], col=arrow.col, length=0.2, lwd = alwd )
 
     image.plot( x$Im1.def, main = "Deformed 1-energy field", col = col, ... )
-    image.plot( x$Im1.def - x$Im0, main = "Error Field\n(after warping)", col = tim.colors(64), ... )
+    image.plot( x$Im1.def - x$Im0, main = "Error Field\n(after warping)", col = col, ... )
 
     par( mfrow = c(1,1) )
 

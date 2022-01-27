@@ -437,7 +437,7 @@ plot.lossdiff <- function(x, ..., icol=c("gray", tim.colors(64))) {
 	lines(a$d, predict(x$vgmodel, newdata = a$d), col="darkorange", lwd=1.5)
    	legend("bottomright", legend=c("Empirical", "Model"), pch=c("o", ""), col=c("darkblue","darkorange"), lty=c(0,1), lwd=1.5, bty="n")
     }
-    plot.vgram.matrix(a, main="variogram by direction")
+    plot.vgram.matrix(a, main="variogram by direction", col = icol, ...)
 
     title("")
     mtext(msg, line=0.05, outer=TRUE)
@@ -603,10 +603,10 @@ structurogram.matrix <- function(dat, q=2, R=5, dx=1, dy=1, zero.out=FALSE) {
 } # end of 'structurogram.matrix' function.
 
 plot.structurogram.matrix <- function(x,...) {
-   par(mfrow=c(1,2), bg="beige")
+   par(mfrow=c(1,2) )
    plot( x$d, x$vgram, xlab="separation distance", ylab=paste("structure (q=", x$q, ")", sep=""), ...)
    points( x$d.full, x$vgram.full, pch=".")
-   plot.vgram.matrix(x, main="Structure by direction")
+   plot.vgram.matrix(x, main="Structure by direction", ...)
    invisible()
 } # end of 'plot.structurogram.matrix' function.
 
