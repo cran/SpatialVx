@@ -59,4 +59,6 @@ print.GbetaIL <- function( x, ... ) {
 	cat( "\n\n", "Component parts and asymmetric Gbeta:\n\n" )
 	print( a$components )
 
+	invisible( a )
+
 } # end of 'print.GbetaIL' function.

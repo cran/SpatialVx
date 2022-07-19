@@ -111,7 +111,7 @@ print.features <- function(x, ...) {
 
     }
 
-    invisible()
+    invisible(a)
 
 } # end of 'print.features' function.
 
@@ -533,7 +533,7 @@ summary.saller <- function(object,...) {
     cat("\n", "Amplitude Component (A): ", object$A, "\n")
     cat("\n", "Location Component (L): ", object$L, "\n")
 
-    invisible()
+    invisible(a)
 
 } # end of 'summary.saller' function.
 
@@ -881,14 +881,14 @@ print.matched <- function(x, ...) {
 
     }
 
-    invisible()
+    invisible(a)
 
 } # end of 'print.matched' function.
 
 centmatch <- function(x, criteria = 1, const = 14, distfun = "rdist", areafac = 1,
     verbose = FALSE, ...) {
 
-    if( class(x) != "features" ) stop( "centmatch: invalid object, x or y type." )
+    if( !is(x, "features" ) ) stop( "centmatch: invalid object, x or y type." )
 
     if( is.null( x$X.feats ) && is.null( x$Y.feats ) ) stop( "centmatch: no features to match!" )
     if( is.null( x$X.feats ) ) stop( "centmatch: no features in verification field to match." )
@@ -1449,7 +1449,7 @@ print.FeatureMatchAnalyzer <- function(x, ...) {
 
 	attributes(x) <- NULL
 	print(c(x))
-	invisible()
+	invisible(c(x))
 
     }
 

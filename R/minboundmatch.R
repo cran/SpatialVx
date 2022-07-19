@@ -2,7 +2,7 @@ minboundmatch <- function(x, type = c("single", "multiple"), mindist = Inf, verb
 
     if(verbose) begin.tiid <- Sys.time()
 
-    if(class( x ) != "features") stop("minboundmatch: invalid x argument.")
+    if( !is( x, "features") ) stop("minboundmatch: invalid x argument.")
 
     if( is.null( x$X.feats ) && is.null( x$Y.feats ) ) stop( "minboundmatch: no features to match!" )
     if( is.null( x$X.feats ) ) stop( "minboundmatch: no verification features to match." )

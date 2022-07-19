@@ -31,7 +31,7 @@ spct <- function( d, loc, trend = 0, lon.lat = TRUE,
 # 	dat <- data.frame( lon = loc[,1], lat = loc[,2], loss.differential = d )
 # 	fit <- try( lm( loss.differential ~ lon + lat, data = dat ), silent = !verbose )
 # 
-# 	if( class( fit ) != "try-error" ) {
+# 	if( is( fit, "try-error" ) ) {
 # 
 # 	    tr <- predict( fit )
 # 
@@ -103,7 +103,7 @@ spct <- function( d, loc, trend = 0, lon.lat = TRUE,
     out$estimate <- dbar
     out$null.value <- mu
 
-    if( class( fit ) != "try-error" ) {
+    if( is( fit, "try-error" ) ) {
 
 	if( verbose ) cat( "Performing the test.\n" )
 

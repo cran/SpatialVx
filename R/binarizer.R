@@ -12,12 +12,12 @@ binarizer <- function( X, Xhat, threshold = NULL, rule = c( ">", "<", ">=", "<="
 
 	if( missing( threshold ) || is.null( threshold ) ) {
 
-		if( any( class( X ) == "owin" ) ) Z <- X
-		else if( any( class( X ) == "im" ) ) Z <- solutionset( X > 0 )
+		if( is( X, "owin" ) ) Z <- X
+		else if( is( X, "im" ) ) Z <- solutionset( X > 0 )
 		else stop( "binarizer: invalid X argument" )
 
-		if( any( class( Xhat ) == "owin" ) ) Zhat <- Xhat
-		else if( any( class( Xhat ) == "im" ) ) Zhat <- solutionset( Zhat > 0 )
+		if( is( Xhat, "owin" ) ) Zhat <- Xhat
+		else if( is( Xhat, "im" ) ) Zhat <- solutionset( Zhat > 0 )
 		else stop( "binarizer: invalid Xhat argument" )
 
 		return( list( Z, Zhat ) )
@@ -63,13 +63,13 @@ binarizer <- function( X, Xhat, threshold = NULL, rule = c( ">", "<", ">=", "<="
 
 	} # end of if else missing threshold stmts.
 
-	# if( class( X ) == "matrix" ) Z <- im( X )
-	if( any( class( X ) == "owin" ) ) X <- as.matrix( X )
-	# else if( class( X ) != "owin" ) stop( "binarizer: invalid X argument.  Must be a matrix or owin object." )
+	# if( is( X, "matrix" ) ) Z <- im( X )
+	if( is( X, "owin" ) ) X <- as.matrix( X )
+	# else if( !is( X, "owin" ) ) stop( "binarizer: invalid X argument.  Must be a matrix or owin object." )
 
-	# if( class( Xhat ) == "matrix" ) Zhat <- im( Xhat )
-	if( any( class( Xhat ) == "owin" ) ) Xhat <- as.matrix( Xhat )
-	# else if( class( Xhat ) != "owin" ) stop( "binarizer: invalid Xhat argument.  Must be a matrix or owin object." )
+	# if( is( Xhat, "matrix" ) ) Zhat <- im( Xhat )
+	if( is( Xhat, "owin" ) ) Xhat <- as.matrix( Xhat )
+	# else if( !is( Xhat, "owin" ) ) stop( "binarizer: invalid Xhat argument.  Must be a matrix or owin object." )
 
 	if( rule == ">" ) {
 

@@ -173,7 +173,7 @@ print.hoods2d <- function(x, ...) {
 	cat("\n\n")
     } # end of for 'i' loop.
 
-    invisible()
+    invisible(a)
 } # end of 'print.hoods2d' function.
 
 plot.hoods2d <-
@@ -780,7 +780,7 @@ print.upscale2d <- function(x, ... ) {
     cat("\n", "Gilbert Skill Score:\n")
     print(x$ets)
     
-    invisible()
+    invisible(a)
 } # end of 'print.upscale2d' function.
 
 fss2dfun <- function(sPy, sPx, subset=NULL, verbose=FALSE) {
@@ -904,7 +904,7 @@ print.pphindcast2d <- function(x, ...) {
     print(x$which.score)
     print(x$values)
     
-    invisible()
+    invisible(a)
 } # end of 'print.pphindcast2d' function.
 
 plot.pphindcast2d <- function(x, ..., mfrow = NULL, type = c("quilt", "line"), col = heat.colors(12), horizontal = FALSE ) {

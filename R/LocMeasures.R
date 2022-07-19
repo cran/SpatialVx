@@ -86,7 +86,7 @@ locmeasures2d.SpatialVx <- function(object, which.stats=c("bdelta", "haus", "qdm
 
 	if( "bdelta" %in% which.stats) for(p in 1:np) { 
 			tmpDelta <- try(deltametric(Iy,Ix,p=a$p[p], c=a$bdconst, ...))
-			if(class(tmpDelta) != "try-error") out$bdelta[p, threshold] <- tmpDelta
+			if(is(tmpDelta, "try-error") ) out$bdelta[p, threshold] <- tmpDelta
 			} # end of for 'p' loop.
 
 	if( "haus" %in% which.stats) out$haus[threshold] <- deltametric(Iy,Ix,p=Inf,c=Inf, ...)

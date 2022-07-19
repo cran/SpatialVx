@@ -468,5 +468,5 @@ print.gmm2d <- function(x, ...) {
     cat("\n\n", dn[2], " Means:\n")
     print(y$meanY)
 
-    invisible()
+    invisible(a)
 } # end of 'print.gmm2d' function.

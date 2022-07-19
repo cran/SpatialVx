@@ -15,7 +15,7 @@ compositer.matched <- function(x, level = 0, verbose = FALSE, ...) {
 
 compositer.combined <- function(x, level = 0, verbose = FALSE, ...) {
 
-    if(class(x) != "combined") stop("compositer.combined: invalid x argument.")
+    if( !is(x, "combined") ) stop("compositer.combined: invalid x argument.")
 
     if(verbose) begin.tiid <- Sys.time()
 

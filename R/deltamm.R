@@ -59,11 +59,11 @@ deltammSqCen <- function(x, p = 2, max.delta = Inf, const = Inf, N = NULL, verbo
 
 	if( verbose ) cat("Calculating Baddeley Delta Metric between forecast feature ", k, " and observed feature ", j, "\n")
 
-	# if( class( OB[[ 1 ]] ) == "im" )
+	# if( is( OB[[ 1 ]], "im" ) )
 	A <- as.matrix( OB[[ j ]] )
 	# else A <- OB[[ k ]][[ j ]]
 
-	# if( class( FC[[1]] ) == "im" )
+	# if( is( FC[[1]], "im" ) )
 	B <- as.matrix( FC[[k]] )
         # else B <- FC[[ j ]][[ k ]]
 
@@ -309,10 +309,10 @@ deltammOrig <- function( x, p = 2, max.delta = Inf, const = Inf, verbose = FALSE
 
 	if( verbose ) cat("Calculating Baddeley Delta Metric between forecast feature ", k, " and observed feature ", j, "\n")
 
-        if( class( OB[[ 1 ]] ) == "im" ) A <- OB[[ j ]]
+        if( is( OB[[ 1 ]], "im" ) ) A <- OB[[ j ]]
         else A <- OB[[ k ]][[ j ]]
 
-        if( class( FC[[ 1 ]] ) == "im") B <- FC[[k]] 
+        if( is( FC[[ 1 ]], "im") ) B <- FC[[k]] 
         else B <- FC[[ j ]][[ k ]]
 
         if (!is.infinite(const)) {

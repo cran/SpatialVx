@@ -81,6 +81,8 @@ print.Gbeta <- function( x, ... ) {
 	cat( "\n\n", "Component parts and asymmetric Gbeta:\n\n" )
 	print( a$components )
 
+	invisible( a )
+
 } # end of 'print.Gbeta' function.
 
 # wobbler <- function( x, alpha, beta, eta = 2, plot = FALSE, ..., ylab = "GPM", xlab = "distance index" ) {

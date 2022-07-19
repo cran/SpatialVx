@@ -671,7 +671,7 @@ variographier.default <- function( x, init, zero.out = FALSE, ..., y ) {
 
     }
 
-    if( class( vgx ) == "try-error" || class( vgy ) == "try-error" ) return( NA )
+    if( is( vgx, "try-error" ) || is( vgy, "try-error" ) ) return( NA )
 
     if( missing( init ) ) {
 
@@ -686,9 +686,9 @@ variographier.default <- function( x, init, zero.out = FALSE, ..., y ) {
     }
 
     fitx <- try( nlminb( px, ORSS, vg = vgx, model = "expvg", ..., lower = c(0, 0), upper = c(Inf, Inf) ) )
-    if( class( fitx ) == "try-error" ) return( NA )
+    if( is( fitx, "try-error" ) ) return( NA )
     fity <- try( nlminb( py, ORSS, vg = vgy, model = "expvg", ..., lower = c(0, 0), upper = c(Inf, Inf) ) )
-    if( class( fity ) == "try-error" ) return( NA )
+    if( is( fity, "try-error" ) ) return( NA )
 
     res <- 1 / sqrt( fitx$par[ 1 ]^2 + fity$par[ 1 ]^2 + ( 3 / fitx$par[ 2 ] - 3 / fity$par[ 2 ] )^2 )
 

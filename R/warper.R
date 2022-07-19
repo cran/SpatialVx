@@ -90,7 +90,7 @@ warper <- function( Im0, Im1, p0, init, s, imethod = "bicubic",
 
     } # end of if else 'init' stmt.
 
-    if( class( fit ) == "try-error" ) {
+    if( is( fit, "try-error" ) ) {
 
 	if( verbose ) cat( "\nSorry, but something failed to work.\nReturning error object." )
 	return( fit )

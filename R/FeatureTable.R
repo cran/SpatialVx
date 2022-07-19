@@ -1,6 +1,6 @@
 FeatureTable <- function(x, fudge = 1e-8, hits.random = NULL, correct.negatives = NULL, fA = 0.05) {
 
-    if(class(x) != "matched") stop("FeatureTable: invalid type for argument x.")
+    if( !is(x, "matched") ) stop("FeatureTable: invalid type for argument x.")
 
     a <- attributes(x)
     a$names <- NULL

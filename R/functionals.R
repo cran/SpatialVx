@@ -260,7 +260,7 @@ summary.fqi <- function(object, ...) {
    cat("\n", "Forecast Quality Index (FQI)\n")
    print( y)
 
-   invisible()
+   invisible(x)
 } # end of 'summary.fqi' function.
 
 print.fqi <- function(x, ...) {

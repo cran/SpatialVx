@@ -13,6 +13,7 @@ importFrom("fastcluster", hclust, hclust.vector)
 importFrom("graphics", "locator")
 importFrom("waveslim", dwt, dwt.2d, idwt, idwt.2d, modwt, modwt.2d, imodwt, imodwt.2d, plot.dwt.2d, denoise.dwt.2d, denoise.modwt.2d)
 importFrom("graphics", "polygon")
+importFrom("methods", "is" )
 
 importFrom("grDevices", "gray", "heat.colors", "rainbow")
 importFrom("graphics", "abline", "arrows", "axis", "barplot", "box",

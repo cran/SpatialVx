@@ -79,7 +79,7 @@ Gilleland, E., Ahijevych, D., Brown, B. G., Casati, B. and Ebert, E. E. (2009) I
 
 Gilleland, E., Ahijevych, D. A., Brown, B. G. and Ebert, E. E. (2010) Verifying Forecasts Spatially. \emph{Bull. Amer. Meteor. Soc.}, October, 1365--1373.
 
-Hastie, T. J. and Tibshirani, R. J. (1990) \emph{Generalized Additive Models}. Chapman \& Hall/CRC Monographs on Statistics and Applied Probability 43, 335pp.
+Hastie, T. J. and Tibshirani, R. J. (1990) \emph{Generalized Additive Models}. Chapman and Hall/CRC Monographs on Statistics and Applied Probability 43, 335pp.
 
 Roberts, N. M. and Lean, H. W. (2008) Scale-selective verification of rainfall accumulations from high-resolution forecasts of convective events.  \emph{Mon. Wea. Rev.}, \bold{136}, 78--97. doi:10.1175/2007MWR2123.1.
 

@@ -1,6 +1,6 @@
 MergeForce <- function(x, verbose = FALSE) {
 
-    if(class(x) != "matched") stop("MergeForce: invalid x type.")
+    if( !is(x, "matched") ) stop("MergeForce: invalid x type.")
 
     a <- attributes(x)
     out <- list()

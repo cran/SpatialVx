@@ -197,7 +197,7 @@ print.interester <- function(x, ...) {
     cat("Total interest (pair-by-pair)\n")
     print(x$total.interest)
 
-    invisible()
+    invisible(i)
 
 } # end of 'print.interester' function.
 
