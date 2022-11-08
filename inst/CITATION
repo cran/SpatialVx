@@ -10,13 +10,13 @@ citHeader("To cite package 'SpatialVx' in publications use:")
 
                           email = "EricG@ucar.edu"),
 
-  journal      = "From the Desk",
+  journal      = "Unpublished",
 
   year         = "2022",
 
-  volume       = "5",
+  volume       = "0",
 
-  number       = "1",
+  number       = "0",
 
   pages        = "1--69",
 
@@ -32,7 +32,7 @@ citHeader("To cite package 'SpatialVx' in publications use:")
 
         "Comparing spatial fields with SpatialVx: Spatial forecast verification in R.",
 
-        "From the Desk, 5 (1), 1-69.",
+        "Unpublished, 1-69.",
 
         "doi:10.5065/4px3-5a05")
 

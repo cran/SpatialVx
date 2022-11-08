@@ -26,7 +26,7 @@ importFrom("stats", "cor", "cor.test", "cov", "cutree", "dist", "fft",
              "sd", "var")
 
 import(
-  fields, smoothie, spatstat.geom,spatstat.core,spatstat.linnet,spatstat, smatr, turboEM
+  fields, smoothie, spatstat.model,spatstat.geom,spatstat.linnet,spatstat, smatr, turboEM
 )
 
 S3method(ACC, SpatialVx)
