@@ -22,11 +22,11 @@ Integer giving the moment order for each coordinate x and y, resp.
 }
 }
 \details{
-The raw moment M_{ij} (Hu 1962) is calculated by
+The raw moment M(ij) (Hu 1962) is calculated by
 
-M_{ij} = sum(x^i * y^j * Im[i, j])
+M(ij) = sum(x^i * y^j * Im[i, j])
 
-where x and y are the pixel coordinates and Im is the (image) matrix.  Various useful properties of an image may be gleaned from certain moments.  For example, the image area is given by M_{00}, and the image centroid is (M_{10} / M_{00}, M_{01} / M_{00}).  The image orientation angle can also be derived.
+where x and y are the pixel coordinates and Im is the (image) matrix.  Various useful properties of an image may be gleaned from certain moments.  For example, the image area is given by M(00), and the image centroid is (M(10) / M(00), M(01) / M(00)).  The image orientation angle can also be derived.
 }
 \value{
 A single numeric giving the desired moment is returned.

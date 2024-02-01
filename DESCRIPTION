@@ -1,6 +1,6 @@
 Package: SpatialVx
-Version: 1.0-1
-Date: 2022-10-25
+Version: 1.0-2
+Date: 2024-02-01
 Title: Spatial Forecast Verification
 Authors@R: c(person("Eric", "Gilleland", role = c("aut", "cre" ), email = "EricG@ucar.edu" ),
 		person("Kim", "Elmore", role = "ctb", email = "kim.elmore@noaa.gov" ),
@@ -22,6 +22,6 @@ License: GPL (>= 2)
 URL: https://projects.ral.ucar.edu/icp/SpatialVx/
 BugReports: https://staff.ral.ucar.edu/ericg/
 NeedsCompilation: no
-Packaged: 2022-11-08 14:06:47 UTC; gille
+Packaged: 2024-02-01 20:20:29 UTC; gille
 Repository: CRAN
-Date/Publication: 2022-11-08 15:50:03 UTC
+Date/Publication: 2024-02-01 21:20:02 UTC

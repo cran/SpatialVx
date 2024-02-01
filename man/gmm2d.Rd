@@ -68,9 +68,9 @@ In the case of \code{gmm2d}: optional arguments to \code{initFUN}.  In the case 
 
 Because the fit is to the locations only, Lakshmanan and Kain (2010) suggest two ways to incorporate intensity information.  The first is to repeat points with higher intensities, and the second is to multiply the results by the total intensities over the fields.  The points are repeated M times according to the formula (Eq 11 in Lakshmanan and Kain, 2010):
 
-	M = 1 + gamma * round( CFD(I_{xy})/frequency(I_MODE)),
+	M = 1 + gamma * round( CFD(I_(xy))/frequency(I_MODE)),
 
-where CFD is the cumulative *frequency* distribution (here estimated from the histogram using the \sQuote{hist} function), I_{xy} is intensity at grid point (x,y), I_MODE is the mode of intensity values, and gamma is a user-supplied parameter controlling how much to repeat points where higher numbers will result in larger repetitions of high intensity values.
+where CFD is the cumulative *frequency* distribution (here estimated from the histogram using the \sQuote{hist} function), I_(xy) is intensity at grid point (x,y), I_MODE is the mode of intensity values, and gamma is a user-supplied parameter controlling how much to repeat points where higher numbers will result in larger repetitions of high intensity values.
 
 The function \code{gmm2d} fits the 2-d GMM to both fields, \code{plot.gmm2d} first uses \code{predict.gmm2d} to obtain probabilities for each grid point, and then makes a plot similar to those in Lakshmanan and Kain (2010) Figs. 3, 4 and 5, but giving the probabilities instead of the probabilities times A.  Note that \code{predict.gmm2d} can be very slow to compute so that \code{plot.gmm2d} can also be very slow.  Less effort was put into speeding these functions up because they are not necessary for obtaining results via the parameters.  However, they can give the user an idea of how good the fit is.
 

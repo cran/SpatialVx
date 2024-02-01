@@ -38,13 +38,13 @@ Interpolation of a function, say H, is achieved by the following formula (cf. Gi
 
 The specific choices for the values of b_l and b_k and their ranges depends on the type of interpolation.  For bilinear interpolation, they both range from 0 to 1, and are given by: b_0( x ) = 1 - x and b_1( x ) = x.  for bicubic interpolation, they both range from -1 to 2 and are given by:
 
-    b_{-1}( t ) = (2 * t^2 - t^3 - t) / 2
+    b_(-1)( t ) = (2 * t^2 - t^3 - t) / 2
 
-    b_0( t ) = (3 * t^3 - 5 * t^2 + 2) / 2
+    b_(0)( t ) = (3 * t^3 - 5 * t^2 + 2) / 2
 
-    b_1( t ) = (4 * t^2 - 3 * t^3 + t) / 2
+    b_(1)( t ) = (4 * t^2 - 3 * t^3 + t) / 2
 
-    b_2( t ) = ((t - 1) * t^2) / 2.
+    b_(2)( t ) = ((t - 1) * t^2) / 2.
 
 }
 \value{

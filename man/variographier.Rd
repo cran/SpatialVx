@@ -38,7 +38,7 @@ optional arguments to \code{vgram.matrix} or \code{variogram.matrix} (if zero.ou
 }
 }
 \details{
-The variography score calculated here is that from Ekstr\"{o}m (2016).  So far, only the exponential variogram is allowed.
+The variography score calculated here is that from Ekstrom (2016).  So far, only the exponential variogram is allowed.
 
 Note that in the fitting, the model g(h) = c * ( 1 - exp( -a * h ) ) is used, but the variography is calculated for theta = 3 / a.  Therefore, the values in the par component of the returned fitted variograms correspond to a, while the variography score corresponds to theta.  The score is given by:
 
@@ -56,7 +56,7 @@ A list object of class \dQuote{variographied} is returned with components:
    \item{variography}{ single numeric giving the variography measure.}
 }
 \references{
-Ekstr\"{o}m, M. (2016) Metrics to identify meaningful downscaling skill in WRF simulations of intense rainfall events.  \emph{Environmental Modelling and Software}, \bold{79}, 267--284, DOI: 10.1016/j.envsoft.2016.01.012.
+Ekstrom, M. (2016) Metrics to identify meaningful downscaling skill in WRF simulations of intense rainfall events.  \emph{Environmental Modelling and Software}, \bold{79}, 267--284, DOI: 10.1016/j.envsoft.2016.01.012.
 }
 \author{
 Eric Gilleland

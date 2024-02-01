@@ -51,7 +51,7 @@ G2IL(X, Xhat, threshold, beta, alpha = 0, rule = ">", ...)
 
 	where theta is the maximum of zero and the linear correlation coefficient between the intensity values after having sorted them; this part is carried out via a call to \code{qqplot}.  If the number of points in the two sets differs (i.e., if nA != nB), then the larger set is linear interpolated to be the same size as the smaller set.  If both fields are empty, theta = 1.  If field A is empty, then theta = 1 - (nB / N), where N is the size of the domain.  Similarly, if field B is empty.  The rationale is that if one field is empty and the other has very few nonzero points, then the two fields are more similar than if the other field has many points.
 
-	G2betaIL(A,B) = max{1 - (y1 * y2 *(1 + y3 ))/beta, 0},
+	G2betaIL(A,B) = max(1 - (y1 * y2 *(1 + y3 ))/beta, 0),
 
 	where y1 and y2 are as above and y3 is the mean-absolute difference between the sorted values from the sets A and B analogous as for GbetaIL.  If nA = nB = 0, then y3 = 0.  If only one of nA or nB is zero, then the absolute value of the maximum intensity of the other set is used.  The rationale being that this value represents the most egregious error so that if it is large, then the difference is penalized more.
 

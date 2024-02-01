@@ -32,10 +32,13 @@ For \code{deltamm} and \code{centmatch}, an object of class \dQuote{features} wi
   \item{p}{Baddeley delta metric parameter.  A value of 1 gives arithmetic averages, Inf gives the Hausdorff metric and -Inf gives a minimum.  The default of 2 is most common.}
   \item{max.delta}{single numeric giving a cut-off value for delta that disallows two features to be merged or matched if the delta between them is larger than this value.}
   \item{const}{\code{deltamm}: a constant value over which the shortest distances in a distance map are set.  See Gilleland (2011) and Schwedler and Baldwin (2011) for more information about this parameter.}
-  \item{type}{character specifying whether Baddeley's delta metric should be calculated after centering object pairs on a new square grid (default) or performed in their original positions on the original grid.  }
-  \item{N}{If \code{type} is \dQuote{sqcen}, then \code{N} is the argument to \code{censqdelta} that specifies the common grid size.  If not specified the maximum side of the original domain is used (possibly adding one first to make it an odd number).  It is possible that values could be pushed off the new grid, and making \code{N} larger might alleviate the issue.}
-  \code{centmatch}{ numeric giving the number of grid squares whereby if the centroid distance (D) is less than this value, a match is declared (only used if \code{criteria} is 3.
+  \item{type}{ character specifying whether Baddeley's delta metric should be calculated after centering object pairs on a new square grid (default) or performed in their original positions on the original grid.  }
+
+  \item{N}{ If \code{type} is \dQuote{sqcen}, then \code{N} is the argument to \code{censqdelta} that specifies the common grid size.  If not specified the maximum side of the original domain is used (possibly adding one first to make it an odd number).  It is possible that values could be pushed off the new grid, and making \code{N} larger might alleviate the issue. }
+
+  \item{centmatch}{ numeric giving the number of grid squares whereby if the centroid distance (D) is less than this value, a match is declared (only used if \code{criteria} is 3.
 }
+
    \item{criteria}{1, 2 or 3 telling which criteria for determining a match based on centroid distance, D, to use.  The first (1) is a match if D is less than the sum of the sizes of the two features in question (size is the square root of the area of the feature).  The second is a match if D is less than the average size of the two features in question.  The third is a match if D is less than a constant given by the argument \code{const}.}
     \item{distfun}{character string naming a distance function.  Default uses \code{rdist} from the \pkg{fields} package.}
     \item{areafac}{single numeric used to multiply by grid-space based area in order to at least approximate the correct distance (e.g., using the ICP test cases, 4 would make the areas approximately square km instead of grid points).  This should not be used unless \code{distfun} is \dQuote{rdist.earth} in which case it will use the locations given in the call to \code{make.SpatialVx}, which are assumed to be lat/lon coordinates.}

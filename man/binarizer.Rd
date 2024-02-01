@@ -26,7 +26,7 @@ binarizer(X, Xhat, threshold = NULL,
   \item{value}{
 	  character telling whether the returned object be a list with two matrices or a list with two \dQuote{owin} class objects.
 }
-  \item{\dots}{
+  \item{\dots}{ Not used.
 }
 }
 \details{
