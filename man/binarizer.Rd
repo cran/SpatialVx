@@ -54,9 +54,6 @@ binarizer(X, Xhat, threshold = NULL,
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-\code{\link{thresholder}}, \code{\link{im}}, \code{\link{solutionset}}
-}
 \examples{
 data( "obs0601" )
 data( "wrf4ncar0531" )

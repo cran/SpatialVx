@@ -1,8 +1,8 @@
 Package: SpatialVx
-Version: 1.0-2
-Date: 2024-02-01
+Version: 1.0-3
+Date: 2024-11-26
 Title: Spatial Forecast Verification
-Authors@R: c(person("Eric", "Gilleland", role = c("aut", "cre" ), email = "EricG@ucar.edu" ),
+Authors@R: c(person("Eric", "Gilleland", role = c("aut", "cre" ), email = "eric.gilleland@colostate.edu" ),
 		person("Kim", "Elmore", role = "ctb", email = "kim.elmore@noaa.gov" ),
 		person("Caren", "Marzban", role = "ctb", email = "marzban@stat.washington.edu" ),
 		person("Matt", "Pocernich", role = "ctb", email = "matt_pocernich@hotmail.com" ),
@@ -12,16 +12,14 @@ Author: Eric Gilleland [aut, cre],
   Caren Marzban [ctb],
   Matt Pocernich [ctb],
   Gregor Skok [ctb]
-Maintainer: Eric Gilleland <EricG@ucar.edu>
+Maintainer: Eric Gilleland <eric.gilleland@colostate.edu>
 Depends: R (>= 4.1.0), spatstat (>= 2.0-0), fields (>= 6.8), smoothie,
         smatr, turboEM
 Imports: spatstat.geom, spatstat.linnet, spatstat.model, distillery,
         maps, methods, boot, CircStats, fastcluster, waveslim
 Description: Spatial forecast verification refers to verifying weather forecasts when the verification set (forecast and observations) is on a spatial field, usually a high-resolution gridded spatial field.  Most of the functions here require the forecast and observed fields to be gridded and on the same grid. For a thorough review of most of the methods in this package, please see Gilleland et al. (2009) <doi: 10.1175/2009WAF2222269.1> and for a tutorial on some of the main functions available here, see Gilleland (2022) <doi: 10.5065/4px3-5a05>. 
 License: GPL (>= 2)
-URL: https://projects.ral.ucar.edu/icp/SpatialVx/
-BugReports: https://staff.ral.ucar.edu/ericg/
 NeedsCompilation: no
-Packaged: 2024-02-01 20:20:29 UTC; gille
+Packaged: 2024-11-26 22:12:05 UTC; gille
 Repository: CRAN
-Date/Publication: 2024-02-01 21:20:02 UTC
+Date/Publication: 2024-11-26 23:00:17 UTC

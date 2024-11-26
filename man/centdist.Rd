@@ -30,9 +30,6 @@ numeric giving the centroid distance.
 \author{
 Eric Gilleland
 }
-\seealso{
-\code{\link{FeatureProps}}, \code{\link{as.im}}, \code{\link{solutionset}}, \code{\link{FeatureMatchAnalyzer}}, \code{\link{FeatureComps}}
-}
 \examples{
 x <- y <- matrix(0, 10, 12)
 x[2:3,c(3:6, 8:10)] <- 1

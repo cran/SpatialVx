@@ -96,9 +96,6 @@ Hering, A. S. and Genton, M. G. (2011) Comparing spatial predictions.  \emph{Tec
 Eric Gilleland
 }
 
-\seealso{
-\code{\link{vgram}}, \code{\link{lossdiff}}, \code{\link{flossdiff}}, \code{\link{summary.lossdiff}}, \code{\link{expvgram}}
-}
 \examples{
 
 \dontrun{

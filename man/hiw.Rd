@@ -86,12 +86,6 @@ Micheas, A. C., Fox, N. I., Lack, S. A., and Wikle, C. K. (2007) Cell identifica
 Eric Gilleland
 }
 
-\seealso{
-
-To indentify features and create objects of class \dQuote{features}, see, for example: \code{\link{FeatureFinder}}
-
-\code{\link{centroid.owin}}, \code{\link{as.psp}}, \code{\link{psp}}, \code{\link{crossing.psp}}, \code{\link{lengths_psp}}, \code{\link{angles.psp}}
-}
 \examples{
 
 data( "geom000" )

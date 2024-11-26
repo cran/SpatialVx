@@ -51,7 +51,7 @@ AghaKouchak, A., Nasrollahi, N., Li, J., Imam, B. and Sorooshian, S. (2011) Geom
 Eric Gilleland
 }
 \seealso{
-\code{\link{connected}}, \code{\link{as.im}}, \code{\link{Sindex}}, \code{\link{Aindex}}
+\code{\link{Sindex}}, \code{\link{Aindex}}
 }
 \examples{
 # Re-create Fig. 7a from AghaKouchak et al. (2011).

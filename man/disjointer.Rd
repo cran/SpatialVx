@@ -42,9 +42,6 @@ Rosenfeld, A. and Pfalz, J.L. (1966) Sequential operations in
 Eric Gilleland
 }
 
-\seealso{
-\code{\link{connected}}, \code{\link{FeatureFinder}}
-}
 \examples{
 ##
 ## For examples, see FeatureFinder

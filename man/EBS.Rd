@@ -59,7 +59,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{boot}}, \code{\link{tsboot}}, \code{\link{spatbiasFS}}, \code{\link{LocSig}}, \code{\link{poly.image}}, \code{\link{image.plot}}, \code{\link{make.SpatialVx}}
+\code{\link[boot:boot]{boot::boot}}, \code{\link[boot:tsboot]{boot:tsboot}}, \code{\link{spatbiasFS}}, \code{\link{LocSig}}, \code{\link{make.SpatialVx}}
 }
 \examples{
 data( "GFSNAMfcstEx" )

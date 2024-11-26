@@ -56,9 +56,6 @@ Harris, D., Foufoula-Georgiou, E., Droegemeier, K. K. and Levit, J. J. (2001)  M
 \author{
 Eric Gilleland
 }
-\seealso{
-\code{\link{vgram.matrix}}, \code{\link{vgram}}, \code{\link{structurogram}}, \code{\link{plot.vgram.matrix}}
-}
 \examples{
 data( "lennon" )
 look <- structurogram.matrix(lennon, q=2)

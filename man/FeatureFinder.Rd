@@ -122,18 +122,6 @@ Eric Gilleland
 This function replaces the now deprecated functions: \code{convthresh}, \code{threshsizer} and \code{threshfac}.
 }
 
-\seealso{
-
-Functions used in identifying the features (mostly from package \pkg{spatstat}:
-
-\code{\link{connected}}, \code{\link{as.im}}, \code{\link{tess}}, \code{\link{tiles}}, \code{\link{owin}}, \code{\link{make.SpatialVx}}, \code{\link{disjointer}}
-
-Functions that work on the resulting \dQuote{features} objects for merging and/or matching features within/across fields:
-
-\code{\link{centmatch}}, \code{\link{deltamm}}, \code{\link{minboundmatch}}
-
-To force merges (implicit or otherwise; recommended): \code{\link{MergeForce}}
-}
 \examples{
 
 data( "ExampleSpatialVxSet" )

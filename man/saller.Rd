@@ -60,9 +60,6 @@ The SAL method typically looks at a small domain, and it is up to the user to se
 
 }
 
-\seealso{
-\code{\link{centroid.owin}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{deltamm}}, \code{\link{make.SpatialVx}}
-}
 \examples{
 
 data( "ExampleSpatialVxSet" )

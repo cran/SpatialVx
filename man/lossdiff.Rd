@@ -131,9 +131,6 @@ Hering, A. S. and Genton, M. G. (2011) Comparing spatial predictions.  \emph{Tec
 \author{
 Eric Gilleland
 }
-\seealso{
-\code{\link{vgram.matrix}}, \code{\link{nls}}, \code{\link{corrskill}}, \code{\link{abserrloss}}, \code{\link{sqerrloss}}, \code{\link{distmaploss}}
-}
 \examples{
 grid<- list( x = seq( 0, 5,, 25), y = seq(0,5,,25) )
 obj<-Exp.image.cov( grid = grid, theta = .5, setup = TRUE)

@@ -53,7 +53,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{as.im}}, \code{\link{solutionset}}, \code{\link{convexhull}}, \code{\link{Cindex}}, \code{\link{Sindex}}
+{\link{Cindex}}, \code{\link{Sindex}}
 }
 \examples{
 # Gemetric shape that is highly structured.

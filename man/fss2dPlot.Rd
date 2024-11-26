@@ -30,9 +30,6 @@ No value is returned.  A series of plots are created.  It may be useful to use t
 
 \author{Eric Gilleland}
 
-\seealso{
-\code{\link{hoods2dPlot}}, \code{\link{matplot}}, \code{\link{image}}, \code{\link{image.plot}}, \code{\link{hoods2d}}, \code{\link{pdf}}
-}
 \examples{
 ##
 ## This is effectively an internal function, so the example is commented out

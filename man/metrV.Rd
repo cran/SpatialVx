@@ -85,9 +85,6 @@ Zhu, M., Lakshmanan, V. Zhang, P. Hong, Y. Cheng, K. and Chen, S. (2011) Spatial
 Eric Gilleland
 }
 
-\seealso{
-\code{\link{distob}}, \code{\link{distmap}}, \code{\link{im}}, \code{\link{solutionset}}, \code{\link{deltametric}}, \code{\link{locmeasures2d}}, \code{\link{make.SpatialVx}}
-}
 \examples{
 
 A <- B <- B2 <- matrix( 0, 10, 12)

@@ -73,9 +73,6 @@ Eric Gilleland
 
 \section{Warning }{The value Pthresh is optimized under the assumption that larger values of which.score are better.} 
 
-\seealso{
-\code{\link{hoods2d}}, \code{\link{kernel2dsmooth}}, \code{\link{vxstats}}, \code{\link{hoods2dPlot}}, \code{\link{optim}}
-}
 \examples{
 x <- y <- matrix( 0, 50, 50)
 x[ sample(1:50,10), sample(1:50,10)] <- rexp( 100, 0.25)

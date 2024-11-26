@@ -52,9 +52,6 @@ Zepeda-Arce, J., Foufoula-Georgiou, E., Droegemeier, K. K. (2000) Space-time rai
 \author{
 Eric Gilleland
 }
-\seealso{
-\code{\link{hoods2d}}, \code{\link{kernel2dsmooth}}, \code{\link{kernel2dmeitsjer}}, \code{\link{fft}}
-}
 \examples{
 x <- matrix( 0, 50, 50)
 x[ sample(1:50,10), sample(1:50,10)] <- rexp( 100, 0.25)

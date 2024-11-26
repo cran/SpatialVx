@@ -64,7 +64,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{kernel2dmeitsjer}}
+\code{\link[smoothie:kernel2dmeitsjer]{smoothie::kernel2dmeitsjer}}
 }
 \examples{
 data( "UKobs6" )

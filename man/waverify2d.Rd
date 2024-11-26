@@ -107,9 +107,6 @@ Percival, D. B. and Guttorp, P. (1994)  Long-memory processes, the Allan varianc
 Eric Gilleland
 }
 
-\seealso{
-\code{\link{dwt.2d}}, \code{\link{idwt.2d}}, \code{\link{hoods2d}}
-}
 \examples{
 grid<- list( x= seq( 0,5,,64), y= seq(0,5,,64))
 obj<-Exp.image.cov( grid=grid, theta=.5, setup=TRUE)

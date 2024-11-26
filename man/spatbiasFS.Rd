@@ -63,7 +63,7 @@ Eric Gilleland and Kimberly L. Elmore
 }
 
 \seealso{
-\code{\link{MCdof}}, \code{\link{LocSig}}, \code{\link{tsboot}}
+\code{\link{MCdof}}, \code{\link{LocSig}}, \code{\link[boot:tsboot]{boot::tsboot}}
 }
 \examples{
 data(GFSNAMfcstEx)

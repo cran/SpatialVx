@@ -94,7 +94,7 @@ Eric Gilleland
 }
 \note{Thresholded fields are taken to be >= the threshold.}
 
-\seealso{\code{\link{fft}}, \code{\link{kernel2dsmooth}}, \code{\link{plot.hoods2d}}, \code{\link{vxstats}}, \code{\link{thresholder}} }
+\seealso{\code{\link{fft}}, \code{\link[smoothie:kernel2dsmooth]{smoothie::kernel2dsmooth}}, \code{\link{plot.hoods2d}}, \code{\link{vxstats}}, \code{\link{thresholder}} }
 
 \examples{
 x <- y <- matrix( 0, 50, 50)

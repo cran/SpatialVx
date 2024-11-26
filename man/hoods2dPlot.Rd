@@ -19,7 +19,7 @@ Becker, R. A., Chambers, J. M. and Wilks, A. R. (1988) \emph{The New S Language}
 \author{Eric Gilleland}
 
 \seealso{
- \code{\link{matplot}}, \code{\link{image}}, \code{\link{image.plot}}, \code{\link{plot.hoods2d}}, \code{\link{hoods2d}}
+ \code{\link{matplot}}, \code{\link{image}}, \code{\link[fields:image.plot]{fields::image.plot}}, \code{\link{plot.hoods2d}}, \code{\link{hoods2d}}
 }
 \examples{
 x <- y <- matrix( 0, 50, 50)

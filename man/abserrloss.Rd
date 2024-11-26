@@ -42,9 +42,6 @@ Hering, A. S. and Genton, M. G. (2011) Comparing spatial predictions.  \emph{Tec
 \author{
 Eric Gilleland
 }
-\seealso{
-\code{\link{lossdiff}}, \code{\link{vgram.matrix}}, \code{\link{vgram}}
-}
 \examples{
 # See help file for lossdiff for examples.
 }

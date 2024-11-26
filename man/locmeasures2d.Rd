@@ -108,9 +108,6 @@ Binary fields are determined by having values >= the thresholds.
 }
 
 
-\seealso{
-\code{\link{deltametric}}, \code{\link{distmap}}, \code{\link{make.SpatialVx}}
-}
 \examples{
 x <- y <- matrix(0, 10, 12)
 x[2,3] <- 1

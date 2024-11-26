@@ -49,9 +49,6 @@ Davis, C. A., Brown, B. G. and Bullock, R. G. (2006b) Object-based verification 
 Eric Gilleland
 }
 
-\seealso{
-\code{\link{FeatureAxis}}, \code{\link{owin}}, \code{\link{convexhull}}, \code{\link{sma}}, \code{\link{as.psp}}, \code{\link{angles.psp}}, \code{\link{rotate.owin}}, \code{\link{rotate.psp}}, \code{\link{boundingbox}}, \code{\link{midpoints.psp}}, \code{\link{lengths_psp}}, \code{\link{infline}}, \code{\link{clip.infline}}, \code{\link{deltamm}}, \code{\link{FeatureFinder}}, \code{\link{disjointer}}, \code{\link{connected}}, \code{\link{tiles}}, \code{\link{tess}}, \code{\link{solutionset}}
-}
 \examples{
 data( "ExampleSpatialVxSet" )
 

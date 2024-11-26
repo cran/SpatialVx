@@ -45,7 +45,7 @@ Eric Gilleland
 }
 
 \seealso{
-\code{\link{vgram.matrix}}, \code{\link{make.SpatialVx}}}
+\code{\link[fields:vgram.matrix]{fields::vgram.matrix}}, \code{\link{make.SpatialVx}}}
 
 \examples{
 data( "ExampleSpatialVxSet" )

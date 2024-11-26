@@ -125,9 +125,6 @@ Lakshmanan, V. and Kain, J. S. (2010) A Gaussian Mixture Model Approach to Forec
 \author{
 Eric Gilleland
 }
-\seealso{
-\code{\link{turboem}}, \code{\link{disjointer}}, \code{\link{connected}}
-}
 \examples{
 \dontrun{
 data( "ExampleSpatialVxSet" )

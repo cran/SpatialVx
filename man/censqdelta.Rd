@@ -50,7 +50,7 @@ Schwedler, B. R. J. and Baldwin, M. E. (2011) Diagnosing the sensitivity of bina
 Eric Gilleland
 }
 \seealso{
-\code{\link{deltametric}}, \code{\link{locmeasures2d} }
+\code{\link{locmeasures2d} }
 }
 \examples{
 x <- y <- matrix( 0, 100, 200 )

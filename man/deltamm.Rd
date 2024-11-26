@@ -127,17 +127,6 @@ Schwedler, B. R. J. and Baldwin, M. E. (2011) Diagnosing the sensitivity of bina
 Eric Gilleland
 }
 
-\seealso{
-To identify features: \code{\link{FeatureFinder}}
-
-\code{\link{minboundmatch}} is another feature matching function.
-
-To force merges (implicit or otherwise): \code{\link{MergeForce}}, 
-
-Other functions used to identify features within the above mentioned functions (all from \pkg{spatstat}):
-
-\code{\link{disjointer}}, \code{\link{deltametric}}, \code{\link{owin}}, \code{\link{tess}}, \code{\link{tiles}}, \code{\link{connected}}
-}
 \examples{
 \dontrun{
 x <- y <- matrix(0, 100, 100)

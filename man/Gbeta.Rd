@@ -76,7 +76,7 @@ The attributes for GbetaIL and G2IL are the same, but the components vector also
 
 
 \seealso{
-\code{\link{TheBigG}},\link{qqplot}, \code{\link{binarizer}}, \code{\link{solutionset}}, \code{\link{locperf}}
+\code{\link{TheBigG}},\link{qqplot}, \code{\link{binarizer}}, \code{\link{locperf}}
 
 }
 \examples{

@@ -88,9 +88,6 @@ Zhu, M., Lakshmanan, V. Zhang, P. Hong, Y. Cheng, K. and Chen, S. (2011) Spatial
 Eric Gilleland
 }
 
-\seealso{
-\code{\link{distmap}}, \code{\link{solutionset}}, \code{\link{im}}, \code{\link{boundingbox}}, \code{\link{as.rectangle}}, \code{\link{metrV}}, \code{\link{locmeasures2d}}
-}
 \examples{
 x <- y <- matrix( 0, 10, 12)
 x[2,3] <- 1

@@ -67,7 +67,6 @@ Gilleland, E., Ahijevych, D. A., Brown, B. G. and Ebert, E. E. (2010) Verifying 
 
 Roberts, N. M. and Lean, H. W. (2008) Scale-selective verification of rainfall accumulations from high-resolution forecasts of convective events.  \emph{Mon. Wea. Rev.}, \bold{136}, 78--97. doi:10.1175/2007MWR2123.1.}
 \author{Eric Gilleland}
-\seealso{\code{\link{hoods2d}},\code{\link{kernel2dsmooth}},\code{\link{vxstats}}, \code{\link{thresholder}} }
 \examples{
 x <- y <- matrix( 0, 100, 100)
 x[ sample(1:100, 10), sample(1:100, 10)] <- 1

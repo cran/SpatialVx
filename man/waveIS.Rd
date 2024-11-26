@@ -87,13 +87,6 @@ Percival, D. B. and Guttorp, P. (1994)  Long-memory processes, the Allan varianc
 Eric Gilleland
 }
 
-\seealso{
-\code{IS}, \code{int.scale.verify} from package \pkg{verification},
-
-\code{\link{dwt.2d}}, \code{\link{modwt.2d}}, \code{\link{idwt.2d}}, \code{\link{imodwt.2d}}, \code{\link{hoods2d}}
-
-\code{\link{thresholder}}
-}
 \examples{
 data( "UKobs6" )
 data( "UKfcst6" )

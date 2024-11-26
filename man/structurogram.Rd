@@ -71,9 +71,6 @@ Harris, D., Foufoula-Georgiou, E., Droegemeier, K. K. and Levit, J. J. (2001)  M
 Eric Gilleland
 }
 
-\seealso{
-\code{\link{vgram}}, \code{\link{vgram.matrix}}, \code{\link{structurogram.matrix}}
-}
 \examples{
 data( ozone2)
 good<- !is.na(ozone2$y[16,])

@@ -105,9 +105,6 @@ Marzban, C. and Sandgathe, S. (2010)  Optical flow for verification.  \emph{Wea.
 Caren Marzban, marzban \dQuote{at} u.washington.edu, with modifications by Eric Gilleland
 }
 
-\seealso{
-\code{\link{optflow}}, \code{\link{optim}}, \code{\link{circ.summary}}
-}
 \examples{
 
 \dontrun{

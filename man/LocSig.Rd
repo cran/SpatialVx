@@ -57,9 +57,6 @@ Elmore, K. L., Baldwin, M. E. and Schultz, D. M. (2006) Field significance revis
 Eric Gilleland
 }
 
-\seealso{
-\code{\link{spatbiasFS}}, \code{\link{tsboot}}, \code{\link{boot}}, \code{\link{boot.ci}}, \code{\link{MCdof}}, \code{\link{sig.cor.t}}, \code{\link{sig.cor.Z}}, \code{\link{cor.test}}, \code{\link{image.plot}}, \code{\link{as.image}}
-}
 \examples{
 \dontrun{
 data( "GFSNAMfcstEx" )

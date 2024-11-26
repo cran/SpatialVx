@@ -77,9 +77,6 @@ Percival, D. B. and Guttorp, P. (1994)  Long-memory processes, the Allan varianc
 \author{
 Eric Gilleland
 }
-\seealso{
-\code{\link{denoise.dwt.2d}}, \code{\link{denoise.modwt.2d}}, \code{\link{waverify2d}}, \code{\link{mowaverify2d}}, \code{\link{waveIS}}, \code{\link{vxstats}}
-}
 \examples{
 grid <- list( x= seq( 0,5,,100), y= seq(0,5,,100))
 obj <- Exp.image.cov( grid=grid, theta=.5, setup=TRUE)

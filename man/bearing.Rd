@@ -44,7 +44,7 @@ Eric Gilleland and Randy Bullock, bullock \dQuote{at} ucar.edu
 }
 
 \seealso{
-\code{\link{atan2}}, \code{\link{FeatureAxis}}, \code{\link{rdist.earth}}
+\code{\link{atan2}}, \code{\link{FeatureAxis}}, \code{\link[fields:rdist.earth]{fields::rdist.earth}}
 }
 \examples{
 

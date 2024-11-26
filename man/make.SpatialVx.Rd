@@ -114,9 +114,6 @@ Several attributes are also included among the following:
 Eric Gilleland
 }
 
-\seealso{
-\code{\link{hoods2d}}, \code{\link{poly.image}}
-}
 \examples{
 data( "UKobs6" )
 data( "UKfcst6" )

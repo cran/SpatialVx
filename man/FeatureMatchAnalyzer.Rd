@@ -115,15 +115,6 @@ Davis, C. A., Brown, B. G. and Bullock, R. G. (2006) Object-based verification o
 \author{
 Eric Gilleland
 }
-\seealso{
-Functions to identify features: \code{\link{FeatureFinder}}
-
-Functions to merge and/or match objects: \code{\link{deltamm}}, \code{\link{centmatch}}, \code{\link{MergeForce}}
-
-Functions to compute feature properties: \code{\link{locperf}}, \code{\link{deltametric}}, \code{\link{bearing}}
-
-Function to calculate fuzzy logic interest values: \code{\link{interester}}
-}
 \examples{
 data( "ExampleSpatialVxSet" )
 

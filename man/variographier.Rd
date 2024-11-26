@@ -61,9 +61,6 @@ Ekstrom, M. (2016) Metrics to identify meaningful downscaling skill in WRF simul
 \author{
 Eric Gilleland
 }
-\seealso{
-\code{\link{vgram.matrix}}, \code{\link{variogram.matrix}}
-}
 \examples{
 data( "UKobs6" )
 data( "UKfcst6" )
